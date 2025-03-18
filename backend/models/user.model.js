@@ -22,13 +22,17 @@ const userSchema = new mongoose.Schema({
     unique : true,
     required : true,
     trim : true,
-    maxLength : 10
+    maxLength : 10,
+    match: /^\d{10}$/
    }, 
    password : {
     type : String,
     required : true,
-    trim : true
-   } 
+    trim : true,
+    select:false
+   } ,
+   role: { type: String, enum: ["admin", "client"], required: true, lowercase: true }
+
 },{timestamps : true});
 
 const User =  mongoose.model("User",userSchema);

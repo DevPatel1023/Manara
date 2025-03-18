@@ -3,3 +3,43 @@ body {
     font-family: 'Inter', sans-serif;
   }
   
+  /* Add this CSS to your styles (either in a global CSS file or inside a styled-components block) */
+
+/* Carousel container */
+.carousel-container {
+  display: flex;
+  overflow: hidden;
+  width: 100%;
+  scroll-behavior: smooth;
+  position: relative;
+}
+
+/* Container holding images */
+.carousel-images {
+  display: flex;
+  flex-wrap: nowrap;
+  animation: scroll 20s infinite linear;
+}
+
+/* Image style */
+.carousel-image {
+  flex: 0 0 auto; /* Ensure images do not wrap and stay in a single row */
+  width: 6rem; /* Adjust size to your needs */
+  height: 6rem; /* Adjust size to your needs */
+  object-fit: contain;
+  border-radius: 0.75rem;
+  margin-right: 2rem;
+}
+
+/* Animation for scrolling images horizontally */
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+.carousel-container:hover .carousel-images {
+  animation-play-state: paused;
+}

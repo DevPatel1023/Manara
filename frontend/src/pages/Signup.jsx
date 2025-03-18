@@ -6,16 +6,20 @@ import SubHeading from "../components/SubHeading";
 import InputBox from "../components/InputBox";
 import Button from "../components/Button";
 import BottomText from "../components/BottomText";
+import Role from "../components/Role";
 
 const Signup = () => {
   const navigate = useNavigate();
+
   const [formValue, setFormValue] = useState({
     firstName: "",
     lastName: "",
     phoneNo: "",
     email: "",
     password: "",
+    role: "client", 
   });
+
   const [error, setError] = useState("");
 
   const handleChange = (e) => {
@@ -25,9 +29,18 @@ const Signup = () => {
     });
   };
 
+  const handleRoleChange = (role) => {
+    setFormValue((prev) => ({ ...prev, role }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
+    if (!formValue.firstName || !formValue.lastName || !formValue.phoneNo || !formValue.email || !formValue.password || !formValue.role) {
+      setError("All fields are required.");
+      return;
+    }
 
     try {
       const response = await axios.post(
@@ -41,17 +54,21 @@ const Signup = () => {
         setError("Signup failed! Please try again.");
       }
     } catch (error) {
-      setError(error.response?.data?.message || "Something went wrong");
+      console.error("Signup error:", error.response?.data);
+      setError(error.response?.data?.msg || "Something went wrong. Try again.");
     }
   };
 
   return (
     <div className="flex justify-center items-center h-screen bg-gradient-to-br from-[#f8f9fa] to-[#e9ecef]">
       <div className="w-auto p-10 rounded-xl bg-white/20 backdrop-blur-lg border border-white/40 shadow-lg flex flex-col justify-center items-center">
+        
         <Heading title="Create a free account" style="text-4xl text-[#1e2022] font-bold" />
         <SubHeading subtitle="Enter your information to create an account" className="text-gray-600" />
 
         {error && <p className="text-red-500 text-sm">{error}</p>}
+
+        <Role onRoleChange={handleRoleChange} />
 
         <div className="flex justify-between space-x-4 w-full">
           <InputBox
@@ -73,6 +90,7 @@ const Signup = () => {
           />
         </div>
 
+        
         <InputBox
           title="Phone Number"
           type="text"
@@ -84,7 +102,7 @@ const Signup = () => {
 
         <InputBox
           title="Email"
-          type="text"
+          type="email"
           name="email"
           placeholder="jhondoe123@example.com"
           value={formValue.email}
