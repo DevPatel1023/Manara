@@ -218,7 +218,7 @@ const Landing = () => {
             </div>
             <div className="hidden md:flex items-center space-x-4">
               <a
-                href="/login"
+                href="/signin"
                 className="text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 px-3 py-2 text-sm font-medium"
               >
                 Log in
@@ -294,7 +294,7 @@ const Landing = () => {
             <div className="pt-4 pb-3 border-t border-gray-200 dark:border-gray-700">
               <div className="px-2 space-y-1">
                 <a
-                  href="/login"
+                  href="/signin"
                   className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-gray-50 dark:hover:bg-gray-800"
                 >
                   Log in
