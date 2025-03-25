@@ -1,7 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user.model.js");
-const { z } = require("zod");
+const { z, object } = require("zod");
 
 // Register Schema Validation
 const RegisterSchema = z.object({
@@ -123,6 +123,7 @@ const userInfo = async(req,res)=>{
                 msg : "user not found"
             })
         }
+        console.log(user)
         res.status(200).json({
             user
         });
@@ -136,19 +137,45 @@ const userInfo = async(req,res)=>{
 
 //update user information
 const Updateuser = async(req,res) => {
-    const update = req.body;
-    if(!update){
+   try {
+    const updates = req.body;
+    console.log(updates)
+    if(!updates){
         res.status(400).json({
             msg : "not provided data"
         })
     }
-    const user = req.user.id;
-    if(!user){
-        res.status(404).json({
+    const userId = req.user.id;
+    if(!userId){
+        res.status(401).json({
             msg : "Unauthorized user"
         })
      }
-  const [firstName]
+    const allowedUpdates = ['firstName','lastName','phoneNo','location','jobTitle','department','bio'];
+    const updateFields = Object.keys(updates).filter(fileld => allowedUpdates.includes(fileld))
+
+    if(updateFields.length === 0){
+        return res.status(400).json({
+            msg : "No Valid fileds to update"
+        });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(userId,
+        {$set : updates},
+        {new : true,
+        runValidators: true}
+    ).select("-password");
+
+    return res.status(200).json({
+        msg : "Profile updated successfully",
+        user : updatedUser
+    })
+   } catch (error) {
+    console.log("Profile updated successfully",error);
+    return res.status(500).json({
+        msg : "Internal server Error"
+    });
+   }
 }
 
 module.exports = {

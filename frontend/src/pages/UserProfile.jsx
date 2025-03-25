@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import axios from "axios"
+import { useState, useEffect } from "react";
+import axios from "axios";
 import {
   Menu,
   X,
@@ -30,138 +30,118 @@ import {
   Linkedin,
   Facebook,
   Slack,
-} from "lucide-react"
+} from "lucide-react";
+import Sidebar from "../components/SideBar";
 
 export default function UserProfile() {
-  const [isOpen, setIsOpen] = useState(true)
-  const [activeTab, setActiveTab] = useState("profile")
-  const [darkMode, setDarkMode] = useState(false)
-  const [profileImage, setProfileImage] = useState("/placeholder.svg?height=200&width=200")
-  const [isEditing, setIsEditing] = useState(false)
+  const [isOpen, setIsOpen] = useState(true);
+  const [activeTab, setActiveTab] = useState("profile");
+  const [darkMode, setDarkMode] = useState(false);
+  const [profileImage, setProfileImage] = useState(
+    "/placeholder.svg?height=200&width=200"
+  );
+  const [isEditing, setIsEditing] = useState(false);
   const [userInfo, setUserInfo] = useState({
-    name: "",
+    firstName: "",
+    lastName: "",
     email: "",
-    phone: "",
+    phoneNo: "",
     location: "",
-    jobTitle: "",
+    JobTitle: "",
     department: "",
     joinDate: "",
     bio: "",
-  })
+  });
 
   const getUserProfileData = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/api/v1/users/user")
+      const token = localStorage.getItem("token"); // ✅ Retrieve token
+
+      if (!token) {
+        console.log("No token found, redirecting to login");
+        navigate("/signin"); // Redirect if no token
+        return;
+      }
+
+      const response = await axios.get(
+        "http://localhost:3000/api/v1/users/user",
+        {
+          headers: { Authorization: `Bearer ${token}` }, // ✅ Send token in request header
+        }
+      );
+
       setUserInfo({
-        name: response.data.user.firstName,
+        firstName: response.data.user.firstName,
+        lastName: response.data.user.lastName,
         email: response.data.user.email,
-        phone: response.data.user.phone,
-        location: response.data.user.location,
-        jobTitle: response.data.user.jobTitle,
-        department: response.data.user.department,
-        joinDate: response.data.user.joinDate,
-        bio: response.data.user.bio,
-      })
+        phoneNo: response.data.user.phoneNo, // ✅ Ensure field names match backend
+        location: response.data.user.location || "",
+        JobTitle: response.data.user.JobTitle || "",
+        department: response.data.user.department || "",
+        joinDate: response.data.user.joinDate || "",
+        bio: response.data.user.bio || "",
+      });
+      console.log("joinDate:", userInfo.joinDate);
+
     } catch (error) {
-      console.log("Error fetching the user data", error)
+      console.log("Error fetching the user data", error);
     }
-  }
+  };
 
   useEffect(() => {
-    getUserProfileData()
-  }, [])
+    getUserProfileData();
+  }, []);
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setUserInfo((prev) => ({
       ...prev,
       [name]: value,
-    }))
-  }
+    }));
+  };
 
   const handleSaveProfile = async () => {
     try {
-      await axios.put("http://localhost:3000/api/v1/users/update", userInfo)
-      setIsEditing(false)
+      const token = localStorage.getItem("token");
+      
+      const response = await axios.put(
+        "http://localhost:3000/api/v1/users/updateuser",
+        userInfo,{
+          headers: { Authorization: `Bearer ${token}` }, // Send token in headers
+        }
+      );
+      
+    setUserInfo(response.data.user);
+      setIsEditing(false);
     } catch (error) {
-      console.log("Error updating user data", error)
+      console.log("Error updating user data", error);
     }
-  }
+  };
 
   const handleImageUpload = (e) => {
-    const file = e.target.files[0]
+    const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader()
+      const reader = new FileReader();
       reader.onload = (e) => {
-        setProfileImage(e.target.result)
-      }
-      reader.readAsDataURL(file)
+        setProfileImage(e.target.result);
+      };
+      reader.readAsDataURL(file);
     }
-  }
+  };
 
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white">
       {/* Sidebar */}
-      <div
-        className={`bg-white dark:bg-gray-800 shadow-lg ${
-          isOpen ? "w-64" : "w-20"
-        } transition-all duration-300 z-20 border-r border-gray-200 dark:border-gray-700 relative`}
-      >
-        <div className="p-4 flex items-center justify-between border-b border-gray-200 dark:border-gray-700">
-          {isOpen ? (
-            <div className="flex items-center">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-bold text-xl">
-                Q
-              </div>
-              <span className="ml-2 text-xl font-bold bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent">
-                QuoteFlow
-              </span>
-            </div>
-          ) : (
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-bold text-xl mx-auto">
-              Q
-            </div>
-          )}
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="focus:outline-none text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition duration-200"
-          >
-            {isOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
-        </div>
-
-        <div className="p-4">
-          <nav className="flex flex-col gap-2">
-            <NavItem icon={<Home size={20} />} text="Dashboard" isOpen={isOpen} />
-            <NavItem icon={<Users size={20} />} text="Customers" isOpen={isOpen} />
-            <NavItem icon={<ClipboardList size={20} />} text="Quotations" isOpen={isOpen} />
-            <NavItem icon={<FileText size={20} />} text="Invoices" isOpen={isOpen} />
-            <NavItem icon={<Bell size={20} />} text="Notifications" isOpen={isOpen} badge="5" />
-            <NavItem icon={<Settings size={20} />} text="Settings" isOpen={isOpen} isActive={true} />
-          </nav>
-        </div>
-
-        {isOpen && (
-          <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 dark:border-gray-700">
-            <div className="flex items-center">
-              <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
-                <img src={profileImage || "/placeholder.svg"} alt="Profile" className="w-full h-full object-cover" />
-              </div>
-              <div className="ml-3">
-                <p className="text-sm font-medium">{userInfo.name}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">{userInfo.jobTitle}</p>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
+      <Sidebar />
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
         <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 p-4 sticky top-0 z-10">
           <div className="flex items-center justify-between">
-            <h1 className="text-xl font-semibold text-gray-800 dark:text-white">Profile Settings</h1>
+            <h1 className="text-xl font-semibold text-gray-800 dark:text-white">
+              Profile Settings
+            </h1>
 
             <div className="flex items-center space-x-4">
               <button
@@ -171,7 +151,10 @@ export default function UserProfile() {
                 {darkMode ? (
                   <Sun size={20} className="text-gray-600 dark:text-gray-300" />
                 ) : (
-                  <Moon size={20} className="text-gray-600 dark:text-gray-300" />
+                  <Moon
+                    size={20}
+                    className="text-gray-600 dark:text-gray-300"
+                  />
                 )}
               </button>
 
@@ -183,7 +166,11 @@ export default function UserProfile() {
               </button>
 
               <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
-                <img src={profileImage || "/placeholder.svg"} alt="Profile" className="w-full h-full object-cover" />
+                <img
+                  src={profileImage || "/placeholder.svg"}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
               </div>
             </div>
           </div>
@@ -206,7 +193,12 @@ export default function UserProfile() {
                     </div>
                     <label className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-emerald-500 hover:bg-emerald-600 flex items-center justify-center text-white cursor-pointer">
                       <Camera size={16} />
-                      <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                      />
                     </label>
                   </div>
                 </div>
@@ -215,9 +207,11 @@ export default function UserProfile() {
               <div className="pt-20 px-8 pb-8">
                 <div className="flex justify-between items-start mb-6">
                   <div>
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{userInfo.name}</h2>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                      {userInfo.firstName} {userInfo.lastName}
+                    </h2>
                     <p className="text-gray-600 dark:text-gray-300">
-                      {userInfo.jobTitle} • {userInfo.department}
+                      {userInfo.JobTitle} • {userInfo.department}
                     </p>
                   </div>
                   <div className="flex space-x-2">
@@ -335,23 +329,39 @@ export default function UserProfile() {
                 {/* Tab Content */}
                 {activeTab === "profile" && (
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Personal Information</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                      Personal Information
+                    </h3>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                          Full Name
+                        Full Name
                         </label>
                         {isEditing ? (
-                          <input
-                            type="text"
-                            name="name"
-                            value={userInfo.name}
-                            onChange={handleInputChange}
-                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-600 focus:border-transparent"
-                          />
+                          <div className="flex items-center space-x-2">
+                            <input
+                              type="text"
+                              name="firstName"
+                              value={userInfo.firstName}
+                              onChange={handleInputChange}
+                              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-600 focus:border-transparent"
+                              placeholder="First Name"
+                            />
+                            
+                            <input
+                              type="text"
+                              name="lastName"
+                              value={userInfo.lastName}
+                              onChange={handleInputChange}
+                              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-600 focus:border-transparent"
+                              placeholder="Last Name"
+                            />
+                          </div>
                         ) : (
-                          <p className="text-gray-900 dark:text-white">{userInfo.name}</p>
+                          <p className="text-gray-900 dark:text-white">
+                            {userInfo.firstName} {userInfo.lastName}
+                          </p>
                         )}
                       </div>
 
@@ -368,24 +378,28 @@ export default function UserProfile() {
                             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-600 focus:border-transparent"
                           />
                         ) : (
-                          <p className="text-gray-900 dark:text-white">{userInfo.email}</p>
+                          <p className="text-gray-900 dark:text-white">
+                            {userInfo.email}
+                          </p>
                         )}
                       </div>
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                          Phone Number
+                        Number
                         </label>
                         {isEditing ? (
                           <input
                             type="tel"
-                            name="phone"
-                            value={userInfo.phone}
+                            name="phoneNo"
+                            value={userInfo.phoneNo}
                             onChange={handleInputChange}
                             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-600 focus:border-transparent"
                           />
                         ) : (
-                          <p className="text-gray-900 dark:text-white">{userInfo.phone}</p>
+                          <p className="text-gray-900 dark:text-white">
+                            {userInfo.phoneNo}
+                          </p>
                         )}
                       </div>
 
@@ -402,7 +416,9 @@ export default function UserProfile() {
                             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-600 focus:border-transparent"
                           />
                         ) : (
-                          <p className="text-gray-900 dark:text-white">{userInfo.location}</p>
+                          <p className="text-gray-900 dark:text-white">
+                            {userInfo.location}
+                          </p>
                         )}
                       </div>
 
@@ -413,13 +429,15 @@ export default function UserProfile() {
                         {isEditing ? (
                           <input
                             type="text"
-                            name="jobTitle"
-                            value={userInfo.jobTitle}
+                            name="JobTitle"
+                            value={userInfo.JobTitle}
                             onChange={handleInputChange}
                             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-600 focus:border-transparent"
                           />
                         ) : (
-                          <p className="text-gray-900 dark:text-white">{userInfo.jobTitle}</p>
+                          <p className="text-gray-900 dark:text-white">
+                            {userInfo.JobTitle}
+                          </p>
                         )}
                       </div>
 
@@ -436,13 +454,17 @@ export default function UserProfile() {
                             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-600 focus:border-transparent"
                           />
                         ) : (
-                          <p className="text-gray-900 dark:text-white">{userInfo.department}</p>
+                          <p className="text-gray-900 dark:text-white">
+                            {userInfo.department}
+                          </p>
                         )}
                       </div>
                     </div>
 
                     <div className="mb-6">
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Bio</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Bio
+                      </label>
                       {isEditing ? (
                         <textarea
                           name="bio"
@@ -452,27 +474,35 @@ export default function UserProfile() {
                           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-600 focus:border-transparent"
                         ></textarea>
                       ) : (
-                        <p className="text-gray-900 dark:text-white">{userInfo.bio}</p>
+                        <p className="text-gray-900 dark:text-white">
+                          {userInfo.bio}
+                        </p>
                       )}
                     </div>
 
                     <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
                       <Calendar size={16} className="mr-2" />
-                      Member since {userInfo.joinDate}
+                      Member since {new Date(userInfo.joinDate).toLocaleDateString()}
                     </div>
                   </div>
                 )}
 
                 {activeTab === "account" && (
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Account Settings</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                      Account Settings
+                    </h3>
 
                     <div className="space-y-6">
                       <div className="bg-gray-50 dark:bg-gray-750 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
                         <div className="flex justify-between items-center">
                           <div>
-                            <h4 className="text-base font-medium text-gray-900 dark:text-white">Email Preferences</h4>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">Manage your email settings</p>
+                            <h4 className="text-base font-medium text-gray-900 dark:text-white">
+                              Email Preferences
+                            </h4>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                              Manage your email settings
+                            </p>
                           </div>
                           <button className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 text-sm font-medium">
                             Edit
@@ -483,7 +513,9 @@ export default function UserProfile() {
                       <div className="bg-gray-50 dark:bg-gray-750 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
                         <div className="flex justify-between items-center">
                           <div>
-                            <h4 className="text-base font-medium text-gray-900 dark:text-white">Language & Region</h4>
+                            <h4 className="text-base font-medium text-gray-900 dark:text-white">
+                              Language & Region
+                            </h4>
                             <p className="text-sm text-gray-500 dark:text-gray-400">
                               Set your language and regional preferences
                             </p>
@@ -497,7 +529,9 @@ export default function UserProfile() {
                       <div className="bg-gray-50 dark:bg-gray-750 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
                         <div className="flex justify-between items-center">
                           <div>
-                            <h4 className="text-base font-medium text-gray-900 dark:text-white">Billing Information</h4>
+                            <h4 className="text-base font-medium text-gray-900 dark:text-white">
+                              Billing Information
+                            </h4>
                             <p className="text-sm text-gray-500 dark:text-gray-400">
                               Manage your billing details and payment methods
                             </p>
@@ -511,8 +545,12 @@ export default function UserProfile() {
                       <div className="bg-gray-50 dark:bg-gray-750 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
                         <div className="flex justify-between items-center">
                           <div>
-                            <h4 className="text-base font-medium text-gray-900 dark:text-white">Export Your Data</h4>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">Download a copy of your data</p>
+                            <h4 className="text-base font-medium text-gray-900 dark:text-white">
+                              Export Your Data
+                            </h4>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                              Download a copy of your data
+                            </p>
                           </div>
                           <button className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 text-sm font-medium">
                             Export
@@ -523,7 +561,9 @@ export default function UserProfile() {
                       <div className="bg-red-50 dark:bg-red-900/10 rounded-lg p-4 border border-red-200 dark:border-red-800/20">
                         <div className="flex justify-between items-center">
                           <div>
-                            <h4 className="text-base font-medium text-red-600 dark:text-red-400">Delete Account</h4>
+                            <h4 className="text-base font-medium text-red-600 dark:text-red-400">
+                              Delete Account
+                            </h4>
                             <p className="text-sm text-red-500 dark:text-red-300">
                               Permanently delete your account and all data
                             </p>
@@ -539,15 +579,20 @@ export default function UserProfile() {
 
                 {activeTab === "security" && (
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Security Settings</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                      Security Settings
+                    </h3>
 
                     <div className="space-y-6">
                       <div className="bg-gray-50 dark:bg-gray-750 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
                         <div className="flex justify-between items-center mb-4">
                           <div>
-                            <h4 className="text-base font-medium text-gray-900 dark:text-white">Change Password</h4>
+                            <h4 className="text-base font-medium text-gray-900 dark:text-white">
+                              Change Password
+                            </h4>
                             <p className="text-sm text-gray-500 dark:text-gray-400">
-                              Update your password regularly to keep your account secure
+                              Update your password regularly to keep your
+                              account secure
                             </p>
                           </div>
                         </div>
@@ -604,9 +649,15 @@ export default function UserProfile() {
                             </p>
                           </div>
                           <div className="flex items-center">
-                            <span className="mr-2 text-sm text-green-600 dark:text-green-400 font-medium">Enabled</span>
+                            <span className="mr-2 text-sm text-green-600 dark:text-green-400 font-medium">
+                              Enabled
+                            </span>
                             <div className="relative inline-block w-10 h-5 rounded-full bg-green-500">
-                              <input type="checkbox" className="sr-only" checked />
+                              <input
+                                type="checkbox"
+                                className="sr-only"
+                                checked
+                              />
                               <span className="absolute inset-y-0 right-0 w-5 h-5 rounded-full bg-white transform translate-x-0"></span>
                             </div>
                           </div>
@@ -616,8 +667,12 @@ export default function UserProfile() {
                       <div className="bg-gray-50 dark:bg-gray-750 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
                         <div className="flex justify-between items-center">
                           <div>
-                            <h4 className="text-base font-medium text-gray-900 dark:text-white">Login Sessions</h4>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">Manage your active sessions</p>
+                            <h4 className="text-base font-medium text-gray-900 dark:text-white">
+                              Login Sessions
+                            </h4>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                              Manage your active sessions
+                            </p>
                           </div>
                           <button className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 text-sm font-medium">
                             View All
@@ -631,7 +686,9 @@ export default function UserProfile() {
                                 <Globe size={16} />
                               </div>
                               <div>
-                                <p className="text-sm font-medium text-gray-900 dark:text-white">Chrome on Windows</p>
+                                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                  Chrome on Windows
+                                </p>
                                 <p className="text-xs text-gray-500 dark:text-gray-400">
                                   New York, USA • Current session
                                 </p>
@@ -645,8 +702,12 @@ export default function UserProfile() {
                                 <Globe size={16} />
                               </div>
                               <div>
-                                <p className="text-sm font-medium text-gray-900 dark:text-white">Safari on iPhone</p>
-                                <p className="text-xs text-gray-500 dark:text-gray-400">New York, USA • 2 days ago</p>
+                                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                  Safari on iphoneNo
+                                </p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                  New York, USA • 2 days ago
+                                </p>
                               </div>
                             </div>
                             <button className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 text-sm">
@@ -659,7 +720,9 @@ export default function UserProfile() {
                       <div className="bg-gray-50 dark:bg-gray-750 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
                         <div className="flex justify-between items-center">
                           <div>
-                            <h4 className="text-base font-medium text-gray-900 dark:text-white">Security Log</h4>
+                            <h4 className="text-base font-medium text-gray-900 dark:text-white">
+                              Security Log
+                            </h4>
                             <p className="text-sm text-gray-500 dark:text-gray-400">
                               View your recent security activity
                             </p>
@@ -688,35 +751,52 @@ export default function UserProfile() {
                         <div className="space-y-4">
                           <div className="flex justify-between items-center">
                             <div>
-                              <p className="text-sm font-medium text-gray-900 dark:text-white">Quote Updates</p>
+                              <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                Quote Updates
+                              </p>
                               <p className="text-xs text-gray-500 dark:text-gray-400">
-                                Receive notifications when quotes are created, updated, or approved
+                                Receive notifications when quotes are created,
+                                updated, or approved
                               </p>
                             </div>
                             <div className="relative inline-block w-10 h-5 rounded-full bg-emerald-500">
-                              <input type="checkbox" className="sr-only" checked />
+                              <input
+                                type="checkbox"
+                                className="sr-only"
+                                checked
+                              />
                               <span className="absolute inset-y-0 right-0 w-5 h-5 rounded-full bg-white transform translate-x-0"></span>
                             </div>
                           </div>
 
                           <div className="flex justify-between items-center">
                             <div>
-                              <p className="text-sm font-medium text-gray-900 dark:text-white">Invoice Updates</p>
+                              <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                Invoice Updates
+                              </p>
                               <p className="text-xs text-gray-500 dark:text-gray-400">
-                                Receive notifications when invoices are created, updated, or paid
+                                Receive notifications when invoices are created,
+                                updated, or paid
                               </p>
                             </div>
                             <div className="relative inline-block w-10 h-5 rounded-full bg-emerald-500">
-                              <input type="checkbox" className="sr-only" checked />
+                              <input
+                                type="checkbox"
+                                className="sr-only"
+                                checked
+                              />
                               <span className="absolute inset-y-0 right-0 w-5 h-5 rounded-full bg-white transform translate-x-0"></span>
                             </div>
                           </div>
 
                           <div className="flex justify-between items-center">
                             <div>
-                              <p className="text-sm font-medium text-gray-900 dark:text-white">Customer Updates</p>
+                              <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                Customer Updates
+                              </p>
                               <p className="text-xs text-gray-500 dark:text-gray-400">
-                                Receive notifications when customer information is updated
+                                Receive notifications when customer information
+                                is updated
                               </p>
                             </div>
                             <div className="relative inline-block w-10 h-5 rounded-full bg-gray-300 dark:bg-gray-600">
@@ -727,13 +807,20 @@ export default function UserProfile() {
 
                           <div className="flex justify-between items-center">
                             <div>
-                              <p className="text-sm font-medium text-gray-900 dark:text-white">System Updates</p>
+                              <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                System Updates
+                              </p>
                               <p className="text-xs text-gray-500 dark:text-gray-400">
-                                Receive notifications about system updates and maintenance
+                                Receive notifications about system updates and
+                                maintenance
                               </p>
                             </div>
                             <div className="relative inline-block w-10 h-5 rounded-full bg-emerald-500">
-                              <input type="checkbox" className="sr-only" checked />
+                              <input
+                                type="checkbox"
+                                className="sr-only"
+                                checked
+                              />
                               <span className="absolute inset-y-0 right-0 w-5 h-5 rounded-full bg-white transform translate-x-0"></span>
                             </div>
                           </div>
@@ -748,52 +835,79 @@ export default function UserProfile() {
                         <div className="space-y-4">
                           <div className="flex justify-between items-center">
                             <div>
-                              <p className="text-sm font-medium text-gray-900 dark:text-white">Quote Updates</p>
+                              <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                Quote Updates
+                              </p>
                               <p className="text-xs text-gray-500 dark:text-gray-400">
-                                Receive in-app notifications for quote activities
+                                Receive in-app notifications for quote
+                                activities
                               </p>
                             </div>
                             <div className="relative inline-block w-10 h-5 rounded-full bg-emerald-500">
-                              <input type="checkbox" className="sr-only" checked />
+                              <input
+                                type="checkbox"
+                                className="sr-only"
+                                checked
+                              />
                               <span className="absolute inset-y-0 right-0 w-5 h-5 rounded-full bg-white transform translate-x-0"></span>
                             </div>
                           </div>
 
                           <div className="flex justify-between items-center">
                             <div>
-                              <p className="text-sm font-medium text-gray-900 dark:text-white">Invoice Updates</p>
+                              <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                Invoice Updates
+                              </p>
                               <p className="text-xs text-gray-500 dark:text-gray-400">
-                                Receive in-app notifications for invoice activities
+                                Receive in-app notifications for invoice
+                                activities
                               </p>
                             </div>
                             <div className="relative inline-block w-10 h-5 rounded-full bg-emerald-500">
-                              <input type="checkbox" className="sr-only" checked />
+                              <input
+                                type="checkbox"
+                                className="sr-only"
+                                checked
+                              />
                               <span className="absolute inset-y-0 right-0 w-5 h-5 rounded-full bg-white transform translate-x-0"></span>
                             </div>
                           </div>
 
                           <div className="flex justify-between items-center">
                             <div>
-                              <p className="text-sm font-medium text-gray-900 dark:text-white">Customer Updates</p>
+                              <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                Customer Updates
+                              </p>
                               <p className="text-xs text-gray-500 dark:text-gray-400">
-                                Receive in-app notifications for customer activities
+                                Receive in-app notifications for customer
+                                activities
                               </p>
                             </div>
                             <div className="relative inline-block w-10 h-5 rounded-full bg-emerald-500">
-                              <input type="checkbox" className="sr-only" checked />
+                              <input
+                                type="checkbox"
+                                className="sr-only"
+                                checked
+                              />
                               <span className="absolute inset-y-0 right-0 w-5 h-5 rounded-full bg-white transform translate-x-0"></span>
                             </div>
                           </div>
 
                           <div className="flex justify-between items-center">
                             <div>
-                              <p className="text-sm font-medium text-gray-900 dark:text-white">System Updates</p>
+                              <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                System Updates
+                              </p>
                               <p className="text-xs text-gray-500 dark:text-gray-400">
                                 Receive in-app notifications for system updates
                               </p>
                             </div>
                             <div className="relative inline-block w-10 h-5 rounded-full bg-emerald-500">
-                              <input type="checkbox" className="sr-only" checked />
+                              <input
+                                type="checkbox"
+                                className="sr-only"
+                                checked
+                              />
                               <span className="absolute inset-y-0 right-0 w-5 h-5 rounded-full bg-white transform translate-x-0"></span>
                             </div>
                           </div>
@@ -805,38 +919,66 @@ export default function UserProfile() {
 
                 {activeTab === "appearance" && (
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Appearance Settings</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                      Appearance Settings
+                    </h3>
 
                     <div className="space-y-6">
                       <div className="bg-gray-50 dark:bg-gray-750 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-                        <h4 className="text-base font-medium text-gray-900 dark:text-white mb-4">Theme</h4>
+                        <h4 className="text-base font-medium text-gray-900 dark:text-white mb-4">
+                          Theme
+                        </h4>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <div
-                            className={`border-2 ${darkMode ? "border-gray-300 dark:border-gray-600" : "border-emerald-500 dark:border-emerald-400"} rounded-lg p-4 cursor-pointer`}
+                            className={`border-2 ${
+                              darkMode
+                                ? "border-gray-300 dark:border-gray-600"
+                                : "border-emerald-500 dark:border-emerald-400"
+                            } rounded-lg p-4 cursor-pointer`}
                             onClick={() => setDarkMode(false)}
                           >
                             <div className="flex justify-between items-center mb-2">
-                              <span className="text-sm font-medium text-gray-900 dark:text-white">Light</span>
-                              {!darkMode && <Check size={16} className="text-emerald-500 dark:text-emerald-400" />}
+                              <span className="text-sm font-medium text-gray-900 dark:text-white">
+                                Light
+                              </span>
+                              {!darkMode && (
+                                <Check
+                                  size={16}
+                                  className="text-emerald-500 dark:text-emerald-400"
+                                />
+                              )}
                             </div>
                             <div className="h-20 bg-white border border-gray-200 rounded-md"></div>
                           </div>
 
                           <div
-                            className={`border-2 ${darkMode ? "border-emerald-500 dark:border-emerald-400" : "border-gray-300 dark:border-gray-600"} rounded-lg p-4 cursor-pointer`}
+                            className={`border-2 ${
+                              darkMode
+                                ? "border-emerald-500 dark:border-emerald-400"
+                                : "border-gray-300 dark:border-gray-600"
+                            } rounded-lg p-4 cursor-pointer`}
                             onClick={() => setDarkMode(true)}
                           >
                             <div className="flex justify-between items-center mb-2">
-                              <span className="text-sm font-medium text-gray-900 dark:text-white">Dark</span>
-                              {darkMode && <Check size={16} className="text-emerald-500 dark:text-emerald-400" />}
+                              <span className="text-sm font-medium text-gray-900 dark:text-white">
+                                Dark
+                              </span>
+                              {darkMode && (
+                                <Check
+                                  size={16}
+                                  className="text-emerald-500 dark:text-emerald-400"
+                                />
+                              )}
                             </div>
                             <div className="h-20 bg-gray-900 border border-gray-700 rounded-md"></div>
                           </div>
 
                           <div className="border-2 border-gray-300 dark:border-gray-600 rounded-lg p-4 cursor-pointer">
                             <div className="flex justify-between items-center mb-2">
-                              <span className="text-sm font-medium text-gray-900 dark:text-white">System</span>
+                              <span className="text-sm font-medium text-gray-900 dark:text-white">
+                                System
+                              </span>
                             </div>
                             <div className="h-20 bg-gradient-to-r from-white to-gray-900 border border-gray-200 dark:border-gray-700 rounded-md"></div>
                           </div>
@@ -844,7 +986,9 @@ export default function UserProfile() {
                       </div>
 
                       <div className="bg-gray-50 dark:bg-gray-750 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-                        <h4 className="text-base font-medium text-gray-900 dark:text-white mb-4">Accent Color</h4>
+                        <h4 className="text-base font-medium text-gray-900 dark:text-white mb-4">
+                          Accent Color
+                        </h4>
 
                         <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
                           <div className="border-2 border-emerald-500 dark:border-emerald-400 rounded-lg p-2 cursor-pointer">
@@ -876,9 +1020,12 @@ export default function UserProfile() {
                       <div className="bg-gray-50 dark:bg-gray-750 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
                         <div className="flex justify-between items-center">
                           <div>
-                            <h4 className="text-base font-medium text-gray-900 dark:text-white">Compact Mode</h4>
+                            <h4 className="text-base font-medium text-gray-900 dark:text-white">
+                              Compact Mode
+                            </h4>
                             <p className="text-sm text-gray-500 dark:text-gray-400">
-                              Reduce spacing and padding throughout the interface
+                              Reduce spacing and padding throughout the
+                              interface
                             </p>
                           </div>
                           <div className="relative inline-block w-10 h-5 rounded-full bg-gray-300 dark:bg-gray-600">
@@ -893,18 +1040,27 @@ export default function UserProfile() {
 
                 {activeTab === "connected" && (
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Connected Accounts</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                      Connected Accounts
+                    </h3>
 
                     <div className="space-y-6">
                       <div className="bg-gray-50 dark:bg-gray-750 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
                         <div className="flex justify-between items-center">
                           <div className="flex items-center">
                             <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center mr-3">
-                              <Github size={20} className="text-gray-900 dark:text-gray-100" />
+                              <Github
+                                size={20}
+                                className="text-gray-900 dark:text-gray-100"
+                              />
                             </div>
                             <div>
-                              <h4 className="text-base font-medium text-gray-900 dark:text-white">GitHub</h4>
-                              <p className="text-sm text-gray-500 dark:text-gray-400">Not connected</p>
+                              <h4 className="text-base font-medium text-gray-900 dark:text-white">
+                                GitHub
+                              </h4>
+                              <p className="text-sm text-gray-500 dark:text-gray-400">
+                                Not connected
+                              </p>
                             </div>
                           </div>
                           <button className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
@@ -917,11 +1073,18 @@ export default function UserProfile() {
                         <div className="flex justify-between items-center">
                           <div className="flex items-center">
                             <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mr-3">
-                              <Twitter size={20} className="text-blue-500 dark:text-blue-400" />
+                              <Twitter
+                                size={20}
+                                className="text-blue-500 dark:text-blue-400"
+                              />
                             </div>
                             <div>
-                              <h4 className="text-base font-medium text-gray-900 dark:text-white">Twitter</h4>
-                              <p className="text-sm text-gray-500 dark:text-gray-400">Connected as @alexjohnson</p>
+                              <h4 className="text-base font-medium text-gray-900 dark:text-white">
+                                Twitter
+                              </h4>
+                              <p className="text-sm text-gray-500 dark:text-gray-400">
+                                Connected as @alexjohnson
+                              </p>
                             </div>
                           </div>
                           <button className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
@@ -934,11 +1097,18 @@ export default function UserProfile() {
                         <div className="flex justify-between items-center">
                           <div className="flex items-center">
                             <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mr-3">
-                              <Linkedin size={20} className="text-blue-700 dark:text-blue-500" />
+                              <Linkedin
+                                size={20}
+                                className="text-blue-700 dark:text-blue-500"
+                              />
                             </div>
                             <div>
-                              <h4 className="text-base font-medium text-gray-900 dark:text-white">LinkedIn</h4>
-                              <p className="text-sm text-gray-500 dark:text-gray-400">Not connected</p>
+                              <h4 className="text-base font-medium text-gray-900 dark:text-white">
+                                LinkedIn
+                              </h4>
+                              <p className="text-sm text-gray-500 dark:text-gray-400">
+                                Not connected
+                              </p>
                             </div>
                           </div>
                           <button className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
@@ -951,11 +1121,18 @@ export default function UserProfile() {
                         <div className="flex justify-between items-center">
                           <div className="flex items-center">
                             <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mr-3">
-                              <Facebook size={20} className="text-blue-600 dark:text-blue-400" />
+                              <Facebook
+                                size={20}
+                                className="text-blue-600 dark:text-blue-400"
+                              />
                             </div>
                             <div>
-                              <h4 className="text-base font-medium text-gray-900 dark:text-white">Facebook</h4>
-                              <p className="text-sm text-gray-500 dark:text-gray-400">Not connected</p>
+                              <h4 className="text-base font-medium text-gray-900 dark:text-white">
+                                Facebook
+                              </h4>
+                              <p className="text-sm text-gray-500 dark:text-gray-400">
+                                Not connected
+                              </p>
                             </div>
                           </div>
                           <button className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
@@ -968,10 +1145,15 @@ export default function UserProfile() {
                         <div className="flex justify-between items-center">
                           <div className="flex items-center">
                             <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mr-3">
-                              <Slack size={20} className="text-purple-600 dark:text-purple-400" />
+                              <Slack
+                                size={20}
+                                className="text-purple-600 dark:text-purple-400"
+                              />
                             </div>
                             <div>
-                              <h4 className="text-base font-medium text-gray-900 dark:text-white">Slack</h4>
+                              <h4 className="text-base font-medium text-gray-900 dark:text-white">
+                                Slack
+                              </h4>
                               <p className="text-sm text-gray-500 dark:text-gray-400">
                                 Connected to QuoteFlow workspace
                               </p>
@@ -991,23 +1173,37 @@ export default function UserProfile() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 // Sidebar Navigation Item
 function NavItem({ icon, text, isOpen, isActive, badge }) {
   return (
     <div
-      className={`flex items-center ${isOpen ? "justify-start" : "justify-center"} p-3 rounded-lg cursor-pointer transition-all duration-200 ${
+      className={`flex items-center ${
+        isOpen ? "justify-start" : "justify-center"
+      } p-3 rounded-lg cursor-pointer transition-all duration-200 ${
         isActive
           ? "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400"
           : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white"
       }`}
     >
-      <div className={`${isActive ? "text-emerald-600 dark:text-emerald-400" : ""}`}>{icon}</div>
+      <div
+        className={`${
+          isActive ? "text-emerald-600 dark:text-emerald-400" : ""
+        }`}
+      >
+        {icon}
+      </div>
       {isOpen && (
         <div className="ml-3 flex-1 flex items-center justify-between">
-          <span className={`font-medium ${isActive ? "text-emerald-600 dark:text-emerald-400" : ""}`}>{text}</span>
+          <span
+            className={`font-medium ${
+              isActive ? "text-emerald-600 dark:text-emerald-400" : ""
+            }`}
+          >
+            {text}
+          </span>
           {badge && (
             <span className="px-2 py-0.5 text-xs rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400">
               {badge}
@@ -1021,6 +1217,5 @@ function NavItem({ icon, text, isOpen, isActive, badge }) {
         </span>
       )}
     </div>
-  )
+  );
 }
-

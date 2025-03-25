@@ -13,7 +13,7 @@ const Sidebar = ({ role }) => {
     const commonItems = [
       { icon: Home, text: "Dashboard", path: "/dashboard" },
       { icon: ClipboardList, text: "Quotations", path: "/quotation" },
-      { icon: FileCheck, text: "RFQs", path: "/rfqs" },
+      { icon: FileCheck, text: "RFQs", path: "/rfq" },
       { icon: FileText, text: "Invoices", path: "/invoice" },
     ]
 

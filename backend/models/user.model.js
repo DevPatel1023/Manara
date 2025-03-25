@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema({
     select:false
    } ,
    role: { type: String, enum: ["admin", "client"], required: true, lowercase: true },
-   loation : {
+   location : {
       type : String,
       default : 'Not provided'
    },
@@ -45,7 +45,7 @@ const userSchema = new mongoose.Schema({
       default : 'Not provided'
    },
    joinDate : {
-      type : String,
+      type : Date,
       default : Date.now
    },
    bio : {
