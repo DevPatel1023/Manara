@@ -9,6 +9,7 @@
   import Invoice from "./pages/Invoice";
 import UserProfile from "./pages/UserProfile";
 import Dashboard1 from "./pages/Dashboard1";
+import NotFound from "./pages/NotFound";
 
   function App() {
     return (
@@ -24,6 +25,7 @@ import Dashboard1 from "./pages/Dashboard1";
               <Route path="/userprofile" element={<UserProfile />} />
               <Route path="/signin" element={<Signin />} />
               <Route path="/signup" element={<Signup />} />
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
         </div>
