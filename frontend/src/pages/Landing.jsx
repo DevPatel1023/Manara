@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useRef } from "react"
-import { motion } from "framer-motion"
+import { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
 import {
   ArrowRight,
   Check,
@@ -14,70 +14,88 @@ import {
   CreditCard,
   FileText,
   Sparkles,
-} from "lucide-react"
+} from "lucide-react";
+import { Link } from "react-router-dom";
+import P1 from "../assets/Images/P1.jpg";
+import P2 from "../assets/Images/P2.jpg";
+import P3 from "../assets/Images/P3.jpg";
+import P4 from "../assets/Images/P4.jpg";
+
+
+const images = [P1, P2, P3, P4];
 
 // Feature data
 const features = [
   {
     icon: <FileText className="h-6 w-6" />,
     title: "Quick Quote Generation",
-    description: "Create professional quotes in minutes with our intuitive interface and customizable templates.",
+    description:
+      "Create professional quotes in minutes with our intuitive interface and customizable templates.",
   },
   {
     icon: <Users className="h-6 w-6" />,
     title: "Client Management",
-    description: "Easily manage your clients, save their information, and track their quote history.",
+    description:
+      "Easily manage your clients, save their information, and track their quote history.",
   },
   {
     icon: <Check className="h-6 w-6" />,
     title: "Digital Approvals",
-    description: "Get quotes approved digitally with e-signatures and automated approval workflows.",
+    description:
+      "Get quotes approved digitally with e-signatures and automated approval workflows.",
   },
   {
     icon: <Sparkles className="h-6 w-6" />,
     title: "Customizable Templates",
-    description: "Choose from a variety of professional templates or create your own to match your brand.",
+    description:
+      "Choose from a variety of professional templates or create your own to match your brand.",
   },
   {
     icon: <CreditCard className="h-6 w-6" />,
     title: "Quote to Invoice Conversion",
-    description: "Convert approved quotes to invoices with a single click, saving time and reducing errors.",
+    description:
+      "Convert approved quotes to invoices with a single click, saving time and reducing errors.",
   },
   {
     icon: <BarChart3 className="h-6 w-6" />,
     title: "Real-time Analytics",
-    description: "Track quote performance, conversion rates, and revenue with detailed analytics.",
+    description:
+      "Track quote performance, conversion rates, and revenue with detailed analytics.",
   },
-]
+];
 
 // How it works steps
 const steps = [
   {
     icon: <FileText className="h-8 w-8" />,
     title: "Create Your Quote",
-    description: "Select a template, add your products or services, and customize your quote to match your brand.",
+    description:
+      "Select a template, add your products or services, and customize your quote to match your brand.",
   },
   {
     icon: <ArrowUpRight className="h-8 w-8" />,
     title: "Share with Clients",
-    description: "Send your quote via email, link, or PDF. Clients can view and approve quotes online.",
+    description:
+      "Send your quote via email, link, or PDF. Clients can view and approve quotes online.",
   },
   {
     icon: <CreditCard className="h-8 w-8" />,
     title: "Get Paid Faster",
-    description: "Convert approved quotes to invoices and accept payments online through multiple payment methods.",
+    description:
+      "Convert approved quotes to invoices and accept payments online through multiple payment methods.",
   },
-]
+];
 
 // Trusted companies
 const trustedCompanies = [
-  { name: "Acme Inc", logo: "/placeholder.svg?height=60&width=120" },
-  { name: "Globex", logo: "/placeholder.svg?height=60&width=120" },
-  { name: "Initech", logo: "/placeholder.svg?height=60&width=120" },
-  { name: "Umbrella Corp", logo: "/placeholder.svg?height=60&width=120" },
-  { name: "Stark Industries", logo: "/placeholder.svg?height=60&width=120" },
-  { name: "Wayne Enterprises", logo: "/placeholder.svg?height=60&width=120" },
-]
+  { name: "Stark Industries", logo: "/cmp/starkIndustries.png" },  
+  { name: "Initech", logo: "/cmp/initech.jpeg" },
+  { name: "Umbrella Corp", logo: "/cmp/umbrella.jpeg" },
+  { name: "Wayne Enterprises", logo: "/cmp/wayne.jpg" },
+  { name: "Globex", logo: "/cmp/globex.jpeg" },
+  { name: "ACMC INC", logo: "/cmp/acmc.jpeg" }
+];
+
 
 // Testimonial data
 const testimonials = [
@@ -105,7 +123,7 @@ const testimonials = [
     avatar: "/placeholder.svg?height=80&width=80",
     rating: 5,
   },
-]
+];
 
 // Stats
 const stats = [
@@ -113,21 +131,30 @@ const stats = [
   { value: "35%", label: "Increase in Close Rate" },
   { value: "65%", label: "Time Saved" },
   { value: "10k+", label: "Active Users" },
-]
+];
 
 const Landing = () => {
-  const [isVisible, setIsVisible] = useState({})
-  const [activeTestimonial, setActiveTestimonial] = useState(0)
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const testimonialsRef = useRef(null)
+  const [isVisible, setIsVisible] = useState({});
+  const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const testimonialsRef = useRef(null);
+  const [isloggedIn, setIsLoggedIn] = useState(false);
+
+  //checks if user is log in or not
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setIsLoggedIn(!!token);
+  }, []);
 
   // Auto-rotate testimonials
   useEffect(() => {
     const interval = setInterval(() => {
-      setActiveTestimonial((prev) => (prev === testimonials.length - 1 ? 0 : prev + 1))
-    }, 5000)
-    return () => clearInterval(interval)
-  }, [])
+      setActiveTestimonial((prev) =>
+        prev === testimonials.length - 1 ? 0 : prev + 1
+      );
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Intersection observer for animations
   useEffect(() => {
@@ -135,29 +162,29 @@ const Landing = () => {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            setIsVisible((prev) => ({ ...prev, [entry.target.id]: true }))
+            setIsVisible((prev) => ({ ...prev, [entry.target.id]: true }));
           }
-        })
+        });
       },
-      { threshold: 0.1 },
-    )
+      { threshold: 0.1 }
+    );
 
-    const sections = document.querySelectorAll("section[id]")
+    const sections = document.querySelectorAll("section[id]");
     sections.forEach((section) => {
-      observer.observe(section)
-    })
+      observer.observe(section);
+    });
 
     return () => {
       sections.forEach((section) => {
-        observer.unobserve(section)
-      })
-    }
-  }, [])
+        observer.unobserve(section);
+      });
+    };
+  }, []);
 
   const fadeIn = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
-  }
+  };
 
   const staggerContainer = {
     hidden: { opacity: 0 },
@@ -167,12 +194,18 @@ const Landing = () => {
         staggerChildren: 0.1,
       },
     },
-  }
+  };
 
   const staggerItem = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
-  }
+  };
+
+  //logout fun
+  const logoutFun = () => {
+    localStorage.removeItem("token");
+    setIsLoggedIn(false);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950 text-gray-900 dark:text-white transition-colors duration-300">
@@ -216,26 +249,37 @@ const Landing = () => {
                 </a>
               </nav>
             </div>
-            <div className="hidden md:flex items-center space-x-4">
-              <a
-                href="/signin"
-                className="text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 px-3 py-2 text-sm font-medium"
-              >
-                Log in
-              </a>
-              <a
-                href="/signup"
-                className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 shadow-sm hover:shadow-md transition-all duration-200"
-              >
-                Sign up free
-              </a>
-            </div>
+            {isloggedIn ? (
+              <div>
+                <button
+                  className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 shadow-sm hover:shadow-md transition-all duration-200"
+                  onClick={logoutFun}
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <div className="hidden md:flex items-center space-x-4">
+                <Link to="/signin">
+                  <button className="text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 px-3 py-2 text-sm font-medium">
+                    Log in
+                  </button>
+                </Link>
+                <Link to="/signup">
+                  <button className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 shadow-sm hover:shadow-md transition-all duration-200">
+                    Sign up free
+                  </button>
+                </Link>
+              </div>
+            )}
             <div className="md:hidden">
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                 className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none"
               >
-                <span className="sr-only">{isMenuOpen ? "Close menu" : "Open menu"}</span>
+                <span className="sr-only">
+                  {isMenuOpen ? "Close menu" : "Open menu"}
+                </span>
                 {isMenuOpen ? (
                   <svg
                     className="h-6 w-6"
@@ -244,7 +288,12 @@ const Landing = () => {
                     viewBox="0 0 24 24"
                     stroke="currentColor"
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 ) : (
                   <svg
@@ -254,7 +303,12 @@ const Landing = () => {
                     viewBox="0 0 24 24"
                     stroke="currentColor"
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 6h16M4 12h16M4 18h16"
+                    />
                   </svg>
                 )}
               </button>
@@ -334,8 +388,9 @@ const Landing = () => {
                   Quotes to Invoices, Simplified
                 </h1>
                 <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 leading-relaxed">
-                  Create professional quotes, get digital approvals, and convert to invoices in seconds. The all-in-one
-                  platform for modern businesses.
+                  Create professional quotes, get digital approvals, and convert
+                  to invoices in seconds. The all-in-one platform for modern
+                  businesses.
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-4 mb-8">
@@ -355,13 +410,13 @@ const Landing = () => {
 
                 <div className="flex items-center">
                   <div className="flex -space-x-2">
-                    {[1, 2, 3, 4].map((i) => (
+                    {images.map((image, i) => (
                       <div
                         key={i}
                         className="w-10 h-10 rounded-full border-2 border-white dark:border-gray-800 bg-gray-200 dark:bg-gray-700 overflow-hidden"
                       >
                         <img
-                          src={`/placeholder.svg?height=40&width=40`}
+                          src={image}
                           alt={`User ${i}`}
                           className="w-full h-full object-cover"
                         />
@@ -371,12 +426,20 @@ const Landing = () => {
                   <div className="ml-4">
                     <div className="flex items-center">
                       {[1, 2, 3, 4, 5].map((star) => (
-                        <Star key={star} className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+                        <Star
+                          key={star}
+                          className="h-4 w-4 text-yellow-400 fill-yellow-400"
+                        />
                       ))}
-                      <span className="ml-1 text-sm font-medium text-gray-600 dark:text-gray-400">5.0</span>
+                      <span className="ml-1 text-sm font-medium text-gray-600 dark:text-gray-400">
+                        5.0
+                      </span>
                     </div>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                      <span className="font-semibold text-gray-900 dark:text-white">10,000+</span> happy businesses
+                      <span className="font-semibold text-gray-900 dark:text-white">
+                        10,000+
+                      </span>{" "}
+                      happy businesses
                     </p>
                   </div>
                 </div>
@@ -393,7 +456,9 @@ const Landing = () => {
                         <div className="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div>
                         <div className="w-3 h-3 rounded-full bg-green-500"></div>
                       </div>
-                      <div className="text-sm font-medium text-gray-500 dark:text-gray-400">QuoteFlow Dashboard</div>
+                      <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        QuoteFlow Dashboard
+                      </div>
                       <div></div>
                     </div>
                     <div className="p-6">
@@ -434,7 +499,9 @@ const Landing = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               {stats.map((stat, index) => (
                 <div key={index} className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold text-white mb-2">{stat.value}</div>
+                  <div className="text-3xl md:text-4xl font-bold text-white mb-2">
+                    {stat.value}
+                  </div>
                   <div className="text-emerald-100">{stat.label}</div>
                 </div>
               ))}
@@ -460,7 +527,7 @@ const Landing = () => {
                   <img
                     src={company.logo || "/placeholder.svg"}
                     alt={company.name}
-                    className="h-12 object-contain filter grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
+                   className="h-20 w-32 object-contain filter grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
                   />
                 </div>
               ))}
@@ -488,8 +555,8 @@ const Landing = () => {
                 Everything you need to streamline your quotes and invoices
               </h2>
               <p className="max-w-3xl mx-auto text-xl text-gray-600 dark:text-gray-300">
-                Our platform is designed to make your quotation and invoicing process seamless, efficient, and
-                professional.
+                Our platform is designed to make your quotation and invoicing
+                process seamless, efficient, and professional.
               </p>
             </motion.div>
 
@@ -512,7 +579,9 @@ const Landing = () => {
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-300">
                       {feature.title}
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-300 mb-4">{feature.description}</p>
+                    <p className="text-gray-600 dark:text-gray-300 mb-4">
+                      {feature.description}
+                    </p>
                     <a
                       href="#"
                       className="inline-flex items-center text-emerald-600 dark:text-emerald-400 font-medium group-hover:translate-x-1 transition-transform duration-300"
@@ -527,7 +596,10 @@ const Landing = () => {
         </section>
 
         {/* How It Works Section */}
-        <section id="how-it-works" className="py-20 bg-gray-50 dark:bg-gray-900">
+        <section
+          id="how-it-works"
+          className="py-20 bg-gray-50 dark:bg-gray-900"
+        >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
               initial="hidden"
@@ -538,7 +610,9 @@ const Landing = () => {
               <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300 mb-4">
                 <Clock className="h-4 w-4 mr-1" /> Simple Process
               </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">How QuoteFlow Works</h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                How QuoteFlow Works
+              </h2>
               <p className="max-w-3xl mx-auto text-xl text-gray-600 dark:text-gray-300">
                 Get started in minutes with our simple 3-step process
               </p>
@@ -551,7 +625,11 @@ const Landing = () => {
               className="grid md:grid-cols-3 gap-8"
             >
               {steps.map((step, index) => (
-                <motion.div key={index} variants={staggerItem} className="relative">
+                <motion.div
+                  key={index}
+                  variants={staggerItem}
+                  className="relative"
+                >
                   <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 border border-gray-100 dark:border-gray-700 h-full">
                     <div className="absolute -top-5 left-8 w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center text-lg font-bold">
                       {index + 1}
@@ -560,8 +638,12 @@ const Landing = () => {
                       <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center text-emerald-600 dark:text-emerald-400 mb-6">
                         {step.icon}
                       </div>
-                      <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">{step.title}</h3>
-                      <p className="text-gray-600 dark:text-gray-300">{step.description}</p>
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
+                        {step.title}
+                      </h3>
+                      <p className="text-gray-600 dark:text-gray-300">
+                        {step.description}
+                      </p>
                     </div>
                   </div>
 
@@ -586,7 +668,11 @@ const Landing = () => {
         </section>
 
         {/* Testimonials Section */}
-        <section id="testimonials" className="py-20 relative overflow-hidden" ref={testimonialsRef}>
+        <section
+          id="testimonials"
+          className="py-20 relative overflow-hidden"
+          ref={testimonialsRef}
+        >
           <div className="absolute inset-0 pointer-events-none overflow-hidden">
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] rounded-full bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/10 dark:to-teal-900/10 blur-3xl opacity-70"></div>
           </div>
@@ -605,7 +691,8 @@ const Landing = () => {
                 What Our Customers Say
               </h2>
               <p className="max-w-3xl mx-auto text-xl text-gray-600 dark:text-gray-300">
-                Don't just take our word for it - hear from some of our satisfied customers
+                Don't just take our word for it - hear from some of our
+                satisfied customers
               </p>
             </motion.div>
 
@@ -613,17 +700,26 @@ const Landing = () => {
               <div className="overflow-hidden">
                 <div
                   className="flex transition-transform duration-500 ease-in-out"
-                  style={{ transform: `translateX(-${activeTestimonial * 100}%)` }}
+                  style={{
+                    transform: `translateX(-${activeTestimonial * 100}%)`,
+                  }}
                 >
                   {testimonials.map((testimonial, index) => (
                     <div key={index} className="min-w-full px-4">
                       <div className="max-w-3xl mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-700">
                         <div className="flex items-center mb-6">
-                          {Array.from({ length: testimonial.rating }).map((_, i) => (
-                            <Star key={i} className="h-5 w-5 text-yellow-400 fill-yellow-400" />
-                          ))}
+                          {Array.from({ length: testimonial.rating }).map(
+                            (_, i) => (
+                              <Star
+                                key={i}
+                                className="h-5 w-5 text-yellow-400 fill-yellow-400"
+                              />
+                            )
+                          )}
                         </div>
-                        <p className="text-xl text-gray-700 dark:text-gray-300 mb-8 italic">"{testimonial.quote}"</p>
+                        <p className="text-xl text-gray-700 dark:text-gray-300 mb-8 italic">
+                          "{testimonial.quote}"
+                        </p>
                         <div className="flex items-center">
                           <img
                             src={testimonial.avatar || "/placeholder.svg"}
@@ -631,8 +727,12 @@ const Landing = () => {
                             className="w-12 h-12 rounded-full object-cover mr-4 border-2 border-emerald-500"
                           />
                           <div>
-                            <h4 className="font-bold text-gray-900 dark:text-white">{testimonial.name}</h4>
-                            <p className="text-gray-600 dark:text-gray-400">{testimonial.role}</p>
+                            <h4 className="font-bold text-gray-900 dark:text-white">
+                              {testimonial.name}
+                            </h4>
+                            <p className="text-gray-600 dark:text-gray-400">
+                              {testimonial.role}
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -647,7 +747,9 @@ const Landing = () => {
                     key={index}
                     onClick={() => setActiveTestimonial(index)}
                     className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                      activeTestimonial === index ? "bg-emerald-500 w-8" : "bg-gray-300 dark:bg-gray-600"
+                      activeTestimonial === index
+                        ? "bg-emerald-500 w-8"
+                        : "bg-gray-300 dark:bg-gray-600"
                     }`}
                     aria-label={`Go to testimonial ${index + 1}`}
                   />
@@ -673,7 +775,8 @@ const Landing = () => {
                 Plans for businesses of all sizes
               </h2>
               <p className="max-w-3xl mx-auto text-xl text-gray-600 dark:text-gray-300">
-                Choose the perfect plan for your needs. Always know what you'll pay.
+                Choose the perfect plan for your needs. Always know what you'll
+                pay.
               </p>
             </motion.div>
 
@@ -681,13 +784,20 @@ const Landing = () => {
               {/* Starter Plan */}
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden border border-gray-100 dark:border-gray-700 transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1">
                 <div className="p-8">
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Starter</h3>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                    Starter
+                  </h3>
                   <div className="flex items-baseline mb-6">
-                    <span className="text-5xl font-extrabold text-gray-900 dark:text-white">$19</span>
-                    <span className="text-xl text-gray-500 dark:text-gray-400 ml-1">/month</span>
+                    <span className="text-5xl font-extrabold text-gray-900 dark:text-white">
+                      $19
+                    </span>
+                    <span className="text-xl text-gray-500 dark:text-gray-400 ml-1">
+                      /month
+                    </span>
                   </div>
                   <p className="text-gray-600 dark:text-gray-300 mb-6">
-                    Perfect for freelancers and small businesses just getting started.
+                    Perfect for freelancers and small businesses just getting
+                    started.
                   </p>
 
                   <ul className="space-y-4 mb-8">
@@ -700,7 +810,9 @@ const Landing = () => {
                     ].map((feature, i) => (
                       <li key={i} className="flex items-center">
                         <Check className="h-5 w-5 text-emerald-500 mr-2 flex-shrink-0" />
-                        <span className="text-gray-600 dark:text-gray-300">{feature}</span>
+                        <span className="text-gray-600 dark:text-gray-300">
+                          {feature}
+                        </span>
                       </li>
                     ))}
                   </ul>
@@ -720,10 +832,16 @@ const Landing = () => {
                   Most Popular
                 </div>
                 <div className="p-8 pt-12">
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Professional</h3>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                    Professional
+                  </h3>
                   <div className="flex items-baseline mb-6">
-                    <span className="text-5xl font-extrabold text-gray-900 dark:text-white">$49</span>
-                    <span className="text-xl text-gray-500 dark:text-gray-400 ml-1">/month</span>
+                    <span className="text-5xl font-extrabold text-gray-900 dark:text-white">
+                      $49
+                    </span>
+                    <span className="text-xl text-gray-500 dark:text-gray-400 ml-1">
+                      /month
+                    </span>
                   </div>
                   <p className="text-gray-600 dark:text-gray-300 mb-6">
                     Ideal for growing businesses with more advanced needs.
@@ -741,7 +859,9 @@ const Landing = () => {
                     ].map((feature, i) => (
                       <li key={i} className="flex items-center">
                         <Check className="h-5 w-5 text-emerald-500 mr-2 flex-shrink-0" />
-                        <span className="text-gray-600 dark:text-gray-300">{feature}</span>
+                        <span className="text-gray-600 dark:text-gray-300">
+                          {feature}
+                        </span>
                       </li>
                     ))}
                   </ul>
@@ -758,13 +878,20 @@ const Landing = () => {
               {/* Enterprise Plan */}
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden border border-gray-100 dark:border-gray-700 transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1">
                 <div className="p-8">
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Enterprise</h3>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                    Enterprise
+                  </h3>
                   <div className="flex items-baseline mb-6">
-                    <span className="text-5xl font-extrabold text-gray-900 dark:text-white">$99</span>
-                    <span className="text-xl text-gray-500 dark:text-gray-400 ml-1">/month</span>
+                    <span className="text-5xl font-extrabold text-gray-900 dark:text-white">
+                      $99
+                    </span>
+                    <span className="text-xl text-gray-500 dark:text-gray-400 ml-1">
+                      /month
+                    </span>
                   </div>
                   <p className="text-gray-600 dark:text-gray-300 mb-6">
-                    Advanced features for larger organizations with complex needs.
+                    Advanced features for larger organizations with complex
+                    needs.
                   </p>
 
                   <ul className="space-y-4 mb-8">
@@ -779,7 +906,9 @@ const Landing = () => {
                     ].map((feature, i) => (
                       <li key={i} className="flex items-center">
                         <Check className="h-5 w-5 text-emerald-500 mr-2 flex-shrink-0" />
-                        <span className="text-gray-600 dark:text-gray-300">{feature}</span>
+                        <span className="text-gray-600 dark:text-gray-300">
+                          {feature}
+                        </span>
                       </li>
                     ))}
                   </ul>
@@ -804,7 +933,8 @@ const Landing = () => {
                 Ready to streamline your quotation process?
               </h2>
               <p className="text-emerald-100 text-lg">
-                Join thousands of businesses that trust QuoteFlow for their invoicing needs. Get started today!
+                Join thousands of businesses that trust QuoteFlow for their
+                invoicing needs. Get started today!
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-4">
@@ -839,24 +969,40 @@ const Landing = () => {
                 </span>
               </div>
               <p className="text-gray-600 dark:text-gray-300 mb-4 max-w-xs">
-                The all-in-one platform for creating professional quotes, getting approvals, and converting to invoices.
+                The all-in-one platform for creating professional quotes,
+                getting approvals, and converting to invoices.
               </p>
               <div className="flex space-x-4">
                 <a href="#" className="text-gray-400 hover:text-gray-500">
                   <span className="sr-only">Twitter</span>
-                  <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <svg
+                    className="h-6 w-6"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
                     <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
                   </svg>
                 </a>
                 <a href="#" className="text-gray-400 hover:text-gray-500">
                   <span className="sr-only">LinkedIn</span>
-                  <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <svg
+                    className="h-6 w-6"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
                     <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
                   </svg>
                 </a>
                 <a href="#" className="text-gray-400 hover:text-gray-500">
                   <span className="sr-only">Facebook</span>
-                  <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <svg
+                    className="h-6 w-6"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
                     <path
                       fillRule="evenodd"
                       d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"
@@ -867,9 +1013,17 @@ const Landing = () => {
               </div>
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Product</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                Product
+              </h3>
               <ul className="space-y-2">
-                {["Features", "Pricing", "Integrations", "FAQ", "Changelog"].map((item) => (
+                {[
+                  "Features",
+                  "Pricing",
+                  "Integrations",
+                  "FAQ",
+                  "Changelog",
+                ].map((item) => (
                   <li key={item}>
                     <a
                       href="#"
@@ -882,33 +1036,41 @@ const Landing = () => {
               </ul>
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Company</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                Company
+              </h3>
               <ul className="space-y-2">
-                {["About", "Blog", "Careers", "Press", "Partners"].map((item) => (
-                  <li key={item}>
-                    <a
-                      href="#"
-                      className="text-gray-600 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400"
-                    >
-                      {item}
-                    </a>
-                  </li>
-                ))}
+                {["About", "Blog", "Careers", "Press", "Partners"].map(
+                  (item) => (
+                    <li key={item}>
+                      <a
+                        href="#"
+                        className="text-gray-600 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400"
+                      >
+                        {item}
+                      </a>
+                    </li>
+                  )
+                )}
               </ul>
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Resources</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                Resources
+              </h3>
               <ul className="space-y-2">
-                {["Documentation", "Guides", "Support", "API", "Community"].map((item) => (
-                  <li key={item}>
-                    <a
-                      href="#"
-                      className="text-gray-600 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400"
-                    >
-                      {item}
-                    </a>
-                  </li>
-                ))}
+                {["Documentation", "Guides", "Support", "API", "Community"].map(
+                  (item) => (
+                    <li key={item}>
+                      <a
+                        href="#"
+                        className="text-gray-600 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400"
+                      >
+                        {item}
+                      </a>
+                    </li>
+                  )
+                )}
               </ul>
             </div>
           </div>
@@ -940,8 +1102,7 @@ const Landing = () => {
         </div>
       </footer>
     </div>
-  )
-}
+  );
+};
 
-export default Landing
-
+export default Landing;

@@ -1,8 +1,15 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import axios from "axios"
 import {
-
+  Menu,
+  X,
+  Home,
+  Users,
+  ClipboardList,
+  FileText,
+  Bell,
   Settings,
   User,
   Lock,
@@ -10,7 +17,8 @@ import {
   Camera,
   Save,
   LogOut,
-
+  Moon,
+  Sun,
   Globe,
   BellRing,
   Palette,
@@ -23,25 +31,45 @@ import {
   Facebook,
   Slack,
 } from "lucide-react"
-import SideBar from "../components/SideBar"
-import P3 from "../assets/Images/P3.jpg"
-import Header from "../components/Header"
 
 export default function UserProfile() {
+  const [isOpen, setIsOpen] = useState(true)
   const [activeTab, setActiveTab] = useState("profile")
   const [darkMode, setDarkMode] = useState(false)
   const [profileImage, setProfileImage] = useState("/placeholder.svg?height=200&width=200")
   const [isEditing, setIsEditing] = useState(false)
   const [userInfo, setUserInfo] = useState({
-    name: "Alex Johnson",
-    email: "alex.johnson@example.com",
-    phone: "+1 (555) 123-4567",
-    location: "New York, USA",
-    jobTitle: "Administrator",
-    department: "Management",
-    joinDate: "Jan 15, 2023",
-    bio: "Experienced administrator with a background in project management and team leadership. Passionate about streamlining business processes and improving efficiency.",
+    name: "",
+    email: "",
+    phone: "",
+    location: "",
+    jobTitle: "",
+    department: "",
+    joinDate: "",
+    bio: "",
   })
+
+  const getUserProfileData = async () => {
+    try {
+      const response = await axios.get("http://localhost:3000/api/v1/users/user")
+      setUserInfo({
+        name: response.data.user.firstName,
+        email: response.data.user.email,
+        phone: response.data.user.phone,
+        location: response.data.user.location,
+        jobTitle: response.data.user.jobTitle,
+        department: response.data.user.department,
+        joinDate: response.data.user.joinDate,
+        bio: response.data.user.bio,
+      })
+    } catch (error) {
+      console.log("Error fetching the user data", error)
+    }
+  }
+
+  useEffect(() => {
+    getUserProfileData()
+  }, [])
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -51,9 +79,13 @@ export default function UserProfile() {
     }))
   }
 
-  const handleSaveProfile = () => {
-    // In a real app, you would save the profile data to the server here
-    setIsEditing(false)
+  const handleSaveProfile = async () => {
+    try {
+      await axios.put("http://localhost:3000/api/v1/users/update", userInfo)
+      setIsEditing(false)
+    } catch (error) {
+      console.log("Error updating user data", error)
+    }
   }
 
   const handleImageUpload = (e) => {
@@ -70,12 +102,92 @@ export default function UserProfile() {
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white">
       {/* Sidebar */}
-      <SideBar />
+      <div
+        className={`bg-white dark:bg-gray-800 shadow-lg ${
+          isOpen ? "w-64" : "w-20"
+        } transition-all duration-300 z-20 border-r border-gray-200 dark:border-gray-700 relative`}
+      >
+        <div className="p-4 flex items-center justify-between border-b border-gray-200 dark:border-gray-700">
+          {isOpen ? (
+            <div className="flex items-center">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-bold text-xl">
+                Q
+              </div>
+              <span className="ml-2 text-xl font-bold bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent">
+                QuoteFlow
+              </span>
+            </div>
+          ) : (
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-bold text-xl mx-auto">
+              Q
+            </div>
+          )}
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="focus:outline-none text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition duration-200"
+          >
+            {isOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
+
+        <div className="p-4">
+          <nav className="flex flex-col gap-2">
+            <NavItem icon={<Home size={20} />} text="Dashboard" isOpen={isOpen} />
+            <NavItem icon={<Users size={20} />} text="Customers" isOpen={isOpen} />
+            <NavItem icon={<ClipboardList size={20} />} text="Quotations" isOpen={isOpen} />
+            <NavItem icon={<FileText size={20} />} text="Invoices" isOpen={isOpen} />
+            <NavItem icon={<Bell size={20} />} text="Notifications" isOpen={isOpen} badge="5" />
+            <NavItem icon={<Settings size={20} />} text="Settings" isOpen={isOpen} isActive={true} />
+          </nav>
+        </div>
+
+        {isOpen && (
+          <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex items-center">
+              <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
+                <img src={profileImage || "/placeholder.svg"} alt="Profile" className="w-full h-full object-cover" />
+              </div>
+              <div className="ml-3">
+                <p className="text-sm font-medium">{userInfo.name}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{userInfo.jobTitle}</p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <Header profileimg = {profileImage}/>
+        <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 p-4 sticky top-0 z-10">
+          <div className="flex items-center justify-between">
+            <h1 className="text-xl font-semibold text-gray-800 dark:text-white">Profile Settings</h1>
+
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => setDarkMode(!darkMode)}
+                className="p-2 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
+              >
+                {darkMode ? (
+                  <Sun size={20} className="text-gray-600 dark:text-gray-300" />
+                ) : (
+                  <Moon size={20} className="text-gray-600 dark:text-gray-300" />
+                )}
+              </button>
+
+              <button className="relative p-2 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200">
+                <Bell size={20} className="text-gray-600 dark:text-gray-300" />
+                <span className="absolute top-0 right-0 w-4 h-4 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">
+                  5
+                </span>
+              </button>
+
+              <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
+                <img src={profileImage || "/placeholder.svg"} alt="Profile" className="w-full h-full object-cover" />
+              </div>
+            </div>
+          </div>
+        </header>
 
         {/* Profile Content */}
         <div className="flex-1 overflow-auto p-6">
@@ -87,7 +199,7 @@ export default function UserProfile() {
                   <div className="relative">
                     <div className="w-32 h-32 rounded-full border-4 border-white dark:border-gray-800 bg-white dark:bg-gray-700 overflow-hidden">
                       <img
-                        src={P3 || profileImage}
+                        src={profileImage || "/placeholder.svg"}
                         alt="Profile"
                         className="w-full h-full object-cover"
                       />
@@ -878,6 +990,36 @@ export default function UserProfile() {
           </div>
         </div>
       </div>
+    </div>
+  )
+}
+
+// Sidebar Navigation Item
+function NavItem({ icon, text, isOpen, isActive, badge }) {
+  return (
+    <div
+      className={`flex items-center ${isOpen ? "justify-start" : "justify-center"} p-3 rounded-lg cursor-pointer transition-all duration-200 ${
+        isActive
+          ? "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400"
+          : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white"
+      }`}
+    >
+      <div className={`${isActive ? "text-emerald-600 dark:text-emerald-400" : ""}`}>{icon}</div>
+      {isOpen && (
+        <div className="ml-3 flex-1 flex items-center justify-between">
+          <span className={`font-medium ${isActive ? "text-emerald-600 dark:text-emerald-400" : ""}`}>{text}</span>
+          {badge && (
+            <span className="px-2 py-0.5 text-xs rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400">
+              {badge}
+            </span>
+          )}
+        </div>
+      )}
+      {!isOpen && badge && (
+        <span className="absolute top-0 right-0 w-4 h-4 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">
+          {badge}
+        </span>
+      )}
     </div>
   )
 }

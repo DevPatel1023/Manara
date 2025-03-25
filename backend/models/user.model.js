@@ -31,7 +31,27 @@ const userSchema = new mongoose.Schema({
     trim : true,
     select:false
    } ,
-   role: { type: String, enum: ["admin", "client"], required: true, lowercase: true }
+   role: { type: String, enum: ["admin", "client"], required: true, lowercase: true },
+   loation : {
+      type : String,
+      default : 'Not provided'
+   },
+   JobTitle : {
+      type : String,
+      default : ''
+   },
+   department : {
+      type : String,
+      default : 'Not provided'
+   },
+   joinDate : {
+      type : String,
+      default : Date.now
+   },
+   bio : {
+      type : String,
+      default : ''
+   },
 
 },{timestamps : true});
 
