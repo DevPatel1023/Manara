@@ -22,6 +22,7 @@ import {
 } from "lucide-react"
 import SideBar from "../components/SideBar"
 import Header from "../components/Header"
+import Topbar from "../components/TopBar"
 
 export default function Quotations() {
   const [isOpen, setIsOpen] = useState(true)
@@ -136,7 +137,7 @@ export default function Quotations() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <Header />
+        <Topbar title="Quotations" />
 
         {/* Quotations Content */}
         <div className="flex-1 overflow-auto p-6">

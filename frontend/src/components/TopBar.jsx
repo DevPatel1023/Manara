@@ -1,10 +1,10 @@
 "use client"
 
-import { Bell, Search, Sun, Moon } from "lucide-react"
+import { Bell, Sun, Moon } from "lucide-react"
 import { useState, useEffect } from "react"
 import {Link} from "react-router-dom"
 
-const Topbar = ({ role }) => {
+const Topbar = ({ role , title}) => {
   const [isDarkMode, setIsDarkMode] = useState(false)
 
   // Toggle dark mode
@@ -36,18 +36,11 @@ const Topbar = ({ role }) => {
     <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 p-4 sticky top-0 z-10">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold text-gray-800 dark:text-white">
-          {role === "admin" ? "Admin Dashboard" : "Client Dashboard"}
+          {role === "admin" ? "Admin Dashboard" : "Client Dashboard"} {title}
         </h1>
 
-        <div className="flex items-center space-x-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-            <input
-              type="text"
-              placeholder="Search..."
-              className="pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 focus:border-transparent"
-            />
-          </div>
+        <div className="flex items-center space-x-5">
+          
 
           <button
             onClick={toggleDarkMode}

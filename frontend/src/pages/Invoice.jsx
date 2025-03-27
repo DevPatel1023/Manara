@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Menu, X, Home, Users, ClipboardList, FileText, Bell, Settings, Search, Filter, Plus, MoreHorizontal, Download, Eye, Edit, Trash2, ChevronLeft, ChevronRight, CreditCard, CheckCircle, AlertCircle, Clock, ArrowUpRight, Calendar, DollarSign, ArrowDownRight, Printer, Send, FileCheck, Ban, ChevronDown, ArrowRight, Wallet, BarChart3 } from 'lucide-react';
 import SideBar from "../components/SideBar";
 import Header from "../components/Header";
+import Topbar from "../components/TopBar";
 
 export default function Invoices() {
   const [isOpen, setIsOpen] = useState(true);
@@ -229,7 +230,7 @@ export default function Invoices() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <Header />
+        <Topbar title="Invoice" />
         
         {/* Invoices Content */}
         <div className="flex-1 overflow-auto p-6">
