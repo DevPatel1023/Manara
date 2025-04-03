@@ -82,10 +82,11 @@ const Sidebar = ({ role }) => {
 
       {isOpen && (
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 dark:border-gray-700">
+          <Link to="/userProfile"> 
           <div className="flex items-center">
             <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
-              <img src="/placeholder.svg?height=40&width=40" alt="Profile" className="w-full h-full object-cover" />
-            </div>
+             <img src="/placeholder.svg?height=40&width=40" alt="Profile" className="w-full h-full object-cover" />
+          </div>
             <div className="ml-3">
               <p className="text-sm font-medium text-gray-800 dark:text-white">
                 {role === "admin" ? "Admin User" : "Client User"}
@@ -95,6 +96,7 @@ const Sidebar = ({ role }) => {
               </p>
             </div>
           </div>
+          </Link> 
         </div>
       )}
     </div>

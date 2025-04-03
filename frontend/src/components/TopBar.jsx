@@ -4,7 +4,7 @@ import { Bell, Sun, Moon } from "lucide-react"
 import { useState, useEffect } from "react"
 import {Link} from "react-router-dom"
 
-const Topbar = ({ role , title}) => {
+const Topbar = ({title}) => {
   const [isDarkMode, setIsDarkMode] = useState(false)
 
   // Toggle dark mode
@@ -36,7 +36,7 @@ const Topbar = ({ role , title}) => {
     <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 p-4 sticky top-0 z-10">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold text-gray-800 dark:text-white">
-          {role === "admin" ? "Admin Dashboard" : "Client Dashboard"} {title}
+          {title}
         </h1>
 
         <div className="flex items-center space-x-5">

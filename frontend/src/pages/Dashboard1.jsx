@@ -8,9 +8,7 @@ import ClientDashboard from "../components/ClientDashboard";
 const Dashboard1 = () => {
   const navigate = useNavigate();
   const [userRole, setUserRole] = useState(null);
-  const [loading, setLoading] = useState(true);
 
-  // Check if user is logged in, otherwise redirect to signin
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -20,7 +18,7 @@ const Dashboard1 = () => {
 
   useEffect(() => {
     const fetchUserRole = async () => {
-      const token = localStorage.getItem("token"); // ✅ Fetch token inside the function
+      const token = localStorage.getItem("token");
 
       if (!token) {
         console.log("No token found, redirecting...");
@@ -35,31 +33,22 @@ const Dashboard1 = () => {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        
+
         const role = response.data.user.role;
         setUserRole(role);
       } catch (error) {
         console.log("Error fetching user role:", error);
-      } finally {
-        setLoading(false);
       }
     };
 
     fetchUserRole();
   }, [navigate]);
 
-  if (loading) {
-    return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center h-full">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        </div>
-      </DashboardLayout>
-    );
-  }
+  // ✅ Set title based on role
+  const title = userRole === "admin" ? "Admin Dashboard" : "Client Dashboard";
 
   return (
-    <DashboardLayout role={userRole}>
+    <DashboardLayout role={userRole} title={title}>
       {userRole === "admin" ? <AdminDashboard /> : <ClientDashboard />}
     </DashboardLayout>
   );

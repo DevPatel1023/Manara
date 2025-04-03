@@ -24,7 +24,7 @@ const ClientDashboard = () => {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">Welcome back, Sarah!</h2>
-        <p className="text-gray-600 dark:text-gray-300">Here's an overview of your account with Acme Inc.</p>
+        <p className="text-gray-800 dark:text-gray-300">Here's an overview of your account with Acme Inc.</p>
       </div>
 
       {/* Tabs */}
