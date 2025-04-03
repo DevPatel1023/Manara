@@ -1,16 +1,11 @@
 const RFQ = require("../models/RFQ.model.js");
-// const user = require("../models/user.model.js");
 
-
-// 1. create the rfq data and like saved it basically the rfq data in the database
+// 1. Create RFQ
 const createRFQ = async (req, res) => {
     try {
-        //rfq form data coming from the frontend body
         const { title, quantity, description, deadline } = req.body;
         if (!title || !quantity || !description || !deadline) {
-            return res.status(400).json({
-                msg: "All Fileds are required"
-            });
+            return res.status(400).json({ msg: "All Fields are required" });
         }
 
         const newRFQ = new RFQ({
@@ -21,111 +16,70 @@ const createRFQ = async (req, res) => {
             deadline
         });
 
-        //store newRFQ in database
         await newRFQ.save();
-        return res.status(200).json({
-            msg: "RFQ created successfully",
-            rfq: newRFQ
-        });
+        return res.status(200).json({ msg: "RFQ created successfully", rfq: newRFQ });
     } catch (error) {
-        console.log(error);
-        return res.status(500).json({
-            msg: "Internal server error"
-        });
+        console.error(error);
+        return res.status(500).json({ msg: "Internal server error" });
     }
-
 }
 
-
-// 2.Get RFQs submitted by client
+// 2. Get RFQs Submitted by a Client
 const getClientRFQS = async (req, res) => {
     try {
-        const userid = req.user.id;
-        //fetch the client
-        const clientRfqs = await RFQ.find({ clientId: userid });
-        if (clientRfqs.length === 0) {//check if array is empty
-            return res.status(200).json({
-                msg: "No RFQs found! please create one first.",
-                "clientRfqs": []
-            })
-        }
-        return res.status(200).json({
-            msg: "Your RFQS:",
-            clientRfqs
-        })
+        const clientRfqs = await RFQ.find({ clientId: req.user.id });
+        return res.status(200).json(clientRfqs); // Return as array
     } catch (error) {
-        console.log(error);
-        return res.status(500).json({
-            msg: "Internal server error"
-        });
+        console.error(error);
+        return res.status(500).json({ msg: "Internal server error" });
     }
-
 }
 
-// 3. get all rfqs for the admin to seen where admin accepts or rejects the rfqs of clients
+// 3. Get All RFQs for Admin
 const getAllRFQs = async (req, res) => {
     try {
-        const userid = req.user.id;
-        if (!userid) {
-            return res.status(404).json({
-                msg: "Unauthorized user"
-            });
+        if (req.user.role !== "admin") {
+            return res.status(403).json({ msg: "Forbidden: only admins can access all RFQs" });
         }
-        //fetch all the rfqs and filter them show only pending rfqs
-        const allpendingrfqs = await RFQ.find({ status: "pending" });// store object array 
 
-        return res.status(200).json({
-            msg: "The RFQS are :",
-            allpendingrfqs
-        })
+        // Step 1: Get all RFQs
+        let rfqs = await RFQ.find({}).populate("clientId", "role firstName lastName email");
+
+        // Step 2: Filter RFQs where clientId role is "client"
+        rfqs = rfqs.filter(rfq => rfq.clientId && rfq.clientId.role === "client");
+
+        return res.status(200).json(rfqs);
     } catch (error) {
-        console.log(error);
-        return res.status(500).json({
-            msg: "Internal server error"
-        })
+        console.error("Error fetching RFQs:", error);
+        return res.status(500).json({ msg: "Internal server error" });
     }
-}
+};
 
-// 4. Update the status of the [accept , reject]
+
+
+
+// 4. Update RFQ Status (Admin)
 const updateStatusRFQ = async (req, res) => {
     try {
-        const user = req.user;
-        const { rfqId, statusRfq } = req.body;
-
-        if (!rfqId || !["accepted", "rejected"].includes(statusRfq)) {
-            return res.status(400).json({
-                msg: "Invalid Request"
-            })
+        if (req.user.role !== "admin") {
+            return res.status(403).json({ msg: "Forbidden: only admins can update the RFQ status" });
         }
 
-        //only admins update the rfqs
-        if (user.role !== "admin") {
-            return res.status(403).json({
-                msg: "Forbidden : only admins can update the RFQ status"
-            })
+        const { id, status } = req.body;
+        if (!id || !["accepted", "rejected"].includes(status)) {
+            return res.status(400).json({ msg: "Invalid Request" });
         }
 
-        const updatedRFQ = await RFQ.findByIdAndUpdate(rfqId,
-            { status : statusRfq },
-            { new: true }
-        )
+        const updatedRFQ = await RFQ.findByIdAndUpdate(id, { status }, { new: true });
         if (!updatedRFQ) {
             return res.status(404).json({ msg: "RFQ not found" });
         }
 
-        return res.status(200).json({
-            msg: `RFQ ${statusRfq} successfully`,
-            updatedRFQ
-        })
-
+        return res.status(200).json({ msg: `RFQ ${status} successfully`, updatedRFQ });
     } catch (error) {
-        console.log(error);
+        console.error(error);
+        return res.status(500).json({ msg: "Internal server error" });
     }
 }
 
-module.exports = {
-    createRFQ,
-    getClientRFQS,
-    getAllRFQs,
-    updateStatusRFQ
-}
+module.exports = { createRFQ, getClientRFQS, getAllRFQs, updateStatusRFQ };

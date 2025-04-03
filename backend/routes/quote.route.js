@@ -1,6 +1,6 @@
 const express = require("express");
 const { authenticate, authorization } = require("../middlewares/Auth.js");
-const { createQuotation, getAllQuotations, getQuotationById, updateQuotation, deleteQuotation } = require("../controllers/quote.controller");
+const { createQuotation, getAllQuotations, getQuotationById, updateQuotation, deleteQuotation } = require("../controllers/quote.controller.js");
 
 const router = express.Router();
 

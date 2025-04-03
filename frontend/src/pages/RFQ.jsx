@@ -24,8 +24,8 @@ const RFQ = ({ role }) => {
       const token = localStorage.getItem("token");
       const endpoint =
         role === "admin"
-          ? "http://localhost:3000/api/v1/RFQS/allRFQs"
-          : "http://localhost:3000/api/v1/RFQS/myRFQs";
+          ? "http://localhost:3000/api/v1/RFQS/getAllRFQs"
+          : "http://localhost:3000/api/v1/RFQS/myRfqs";
 
       const response = await axios.get(endpoint, {
         headers: { Authorization: `Bearer ${token}` },
