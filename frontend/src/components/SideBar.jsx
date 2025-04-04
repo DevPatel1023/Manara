@@ -2,125 +2,257 @@
 
 import { useState } from "react"
 import { Link, useLocation } from "react-router-dom"
-import { Home, Users, ClipboardList, FileText, Settings, Menu, X, FileCheck, CreditCard, User } from "lucide-react"
+import {
+  Home,
+  Users,
+  FileText,
+  ClipboardList,
+  CreditCard,
+  Settings,
+  LogOut,
+  ChevronDown,
+  ChevronRight,
+  BarChart2,
+  Calendar,
+  MessageSquare,
+} from "lucide-react"
 
-const Sidebar = ({ role }) => {
-  const [isOpen, setIsOpen] = useState(true)
+const Sidebar = ({ role = "client" }) => {
   const location = useLocation()
+  const [expanded, setExpanded] = useState(true)
+  const [activeSubmenu, setActiveSubmenu] = useState(null)
 
-  // Define navigation items based on role
+  const toggleSubmenu = (menu) => {
+    setActiveSubmenu(activeSubmenu === menu ? null : menu)
+  }
+
   const getNavItems = () => {
     const commonItems = [
-      { icon: Home, text: "Dashboard", path: "/dashboard" },
-      { icon: ClipboardList, text: "Quotations", path: "/quotation" },
-      { icon: FileCheck, text: "RFQs", path: "/rfq" },
-      { icon: FileText, text: "Invoices", path: "/invoice" },
+      {
+        name: "Dashboard",
+        icon: <Home size={20} />,
+        path: "/dashboard",
+      },
+      {
+        name: "Settings",
+        icon: <Settings size={20} />,
+        path: "/dashboard/settings",
+      },
     ]
 
-    // Admin-specific items
-    if (role === "admin") {
-      return [
-        ...commonItems,
-        { icon: Users, text: "Customers", path: "/customers" },
-        { icon: Settings, text: "Settings", path: "/settings" },
-      ]
-    }
-
-    // Client-specific items
-    return [
+    const adminItems = [
       ...commonItems,
-      { icon: User, text: "Profile", path: "/userprofile" },
-      { icon: CreditCard, text: "Payments", path: "/payments" },
+      {
+        name: "Customers",
+        icon: <Users size={20} />,
+        path: "/dashboard/customers",
+      },
+      {
+        name: "Quotations",
+        icon: <ClipboardList size={20} />,
+        path: "/dashboard/quotations",
+      },
+      {
+        name: "RFQs",
+        icon: <FileText size={20} />,
+        path: "/dashboard/rfq",
+      },
+      {
+        name: "Invoices",
+        icon: <CreditCard size={20} />,
+        path: "/dashboard/invoices",
+      },
+      {
+        name: "Reports",
+        icon: <BarChart2 size={20} />,
+        path: "/dashboard/reports",
+        submenu: [
+          { name: "Sales", path: "/dashboard/reports/sales" },
+          { name: "Customers", path: "/dashboard/reports/customers" },
+          { name: "Revenue", path: "/dashboard/reports/revenue" },
+        ],
+      },
+      {
+        name: "Employees",
+        icon: <Users size={20} />,
+        path: "/dashboard/employees",
+      },
     ]
+
+    const clientItems = [
+      ...commonItems,
+      {
+        name: "Quotations",
+        icon: <ClipboardList size={20} />,
+        path: "/dashboard/client/quotations",
+      },
+      {
+        name: "RFQs",
+        icon: <FileText size={20} />,
+        path: "/dashboard/client/rfq",
+      },
+      {
+        name: "Invoices",
+        icon: <CreditCard size={20} />,
+        path: "/dashboard/client/invoices",
+      },
+    ]
+
+    const employeeItems = [
+      ...commonItems,
+      {
+        name: "Tasks",
+        icon: <ClipboardList size={20} />,
+        path: "/dashboard/employee/tasks",
+      },
+      {
+        name: "Calendar",
+        icon: <Calendar size={20} />,
+        path: "/dashboard/employee/calendar",
+      },
+      {
+        name: "Messages",
+        icon: <MessageSquare size={20} />,
+        path: "/dashboard/employee/messages",
+      },
+      {
+        name: "Customers",
+        icon: <Users size={20} />,
+        path: "/dashboard/employee/customers",
+      },
+    ]
+
+    switch (role) {
+      case "admin":
+        return adminItems
+      case "employee":
+        return employeeItems
+      case "client":
+      default:
+        return clientItems
+    }
   }
 
   const navItems = getNavItems()
 
   return (
     <div
-      className={`bg-white dark:bg-gray-800 shadow-lg ${
-        isOpen ? "w-64" : "w-20"
-      } transition-all duration-300 z-20 border-r border-gray-200 dark:border-gray-700 relative h-screen`}
+      className={`${
+        expanded ? "w-64" : "w-20"
+      } bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 ease-in-out flex flex-col h-full`}
     >
-      <div className="p-4 flex items-center justify-between border-b border-gray-200 dark:border-gray-700">
-        {isOpen ? (
-          <div className="flex items-center">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white font-bold text-xl">
-             <Link to="/"> Q </Link>
-            </div>
-            <span className="ml-2 text-xl font-bold bg-gradient-to-r from-emerald-600 to-emerald-500 bg-clip-text text-transparent">
-              <Link to="/"> QuoteFlow</Link>
-            </span>
-          </div>
+      {/* Header with Hamburger Menu */}
+      <div className="p-4 flex items-center justify-between h-16 border-b border-gray-200 dark:border-gray-700">
+        {expanded ? (
+          <h1 className="text-xl font-bold text-emerald-600 dark:text-emerald-400">Dashboard</h1>
         ) : (
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white font-bold text-xl mx-auto">
-            Q
+          <div className="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center text-white font-bold">
+            D
           </div>
         )}
         <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="focus:outline-none text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition duration-200"
+          onClick={() => setExpanded(!expanded)}
+          className="text-gray-600 dark:text-gray-300 focus:outline-none"
         >
-          {isOpen ? <X size={20} /> : <Menu size={20} />}
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
         </button>
       </div>
 
-      <div className="p-4">
-        <nav className="flex flex-col gap-2">
+      {/* Navigation */}
+      <div className="flex-1 overflow-y-auto py-4">
+        <nav className="px-2 space-y-1">
           {navItems.map((item) => (
-            <NavItem
-              key={item.path}
-              icon={<item.icon size={20} />}
-              text={item.text}
-              path={item.path}
-              isOpen={isOpen}
-              isActive={location.pathname === item.path}
-            />
+            <div key={item.name}>
+              {item.submenu ? (
+                <div className="mb-1">
+                  <button
+                    onClick={() => toggleSubmenu(item.name)}
+                    className={`${
+                      location.pathname.startsWith(item.path)
+                        ? "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400"
+                        : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    } group flex items-center w-full px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200`}
+                  >
+                    <span className="mr-3">{item.icon}</span>
+                    {expanded && (
+                      <>
+                        <span className="flex-1">{item.name}</span>
+                        {activeSubmenu === item.name ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                      </>
+                    )}
+                  </button>
+                  {expanded && activeSubmenu === item.name && (
+                    <div className="ml-8 mt-1 space-y-1">
+                      {item.submenu.map((subitem) => (
+                        <Link
+                          key={subitem.name}
+                          to={subitem.path}
+                          className={`${
+                            location.pathname === subitem.path
+                              ? "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400"
+                              : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                          } group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200`}
+                        >
+                          {subitem.name}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <Link
+                  to={item.path}
+                  className={`${
+                    location.pathname === item.path
+                      ? "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400"
+                      : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  } group flex items-center px-3 py-2 text-sm font-medium rounded-md mb-1 transition-colors duration-200`}
+                >
+                  <span className="mr-3">{item.icon}</span>
+                  {expanded && <span>{item.name}</span>}
+                </Link>
+              )}
+            </div>
           ))}
         </nav>
       </div>
 
-      {isOpen && (
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 dark:border-gray-700">
-          <Link to="/userProfile"> 
-          <div className="flex items-center">
-            <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
-             <img src="/placeholder.svg?height=40&width=40" alt="Profile" className="w-full h-full object-cover" />
-          </div>
-            <div className="ml-3">
-              <p className="text-sm font-medium text-gray-800 dark:text-white">
-                {role === "admin" ? "Admin User" : "Client User"}
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                {role === "admin" ? "Administrator" : "Client"}
-              </p>
+      {/* User Profile & Logout */}
+      <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+        <div className="flex items-center">
+          <div className="flex-shrink-0">
+            <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-700 dark:text-gray-300 font-semibold">
+              {role === "admin" ? "A" : role === "employee" ? "E" : "C"}
             </div>
           </div>
-          </Link> 
+          {expanded && (
+            <div className="ml-3">
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                {role === "admin" ? "Admin User" : role === "employee" ? "Employee User" : "Client User"}
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">{role}</p>
+            </div>
+          )}
         </div>
-      )}
+        <button
+          className={`mt-4 ${
+            expanded ? "w-full" : "w-full justify-center"
+          } flex items-center px-3 py-2 text-sm font-medium rounded-md text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200`}
+        >
+          <LogOut size={20} className="mr-2" />
+          {expanded && <span>Logout</span>}
+        </button>
+      </div>
     </div>
   )
 }
 
-// Sidebar Navigation Item
-const NavItem = ({ icon, text, path, isOpen, isActive }) => {
-  return (
-    <Link
-      to={path}
-      className={`flex items-center ${isOpen ? "justify-start" : "justify-center"} p-3 rounded-lg cursor-pointer transition-all duration-200 ${
-        isActive
-          ? "bg-blue-50 dark:bg-blue-900/20 text-emerald-600 dark:text-emerald-400"
-          : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white"
-      }`}
-    >
-      <div className={`${isActive ? "text-emerald-600 dark:text-emerald-400" : ""}`}>{icon}</div>
-      {isOpen && (
-        <span className={`ml-3 font-medium ${isActive ? "text-emerald-600 dark:text-emerald-400" : ""}`}>{text}</span>
-      )}
-    </Link>
-  )
-}
-
 export default Sidebar
-

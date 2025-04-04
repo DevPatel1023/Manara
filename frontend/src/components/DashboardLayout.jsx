@@ -1,45 +1,30 @@
 "use client"
 
 import { useEffect } from "react"
-import { useNavigate, useLocation } from "react-router-dom"
-import Sidebar from "./SideBar"
-import Topbar from "./TopBar"
+import { useNavigate } from "react-router-dom"
+import Sidebar from "./Sidebar"
+import Topbar from "./Topbar"
 
-const DashboardLayout = ({ role, children, title }) => {
+const DashboardLayout = ({ role, children }) => {
   const navigate = useNavigate()
-  const location = useLocation()
-
-  // Function to set a default title if prop is not provided
-  const getDefaultTitle = (pathname) => {
-    switch (pathname) {
-      case "/rfq":
-        return "Your RFQs";
-      case "/profile":
-        return "User Profile";
-      case "/settings":
-        return "Settings";
-      default:
-        return "Dashboard"; // Default title for unknown routes
-    }
-  };
 
   useEffect(() => {
     const token = localStorage.getItem("token")
     if (!token) {
-      navigate("/signin")
+      navigate("/signin") // Redirect if not logged in
     }
   }, [navigate])
 
   return (
     <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
-      <Sidebar role={role} />
+      <Sidebar role={role} /> {/* Dynamically render sidebar based on role */}
       <div className="flex-1 overflow-auto">
-        {/* ✅ Use `title` prop if available, otherwise fallback to `getDefaultTitle` */}
-        <Topbar title={title || getDefaultTitle(location.pathname)} />
-        <div className="p-6">{children}</div>
+        <Topbar className="mb-3" role={role} />
+        <div className="mt-3 p-6">{children}</div>
       </div>
     </div>
   )
 }
 
-export default DashboardLayout;
+export default DashboardLayout
+

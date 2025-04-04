@@ -21,7 +21,7 @@ function App() {
             <Route path="/quotation" element={<Quotation />} />
             <Route path="/customers" element={<Customers />} />
             <Route path="/invoice" element={<Invoice />} />
-            <Route path="/rfq" element={<RFQ />} />
+            <Route path="/dashboard/client/rfq" element={<RFQ />} />
             <Route path="/userprofile" element={<UserProfile />} />
             <Route path="/signin" element={<Signin />} />
             <Route path="/signup" element={<Signup />} />

@@ -4,6 +4,7 @@ import DashboardLayout from "../components/DashboardLayout";
 import axios from "axios";
 import AdminDashboard from "../components/AdminDashboard";
 import ClientDashboard from "../components/ClientDashboard";
+import EmployeeDashboard from "../components/EmployeeDashboard";
 
 const Dashboard1 = () => {
   const navigate = useNavigate();
@@ -44,12 +45,15 @@ const Dashboard1 = () => {
     fetchUserRole();
   }, [navigate]);
 
-  // ✅ Set title based on role
-  const title = userRole === "admin" ? "Admin Dashboard" : "Client Dashboard";
-
   return (
-    <DashboardLayout role={userRole} title={title}>
-      {userRole === "admin" ? <AdminDashboard /> : <ClientDashboard />}
+    <DashboardLayout role={userRole}>
+      {userRole === "admin" ? (
+        <AdminDashboard />
+      ) : userRole === "employee" ? (
+        <EmployeeDashboard />
+      ) : (
+        <ClientDashboard />
+      )}
     </DashboardLayout>
   );
 };

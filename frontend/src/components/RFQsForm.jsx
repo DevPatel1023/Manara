@@ -1,159 +1,261 @@
 import { useState } from "react";
+import InputBox from "./InputBox";
+
 import axios from "axios";
-import { X } from "lucide-react";
 
-const RFQsForm = ({ setIsOpen, fetchRFQs }) => {
-  const [formValue, setFormValue] = useState({
-    title: "",
-    quantity: "",
-    description: "",
+const BASE_URL = "http://localhost:3000/api/v1/RFQS";
+
+export default function RFQForm() {
+  const [rfqData, setRfqData] = useState({
+    companyName: "",
+    name: "",  
+    email: "",
+    phoneNumber: "", 
+    serviceRequired: "",  
+    projectDescription: "",  
+    estimatedBudget: "",  
     deadline: "",
+    additionalNotes: "",
+    file: null,
   });
-
-  const [formErrors, setFormErrors] = useState({});
+  
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
-    setFormValue({ ...formValue, [e.target.name]: e.target.value });
-
-    if (formErrors[e.target.name]) {
-      setFormErrors({ ...formErrors, [e.target.name]: "" });
-    }
+    const { name, value } = e.target;
+    setRfqData({ ...rfqData, [name]: value });
+    // Clear any previous error messages when user starts typing
+    setError("");
   };
 
+  const handleFileChange = (e) => {
+    setRfqData({ ...rfqData, file: e.target.files[0] || null });
+  };
+
+  // Validate required fields
   const validateForm = () => {
-    const errors = {};
-    let isValid = true;
-
-    if (!formValue.title.trim()) {
-      errors.title = "Item title is required";
-      isValid = false;
+    // Update required field names to match backend expectations
+    const requiredFields = ['companyName', 'name', 'email', 'phoneNumber', 'serviceRequired', 'projectDescription', 'deadline'];
+    const missingFields = requiredFields.filter(field => !rfqData[field]);
+    
+    if (missingFields.length > 0) {
+      setError(`Please fill in all required fields: ${missingFields.join(', ')}`);
+      return false;
     }
-
-    if (!formValue.quantity || formValue.quantity <= 0) {
-      errors.quantity = "Valid quantity is required";
-      isValid = false;
-    }
-
-    if (!formValue.deadline) {
-      errors.deadline = "Deadline is required";
-      isValid = false;
-    }
-
-    setFormErrors(errors);
-    return isValid;
+    return true;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate the form before submission
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsSubmitting(true);
     setError("");
-    setSuccess("");
+    
+    // Create a new object without the file for JSON submission
+    const dataToSubmit = { ...rfqData };
+    
+    // Remove the file property if it's null or not needed in the API
+    if (!dataToSubmit.file) {
+      delete dataToSubmit.file;
+    }
 
-    if (!validateForm()) return;
-
-    setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      await axios.post(
-        "http://localhost:3000/api/v1/RFQS/submitRfq",
-        formValue,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setSuccess("RFQ submitted successfully!");
-      setFormValue({ title: "", quantity: "", description: "", deadline: "" });
-      setTimeout(() => {
-        setIsOpen(false);
-        fetchRFQs();
-      }, 2000);
+    
+    if (!token) {
+      throw new Error("Authentication token not found");
+    }
+
+    const response = await axios.post(`${BASE_URL}/submitRfq`, rfqData, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+      console.log("Success", response);
+      
+      // Reset form after successful submission
+      setRfqData({
+        companyName: "",
+        name: "",
+        email: "",
+        phoneNumber: "",
+        serviceRequired: "",
+        projectDescription: "",
+        estimatedBudget: "",
+        deadline: "",
+        additionalNotes: "",
+        file: null,
+      });
+      
+      setSuccess(true);
     } catch (error) {
-      setError("Failed to submit RFQ. Please try again.");
+      console.error("Error submitting RFQ:", error);
+      setError(error.response?.data?.msg || "Failed to submit RFQ. Please try again.");
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="flex flex-col bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold text-gray-800 dark:text-white">Create New RFQ</h2>
-        <button
-          onClick={() => setIsOpen(false)}
-          className="p-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-white rounded-full transition-colors duration-200"
+    <div className="p-8 bg-[#1b263b] text-white rounded-lg shadow-lg max-w-3xl mx-auto mt-10">
+      <h2 className="text-3xl font-semibold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent text-center">
+        Request for Quotation (RFQ)
+      </h2>
+      <p className="text-gray-400 text-center text-sm mb-4">
+        Provide your details and project requirements for a custom quotation.
+      </p>
+
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+          <span className="block sm:inline">{error}</span>
+        </div>
+      )}
+
+      {success && (
+        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
+          <span className="block sm:inline">Your RFQ has been submitted successfully!</span>
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-4">
+        {/* Company & Personal Details */}
+        <InputBox
+          title="Company Name *"
+          placeholder="Enter your company Name"
+          type="text"
+          name="companyName"
+          value={rfqData.companyName}
+          onChange={handleChange}
+          required
+        />
+
+        <InputBox
+          title="Name"
+          placeholder="Enter your Name"
+          type="text"
+          name="name"
+          value={rfqData.name}
+          onChange={handleChange}
+          required
+        />
+
+        <InputBox
+          title="Email *"
+          placeholder="Enter your Email"
+          type="email"
+          name="email"
+          value={rfqData.email}
+          onChange={handleChange}
+          required
+        />
+
+        <InputBox
+          title="Phone Number *"
+          placeholder="Enter your Contact Number"
+          type="tel"
+          name="phoneNumber"  
+          value={rfqData.phoneNumber}
+          onChange={handleChange}
+          required
+        />
+
+        <InputBox
+          title="Service Required *"
+          placeholder="eg. Web Development, App Development, UI/UX Design"
+          type="text"
+          name="serviceRequired"  
+          value={rfqData.serviceRequired}
+          onChange={handleChange}
+          required
+        />
+
+        <label
+          htmlFor="projectDescription"
+          className="block text-sm text-gray-900 dark:text-white"
         >
-          <X size={20} />
-        </button>
-      </div>
+          Project Description *
+        </label>
+        <textarea
+          id="projectDescription"
+          rows="4"
+          name="projectDescription"  
+          className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded border border-gray-300 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-emerald-500 dark:focus:border-emerald-500 resize-none"
+          placeholder="Describe your project requirements in detail..."
+          value={rfqData.projectDescription}
+          onChange={handleChange}
+          required
+        ></textarea>
 
-      {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
-      {success && <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">{success}</div>}
-
-      <form className="space-y-4" onSubmit={handleSubmit}>
+        {/* File Upload - Optional */}
         <div>
-          <label htmlFor="title" className="block mb-2 text-sm text-gray-900 dark:text-white">Item</label>
+          <p className="mb-1 text-sm text-gray-900 dark:text-white">
+            Upload Supporting File (Optional)
+          </p>
           <input
-            type="text"
-            id="title"
-            name="title"
-            placeholder="Enter Items here..."
-            className="block w-full p-2.5 text-sm text-gray-900 bg-gray-50 rounded border border-gray-300 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-emerald-500 dark:focus:border-emerald-500"
-            value={formValue.title}
-            onChange={handleChange}
+            type="file"
+            name="file"
+            onChange={handleFileChange}
+            className="block w-full text-sm text-gray-900 border border-gray-300 rounded cursor-pointer bg-gray-50 dark:text-gray-400 dark:bg-gray-700 dark:border-gray-600 focus:outline-none"
           />
-          {formErrors.title && <p className="text-red-500 text-sm mt-1">{formErrors.title}</p>}
         </div>
 
-        <div>
-          <label htmlFor="quantity" className="block mb-2 text-sm text-gray-900 dark:text-white">Quantity</label>
-          <input
-            type="number"
-            id="quantity"
-            name="quantity"
-            placeholder="Quantity of Items..."
-            className="block w-full p-2.5 text-sm text-gray-900 bg-gray-50 rounded border border-gray-300 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-emerald-500 dark:focus:border-emerald-500"
-            value={formValue.quantity}
-            onChange={handleChange}
-          />
-          {formErrors.quantity && <p className="text-red-500 text-sm mt-1">{formErrors.quantity}</p>}
+        <div className="flex gap-4">
+          <div className="flex-1">
+            <InputBox
+              title="Estimated Budget"
+              placeholder="Estimated Budget"
+              type="text"
+              name="estimatedBudget"
+              value={rfqData.estimatedBudget}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="flex-1">
+            <InputBox
+              title="Deadline *"
+              type="date"
+              name="deadline"
+              value={rfqData.deadline}
+              onChange={handleChange}
+              required
+            />
+          </div>
         </div>
 
-        <div>
-          <label htmlFor="description" className="block mb-2 text-sm text-gray-900 dark:text-white">Description</label>
-          <textarea
-            id="description"
-            rows="4"
-            name="description"
-            className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded border border-gray-300 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-emerald-500 dark:focus:border-emerald-500 resize-none"
-            placeholder="Describe your items..."
-            value={formValue.description}
-            onChange={handleChange}
-          ></textarea>
-        </div>
+        {/* Additional Notes */}
+        <label
+          htmlFor="additionalNotes"
+          className="block text-sm text-gray-900 dark:text-white"
+        >
+          Additional Notes
+        </label>
+        <textarea
+          id="additionalNotes"
+          rows="4"
+          name="additionalNotes"
+          className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded border border-gray-300 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-emerald-500 dark:focus:border-emerald-500 resize-none"
+          placeholder="Any additional details or special requirements..."
+          value={rfqData.additionalNotes}
+          onChange={handleChange}
+        ></textarea>
 
-        <div>
-          <label htmlFor="deadline" className="block mb-2 text-sm text-gray-900 dark:text-white">Deadline</label>
-          <input
-            type="date"
-            id="deadline"
-            name="deadline"
-            className="block w-full p-2.5 text-sm text-gray-900 bg-gray-50 rounded border border-gray-300 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-emerald-500 dark:focus:border-emerald-500"
-            value={formValue.deadline}
-            onChange={handleChange}
-          />
-          {formErrors.deadline && <p className="text-red-500 text-sm mt-1">{formErrors.deadline}</p>}
-        </div>
-
+        {/* Submit Button */}
         <button
           type="submit"
-          className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors duration-200 flex items-center"
-          disabled={loading}
+          className="p-3 bg-blue-600 rounded-lg hover:bg-blue-700 transition"
+          disabled={isSubmitting}
         >
-          {loading ? "Submitting..." : "Submit"}
+          {isSubmitting ? "Submitting..." : "Submit RFQ"}
         </button>
       </form>
     </div>
   );
-};
-
-export default RFQsForm;
+}

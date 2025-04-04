@@ -1,7 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user.model.js");
-const { z, object } = require("zod");
+const { z } = require("zod");
 
 // Register Schema Validation
 const RegisterSchema = z.object({
@@ -164,9 +164,19 @@ const Updateuser = async(req,res) => {
    }
 }
 
+const getAllUser = async () => {
+    try {
+        const users = User.find().select('-password');
+        res.status(200).json(users);
+    } catch (error) {
+        return res.status(500).json({msg : "server error",error})
+    }
+}
+
 module.exports = {
     Signup,
     Signin,
     userInfo,
-    Updateuser
+    Updateuser,
+    getAllUser
 };
