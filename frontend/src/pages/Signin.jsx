@@ -6,21 +6,14 @@ import SubHeading from "../components/SubHeading";
 import InputBox from "../components/InputBox";
 import Button from "../components/Button";
 import BottomText from "../components/BottomText";
-import Role from "../components/Role";
 
 const Signin = () => {
   const navigate = useNavigate();
   const [formValue, setFormValue] = useState({
     email: "",
     password: "",
-    role: "client",
-    accessId: "",
   });
   const [error, setError] = useState("");
-
-  const handleRoleChange = (role) => {
-    setFormValue((prev) => ({ ...prev, role }));
-  };
 
   const handleChange = (e) => {
     setFormValue({
@@ -57,8 +50,6 @@ const Signin = () => {
         <SubHeading subtitle="Enter your information and login into account" />
 
         {error && <p className="text-red-500 text-sm">{error}</p>}
-
-        <Role onRoleChange={handleRoleChange} />
 
         <InputBox
           title="Email"

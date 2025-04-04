@@ -13,21 +13,27 @@ const AdminRFQsTable = () => {
   const fetchRFQs = async () => {
     console.log("fetchRFQs function is running!");  // ✅ Debugging Step 1
 
-    try {
-        const token = localStorage.getItem("token");
-        console.log("Token:", token);  // ✅ Debugging Step 2
+    if (!token) {
+        console.error("No token found in localStorage");
+        return;
+    }
 
+    console.log("Token:", token);  // ✅ Debugging Step 2
+
+    try {
         const response = await axios.get("http://localhost:3000/api/v1/RFQS/getAllRFQS", {
             headers: { Authorization: `Bearer ${token}` },
         });
 
         console.log("API Response Data:", response.data);  // ✅ Debugging Step 3
         setRFQs(response.data.rfqs);
+        setLoading(false);
     } catch (error) {
         console.error("Error fetching RFQs:", error);  // ✅ Debugging Step 4
+        setError("Failed to fetch RFQs. Please try again.");
+        setLoading(false);
     }
 };
-
 
 
   useEffect(() => {

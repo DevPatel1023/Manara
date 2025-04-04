@@ -10,15 +10,12 @@ const RegisterSchema = z.object({
     phoneNo: z.string().length(10, "Phone number must be exactly 10 digits"),
     email: z.string().email("Invalid email"),
     password: z.string().min(6, "Password should be at least 6 characters long!"),
-    role: z.enum(['admin', 'client'])
 });
 
 // Login Schema Validation
 const loginSchema = z.object({
     email: z.string().email("Invalid email address"),
     password: z.string().min(6, "Password must be at least 6 characters long!"),
-    role: z.enum(['admin', 'client']),
-    accessId : z.string().optional()
 });
 
 // Signup Function
@@ -29,7 +26,7 @@ const Signup = async (req, res) => {
             return res.status(400).json({ msg: "Validation failed", errors: result.error.errors });
         }
 
-        const { firstName, lastName, phoneNo, email, password, role } = result.data;
+        const { firstName, lastName, phoneNo, email, password } = result.data;
 
        
         const userExists = await User.findOne({ email });
@@ -44,7 +41,6 @@ const Signup = async (req, res) => {
             phoneNo,
             email,
             password: hashedPassword,
-            role: role.toLowerCase() 
         });
 
         return res.status(201).json({ msg: "User registered successfully!", success: true  });
@@ -62,24 +58,16 @@ const Signin = async (req, res) => {
             return res.status(400).json({ msg: "Validation failed", errors: result.error.errors });
         }
 
-        const { email, password, role , accessId } = result.data;
+        const { email, password } = result.data;
         const user = await User.findOne({ email }).select("+password"); 
 
         if (!user) {
             return res.status(401).json({ msg: "Incorrect email ID", success: false });
         }
 
-        if (user.role !== role.toLowerCase()) {
-            return res.status(403).json({ msg: `Access denied for role: ${role}`, success: false });
-        }
-
         const isPassMatched = await bcrypt.compare(password, user.password);
         if (!isPassMatched) {
             return res.status(401).json({ msg: "Incorrect password", success: false });
-        }
-
-        if (user.role ==="admin" &&  accessId !== process.env.ACCESS_ID) {
-            return res.status(401).json({ msg: "Incorrect access id", success: false });
         }
         
         const token = jwt.sign(
@@ -87,7 +75,6 @@ const Signin = async (req, res) => {
                 id: user._id,
                 email: user.email,
                 firstName: user.firstName,
-                role: user.role
             },
             process.env.JWT_SECRET,
             { expiresIn: "24h" }
@@ -102,7 +89,6 @@ const Signin = async (req, res) => {
                 firstName: user.firstName,
                 lastName: user.lastName,
                 email: user.email,
-                role: user.role
             }
         });
     } catch (error) {

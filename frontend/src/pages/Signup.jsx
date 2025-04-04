@@ -6,7 +6,6 @@ import SubHeading from "../components/SubHeading";
 import InputBox from "../components/InputBox";
 import Button from "../components/Button";
 import BottomText from "../components/BottomText";
-import Role from "../components/Role";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -17,7 +16,6 @@ const Signup = () => {
     phoneNo: "",
     email: "",
     password: "",
-    role: "client", 
   });
 
   const [error, setError] = useState("");
@@ -29,15 +27,12 @@ const Signup = () => {
     });
   };
 
-  const handleRoleChange = (role) => {
-    setFormValue((prev) => ({ ...prev, role }));
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
-    if (!formValue.firstName || !formValue.lastName || !formValue.phoneNo || !formValue.email || !formValue.password || !formValue.role) {
+    if (!formValue.firstName || !formValue.lastName || !formValue.phoneNo || !formValue.email || !formValue.password ) {
       setError("All fields are required.");
       return;
     }
@@ -67,8 +62,6 @@ const Signup = () => {
         <SubHeading subtitle="Enter your information to create an account" className="text-gray-600" />
 
         {error && <p className="text-red-500 text-sm">{error}</p>}
-
-        <Role onRoleChange={handleRoleChange} />
 
         <div className="flex justify-between space-x-4 w-full">
           <InputBox
