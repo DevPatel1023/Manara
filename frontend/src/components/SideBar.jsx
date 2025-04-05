@@ -14,6 +14,7 @@ import {
   ChevronRight,
   BarChart2,
   Calendar,
+  ReceiptText ,
   MessageSquare,
 } from "lucide-react"
 
@@ -43,24 +44,24 @@ const Sidebar = ({ role = "client" }) => {
     const adminItems = [
       ...commonItems,
       {
-        name: "Customers",
-        icon: <Users size={20} />,
-        path: "/dashboard/customers",
-      },
+        name: "RFQs",
+        icon: <FileText size={20} />,
+        path: "/dashboard/rfq",
+      },  
       {
         name: "Quotations",
         icon: <ClipboardList size={20} />,
         path: "/dashboard/quotations",
       },
       {
-        name: "RFQs",
-        icon: <FileText size={20} />,
-        path: "/dashboard/rfq",
-      },
-      {
         name: "Invoices",
         icon: <CreditCard size={20} />,
         path: "/dashboard/invoices",
+      },
+      {
+        name: "Customers",
+        icon: <Users size={20} />,
+        path: "/dashboard/customers",
       },
       {
         name: "Reports",
@@ -82,14 +83,19 @@ const Sidebar = ({ role = "client" }) => {
     const clientItems = [
       ...commonItems,
       {
+        name: "RFQs",
+        icon: <FileText size={20} />,
+        path: "/dashboard/client/rfq",
+      },
+      {
         name: "Quotations",
         icon: <ClipboardList size={20} />,
         path: "/dashboard/client/quotations",
       },
       {
-        name: "RFQs",
-        icon: <FileText size={20} />,
-        path: "/dashboard/client/rfq",
+        name: "PO",
+        icon: <ReceiptText size={20} />,
+        path: "/dashboard/client/po",
       },
       {
         name: "Invoices",
@@ -227,7 +233,7 @@ const Sidebar = ({ role = "client" }) => {
 
       {/* User Profile & Logout */}
       <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-        <div className="flex items-center">
+       <Link to="/userProfile"> <div className="flex items-center">
           <div className="flex-shrink-0">
             <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-700 dark:text-gray-300 font-semibold">
               {role === "admin" ? "A" : role === "employee" ? "E" : "C"}
@@ -241,7 +247,7 @@ const Sidebar = ({ role = "client" }) => {
               <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">{role}</p>
             </div>
           )}
-        </div>
+        </div></Link>
         <button
           className={`mt-4 ${
             expanded ? "w-full" : "w-full justify-center"

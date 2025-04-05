@@ -3,6 +3,7 @@ import Signin from "./pages/Signin";
 import Signup from "./pages/Signup";
 import Landing from "./pages/Landing";
 import Quotation from "./pages/Quotation";
+import QuotationForm from "./components/QuotationForm ";
 import Customers from "./pages/Customers";
 import { ThemeProvider } from "./hooks/ThemeContext";
 import Invoice from "./pages/Invoice";
@@ -10,6 +11,7 @@ import UserProfile from "./pages/UserProfile";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import RFQ from "./pages/RFQ";
+import POForm from "./components/POForm";
 function App() {
   return (
     <ThemeProvider>
@@ -18,7 +20,9 @@ function App() {
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/quotation" element={<Quotation />} />
+            <Route path="/po" element={<POForm />} />
+            <Route path="/dashboard/client/quotations" element={<Quotation />} />
+            <Route path="/dashboard/client/quotations/form" element={<QuotationForm />} />
             <Route path="/customers" element={<Customers />} />
             <Route path="/invoice" element={<Invoice />} />
             <Route path="/dashboard/client/rfq" element={<RFQ />} />
