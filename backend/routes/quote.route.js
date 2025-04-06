@@ -1,14 +1,12 @@
 const express = require("express");
-const { authenticate, authorization } = require("../middlewares/Auth.js");
-const { createQuotation, getAllQuotations, getQuotationById, updateQuotation, deleteQuotation } = require("../controllers/quote.controller.js");
-
 const router = express.Router();
+const quotationController = require("../controllers/quotation.controller");
 
-
-router.post("/", authenticate, createQuotation);  
-router.get("/", authenticate, authorization(["admin"]), getAllQuotations);  
-router.get("/:id", authenticate, getQuotationById); 
-router.patch("/:id", authenticate, authorization(["admin"]), updateQuotation);  
-router.delete("/:id", authenticate, authorization(["admin"]), deleteQuotation);  
+router.post("/create", quotationController.createQuotation);
+router.get("/", quotationController.getAllQuotations);
+router.get("/supplier/:supplierId", quotationController.getQuotationsBySupplier);
+router.get("/rfq/:rfqId", quotationController.getQuotationsByRFQ);
+router.patch("/status/:id", quotationController.updateQuotationStatus);
+router.delete("/:id", quotationController.deleteQuotation);
 
 module.exports = router;

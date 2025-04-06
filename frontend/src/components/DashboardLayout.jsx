@@ -2,8 +2,8 @@
 
 import { useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-import Sidebar from "./Sidebar"
-import Topbar from "./Topbar"
+import Sidebar from "./SideBar"
+import Topbar from "./TopBar"
 
 const DashboardLayout = ({ role, children }) => {
   const navigate = useNavigate()

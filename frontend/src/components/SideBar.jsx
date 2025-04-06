@@ -233,7 +233,7 @@ const Sidebar = ({ role = "client" }) => {
 
       {/* User Profile & Logout */}
       <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-       <Link to="/userProfile"> <div className="flex items-center">
+       <Link to={`/dashboard/${role}/profile`}> <div className="flex items-center">
           <div className="flex-shrink-0">
             <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-700 dark:text-gray-300 font-semibold">
               {role === "admin" ? "A" : role === "employee" ? "E" : "C"}
