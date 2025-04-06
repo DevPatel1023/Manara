@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Link, useLocation } from "react-router-dom"
+import { Link, useLocation, useNavigate } from "react-router-dom"
 import {
   Home,
   Users,
@@ -14,12 +14,13 @@ import {
   ChevronRight,
   BarChart2,
   Calendar,
-  ReceiptText ,
+  ReceiptText,
   MessageSquare,
 } from "lucide-react"
 
 const Sidebar = ({ role = "client" }) => {
   const location = useLocation()
+  const navigate = useNavigate()
   const [expanded, setExpanded] = useState(true)
   const [activeSubmenu, setActiveSubmenu] = useState(null)
 
@@ -27,17 +28,22 @@ const Sidebar = ({ role = "client" }) => {
     setActiveSubmenu(activeSubmenu === menu ? null : menu)
   }
 
+  const handleLogout = () => {
+    localStorage.removeItem("token")
+    navigate("/signin")
+  }
+
   const getNavItems = () => {
     const commonItems = [
       {
         name: "Dashboard",
         icon: <Home size={20} />,
-        path: "/dashboard",
+        path: `/dashboard/${role}`,
       },
       {
         name: "Settings",
         icon: <Settings size={20} />,
-        path: "/dashboard/settings",
+        path: `/dashboard/${role}/settings`,
       },
     ]
 
@@ -46,37 +52,37 @@ const Sidebar = ({ role = "client" }) => {
       {
         name: "RFQs",
         icon: <FileText size={20} />,
-        path: "/dashboard/rfq",
-      },  
+        path: "/dashboard/admin/rfq",
+      },
       {
         name: "Quotations",
         icon: <ClipboardList size={20} />,
-        path: "/dashboard/quotations",
+        path: "/dashboard/admin/quotations",
       },
       {
         name: "Invoices",
         icon: <CreditCard size={20} />,
-        path: "/dashboard/invoices",
+        path: "/dashboard/admin/invoices",
       },
       {
         name: "Customers",
         icon: <Users size={20} />,
-        path: "/dashboard/customers",
+        path: "/dashboard/admin/customers",
       },
       {
         name: "Reports",
         icon: <BarChart2 size={20} />,
-        path: "/dashboard/reports",
+        path: "/dashboard/admin/reports",
         submenu: [
-          { name: "Sales", path: "/dashboard/reports/sales" },
-          { name: "Customers", path: "/dashboard/reports/customers" },
-          { name: "Revenue", path: "/dashboard/reports/revenue" },
+          { name: "Sales", path: "/dashboard/admin/reports/sales" },
+          { name: "Customers", path: "/dashboard/admin/reports/customers" },
+          { name: "Revenue", path: "/dashboard/admin/reports/revenue" },
         ],
       },
       {
         name: "Employees",
         icon: <Users size={20} />,
-        path: "/dashboard/employees",
+        path: "/dashboard/admin/employees",
       },
     ]
 
@@ -147,7 +153,7 @@ const Sidebar = ({ role = "client" }) => {
         expanded ? "w-64" : "w-20"
       } bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 ease-in-out flex flex-col h-full`}
     >
-      {/* Header with Hamburger Menu */}
+      {/* Header */}
       <div className="p-4 flex items-center justify-between h-16 border-b border-gray-200 dark:border-gray-700">
         {expanded ? (
           <h1 className="text-xl font-bold text-emerald-600 dark:text-emerald-400">Dashboard</h1>
@@ -172,7 +178,7 @@ const Sidebar = ({ role = "client" }) => {
         </button>
       </div>
 
-      {/* Navigation */}
+      {/* Navigation Items */}
       <div className="flex-1 overflow-y-auto py-4">
         <nav className="px-2 space-y-1">
           {navItems.map((item) => (
@@ -231,24 +237,26 @@ const Sidebar = ({ role = "client" }) => {
         </nav>
       </div>
 
-      {/* User Profile & Logout */}
+      {/* Profile & Logout */}
       <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-       <Link to={`/dashboard/${role}/profile`}> <div className="flex items-center">
-          <div className="flex-shrink-0">
+        <Link to={`/dashboard/${role}/profile`}>
+          <div className="flex items-center">
             <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-700 dark:text-gray-300 font-semibold">
               {role === "admin" ? "A" : role === "employee" ? "E" : "C"}
             </div>
+            {expanded && (
+              <div className="ml-3">
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {role === "admin" ? "Admin User" : role === "employee" ? "Employee User" : "Client User"}
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">{role}</p>
+              </div>
+            )}
           </div>
-          {expanded && (
-            <div className="ml-3">
-              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                {role === "admin" ? "Admin User" : role === "employee" ? "Employee User" : "Client User"}
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">{role}</p>
-            </div>
-          )}
-        </div></Link>
+        </Link>
+
         <button
+          onClick={handleLogout}
           className={`mt-4 ${
             expanded ? "w-full" : "w-full justify-center"
           } flex items-center px-3 py-2 text-sm font-medium rounded-md text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200`}
