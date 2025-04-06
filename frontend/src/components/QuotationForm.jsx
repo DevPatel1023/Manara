@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
+import axios from "axios";
 
 const QuotationForm = ({ onClose }) => {
   const [formData, setFormData] = useState({
@@ -22,7 +23,7 @@ const QuotationForm = ({ onClose }) => {
     notes: '',
     paymentTerms: '50% Advance, Remaining on Completion',
     paymentMode: 'Bank Transfer',
-    completionDate: '',
+    // completionDate: '',
     customPaymentTerms: '',
   });
 
@@ -48,9 +49,9 @@ const QuotationForm = ({ onClose }) => {
         break;
       case 'date':
       case 'deliveryDate':
-      case 'completionDate':
-        if (!value) error = 'Date is required';
-        break;
+      // case 'completionDate':
+      //   if (!value) error = 'Date is required';
+      //   break;
       case 'taxRate':
         if (value < 0) error = 'Tax rate cannot be negative';
         break;
@@ -121,44 +122,61 @@ const QuotationForm = ({ onClose }) => {
   const calculateTax = () => (calculateSubtotal() * formData.taxRate) / 100;
   const calculateTotal = () => calculateSubtotal() + calculateTax();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    let newErrors = {};
-    Object.keys(formData).forEach((key) => {
-      if (key !== 'services' && key !== 'notes') {
-        const error = validateField(key, formData[key]);
-        if (error) newErrors[key] = error;
-      }
-    });
+  // import axios from "axios";
 
-    formData.services.forEach((service, index) => {
-      if (!service.description.trim()) {
-        newErrors[`serviceDescription${index}`] = 'Service description is required';
-      }
-      if (service.hours <= 0) {
-        newErrors[`serviceHours${index}`] = 'Hours must be greater than 0';
-      }
-      if (service.ratePerHour <= 0) {
-        newErrors[`serviceRate${index}`] = 'Rate per hour must be greater than 0';
-      }
-    });
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  let newErrors = {};
 
-    setErrors(newErrors);
-
-    if (Object.keys(newErrors).length === 0) {
-      const submissionData = {
-        ...formData,
-        subtotal: calculateSubtotal(),
-        tax: calculateTax(),
-        total: calculateTotal(),
-      };
-      console.log('Form submitted:', submissionData);
-      alert('Quotation submitted successfully!');
-      if (onClose) onClose();
-    } else {
-      console.log('Form has errors:', newErrors);
+  // Validate main fields
+  Object.keys(formData).forEach((key) => {
+    if (key !== "services" && key !== "notes") {
+      const error = validateField(key, formData[key]);
+      if (error) newErrors[key] = error;
     }
-  };
+  });
+
+  // Validate services array
+  formData.services.forEach((service, index) => {
+    if (!service.description.trim()) {
+      newErrors[`serviceDescription${index}`] = "Service description is required";
+    }
+    if (service.hours <= 0) {
+      newErrors[`serviceHours${index}`] = "Hours must be greater than 0";
+    }
+    if (service.ratePerHour <= 0) {
+      newErrors[`serviceRate${index}`] = "Rate per hour must be greater than 0";
+    }
+  });
+
+  setErrors(newErrors);
+
+  // If no errors, proceed to API call
+  if (Object.keys(newErrors).length === 0) {
+    const submissionData = {
+      ...formData,
+      subtotal: calculateSubtotal(),
+      tax: calculateTax(),
+      total: calculateTotal(),
+    };
+
+    try {
+      const response = await axios.post("http://localhost:3000/api/v1/quotations/create", submissionData); // update URL if different
+
+      if (response.status === 201) {
+        alert("Quotation submitted successfully!");
+        console.log("Quotation saved:", response.data);
+        if (onClose) onClose(); // if you're closing a modal or something
+      }
+    } catch (error) {
+      console.error("Error submitting quotation:", error.response?.data || error.message);
+      alert("Failed to submit quotation. Please try again.");
+    }
+  } else {
+    console.log("Form has errors:", newErrors);
+  }
+};
+
 
   // Common input class for consistent styling
   const inputClass = "p-1.5 border border-green-300 rounded w-full text-sm text-black bg-white focus:outline-none focus:border-green-600 focus:shadow-[0_0_5px_rgba(22,163,74,0.3)]";

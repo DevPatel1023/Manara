@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const quotationController = require("../controllers/quotation.controller");
+const quotationController = require("../controllers/quote.controller");
 
 router.post("/create", quotationController.createQuotation);
 router.get("/", quotationController.getAllQuotations);

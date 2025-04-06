@@ -1,66 +1,77 @@
 const Quotation = require("../models/Quotation.model");
 
 // Create a new quotation
+
+
 const createQuotation = async (req, res) => {
   try {
     const {
-      rfqId,
-      supplierId,
-      companyName,
-      address,
-      cityState,
-      postalCode,
-      email,
+      poNumber,
+      date,
+      deliveryDate,
       billToCompany,
       billToAddress,
       billToCityState,
       billToPostalCode,
-      poNumber,
-      date,
-      deliveryDate,
       services,
       taxRate,
-      notes,
+      subtotal,
+      tax,
+      total,
       paymentTerms,
-      paymentMode,
-      completionDate,
-      customPaymentTerms,
+      notes,
+    
     } = req.body;
 
-    if (!rfqId || !supplierId || !services || services.length === 0) {
-      return res.status(400).json({ msg: "Required fields missing" });
+    // Basic validation
+    if (
+      !poNumber ||
+      !date ||
+      !deliveryDate ||
+      !billToCompany ||
+      !billToAddress ||
+      !billToCityState ||
+      !billToPostalCode ||
+      !services ||
+      services.length === 0 ||
+      taxRate === undefined ||
+      subtotal === undefined ||
+      tax === undefined ||
+      total === undefined ||
+      !paymentTerms
+    ) {
+      return res.status(400).json({ msg: "Please fill in all required fields" });
     }
 
-    const quotation = await Quotation.create({
-      rfqId,
-      supplierId,
-      companyName,
-      address,
-      cityState,
-      postalCode,
-      email,
+    const newQuotation = new Quotation({
+      poNumber,
+      date,
+      deliveryDate,
       billToCompany,
       billToAddress,
       billToCityState,
       billToPostalCode,
-      poNumber,
-      date,
-      deliveryDate,
       services,
       taxRate,
-      notes,
+      subtotal,
+      tax,
+      total,
       paymentTerms,
-      paymentMode,
-      completionDate,
-      customPaymentTerms,
+      notes,
     });
 
-    res.status(201).json({ msg: "Quotation created successfully", quotation });
+    const savedQuotation = await newQuotation.save();
+
+    res.status(201).json({
+      msg: "Quotation created successfully",
+      quotation: savedQuotation,
+    });
   } catch (error) {
     console.error("Error creating quotation:", error.message);
     res.status(500).json({ msg: "Server error", error: error.message });
   }
 };
+
 
 // Get all quotations (for admin)
 const getAllQuotations = async (req, res) => {

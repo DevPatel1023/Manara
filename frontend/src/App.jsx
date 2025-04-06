@@ -35,7 +35,7 @@ function App() {
 
             {/* Role-based features */}
             <Route path="/dashboard/client/quotations" element={<Quotation />} />
-            <Route path="/dashboard/client/quotations/form" element={<QuotationForm />} />
+            <Route path="/dashboard/employee/quotationform" element={<DashboardLayout role="employee"><QuotationForm /></DashboardLayout>} />
             <Route path="/dashboard/client/rfq" element={<RFQ />} />
             <Route path="/dashboard/client/profile" element={<UserProfile />} />
             <Route path="/dashboard/admin/profile" element={<UserProfile />} />
