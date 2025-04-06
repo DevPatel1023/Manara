@@ -113,9 +113,14 @@ const Sidebar = ({ role = "client" }) => {
     const employeeItems = [
       ...commonItems,
       {
-        name: "Tasks",
+        name: "Quotation",
         icon: <ClipboardList size={20} />,
-        path: "/dashboard/employee/tasks",
+        path: "/dashboard/employee/quotationform",
+      },
+      {
+        name: "View RFQs",
+        icon: <ClipboardList size={20} />,
+        path: "/dashboard/employee/viewrfqs",
       },
       {
         name: "Calendar",

@@ -4,38 +4,41 @@ import TopBar from "../components/TopBar";
 import axios from "axios";
 import { Plus } from "lucide-react";
 import RFQsForm from "../components/RFQsForm";
-import ClientRFQsTable from "../components/ClientRFQTable";
-import AdminRFQsTable from "../components/AdminRFQTable";
-import EmployeeRFQsTable from "../components/EmployeeRFQsTable"; // Create if needed
+import RFQTable from "../components/RFQTable"; // single reusable table
 import Button from "../components/Button";
 
-const RFQ = ({ role }) => {
+
+const RFQ = ({role}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [rfqs, setRFQs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+
+
   useEffect(() => {
-    fetchRFQs();
+    if (role) {
+      fetchRFQs();
+    }
   }, [role]);
 
   const fetchRFQs = async () => {
     try {
       const token = localStorage.getItem("token");
-      console.log(role)
       let endpoint = "";
+
       if (role === "admin") {
         endpoint = "http://localhost:3000/api/v1/RFQS/getAllRFQs";
       } else if (role === "client") {
-        endpoint = "http://localhost:3000/api/v1/RFQS/myRfqs";
+        endpoint = "http://localhost:3000/api/v1/RFQS/myRfqs"; // only their own RFQs
       } else if (role === "employee") {
-        endpoint = "http://localhost:3000/api/v1/RFQS/assignedRfqs"; // optional
+        endpoint = "http://localhost:3000/api/v1/RFQS/assignedRfqs";
       }
 
       const response = await axios.get(endpoint, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
+      console.log(response.data.rfqs)
       setRFQs(response.data.rfqs || []);
       setLoading(false);
     } catch (error) {
@@ -43,22 +46,6 @@ const RFQ = ({ role }) => {
       setError("Failed to fetch RFQs.");
       setLoading(false);
     }
-  };
-
-  const renderTable = () => {
-    if (loading) {
-      return <p className="text-gray-600 dark:text-gray-400">Loading RFQs...</p>;
-    }
-
-    if (role === "admin") {
-      return <AdminRFQsTable rfqs={rfqs} fetchRFQs={fetchRFQs} />;
-    } else if (role === "client") {
-      return <ClientRFQsTable rfqs={rfqs} fetchRFQs={fetchRFQs} />;
-    } else if (role === "employee") {
-      return <EmployeeRFQsTable rfqs={rfqs} fetchRFQs={fetchRFQs} />;
-    }
-
-    return <p className="text-red-500">Invalid role</p>;
   };
 
   const renderCreateButton = () => {
@@ -80,35 +67,36 @@ const RFQ = ({ role }) => {
       <SideBar role={role} />
       <div className="flex-1 overflow-auto">
         <TopBar title="RFQs" />
-
-        <div className="p-6">
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
-                  {role === "admin"
-                    ? "All RFQs"
-                    : role === "client"
-                    ? "Your RFQs"
-                    : "Assigned RFQs"}
-                </h1>
-                <p className="text-gray-600 dark:text-gray-400">
-                  {role === "admin"
-                    ? "Manage all RFQs from different clients"
-                    : role === "client"
-                    ? "View and manage your created RFQs"
-                    : "Review and respond to assigned RFQs"}
-                </p>
-              </div>
-              {renderCreateButton()}
+        <div className="p-6 space-y-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
+                {role === "admin"
+                  ? "All RFQs"
+                  : role === "client"
+                  ? "Your RFQs"
+                  : "Assigned RFQs"}
+              </h1>
+              <p className="text-gray-600 dark:text-gray-400">
+                {role === "admin"
+                  ? "Manage all RFQs from different clients"
+                  : role === "client"
+                  ? "View and manage your created RFQs"
+                  : "Review and respond to assigned RFQs"}
+              </p>
             </div>
-
-            {isOpen ? (
-              <RFQsForm setIsOpen={setIsOpen} fetchRFQs={fetchRFQs} />
-            ) : (
-              renderTable()
-            )}
+            {renderCreateButton()}
           </div>
+
+          {isOpen ? (
+            <RFQsForm setIsOpen={setIsOpen} fetchRFQs={fetchRFQs} />
+          ) : loading ? (
+            <p className="text-gray-600 dark:text-gray-400">Loading RFQs...</p>
+          ) : error ? (
+            <p className="text-red-500">{error}</p>
+          ) : (
+            <RFQTable rfqs={rfqs} role={role} />
+          )}
         </div>
       </div>
     </div>

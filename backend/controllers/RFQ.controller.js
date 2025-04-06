@@ -44,30 +44,34 @@ const createRFQ = async (req, res) => {
 // 2. Get RFQs Submitted by a Client (based on email match)
 const getClientRFQS = async (req, res) => {
     try {
-        const email = req.user.email;
-        const clientRfqs = await RFQ.find({ email });
-        return res.status(200).json(clientRfqs);
+      const clientId = req.user._id; // assuming this is populated from auth middleware
+      const clientRfqs = await RFQ.find({ clientId });
+  
+      return res.status(200).json({ rfqs: clientRfqs });
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({ msg: "Internal server error" });
+      console.error("Error fetching client RFQs:", error);
+      return res.status(500).json({ msg: "Internal server error" });
     }
-};
+  };
+  
 
 // 3. Get All RFQs (Admin)
+// controllers/RFQ.controller.js
 const getAllRFQs = async (req, res) => {
     try {
-        if (req.user.role !== "admin") {
-            return res.status(403).json({ msg: "Forbidden: only admins can access all RFQs" });
-        }
-
-        const rfqs = await RFQ.find({}).sort({ createdAt: -1 });
-        return res.status(200).json(rfqs);
+      if (req.user.role !== "admin") {
+        return res.status(403).json({ msg: "Forbidden: only admins can access all RFQs" });
+      }
+  
+      const rfqs = await RFQ.find({}).sort({ createdAt: -1 });
+  
+      return res.status(200).json({ rfqs }); // ✅ wrap inside object
     } catch (error) {
-        console.error("Error fetching RFQs:", error);
-        return res.status(500).json({ msg: "Internal server error" });
+      console.error("Error fetching RFQs:", error);
+      return res.status(500).json({ msg: "Internal server error" });
     }
-};
-
+  };
+  
 // 4. Update RFQ Status (Admin)
 const updateStatusRFQ = async (req, res) => {
     try {
@@ -92,4 +96,16 @@ const updateStatusRFQ = async (req, res) => {
     }
 };
 
-module.exports = { createRFQ, getClientRFQS, getAllRFQs, updateStatusRFQ };
+const getAssignedRFQs = async (req, res) => {
+  try {
+    const employeeId = req.user.id;
+
+    const rfqs = await RFQ.find({ assignedTo: employeeId });
+    res.status(200).json(rfqs);
+  } catch (err) {
+    console.error("Error getting assigned RFQs:", err);
+    res.status(500).json({ msg: "Internal server error" });
+  }
+};
+
+module.exports = { createRFQ, getClientRFQS, getAllRFQs, updateStatusRFQ,getAssignedRFQs };

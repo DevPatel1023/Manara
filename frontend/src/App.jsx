@@ -11,13 +11,30 @@ import UserProfile from "./pages/UserProfile";
 import NotFound from "./pages/NotFound";
 import RFQ from "./pages/RFQ";
 import POForm from "./components/POForm";
-import RoleRedirectDashboard from "./pages/Dashboard"; // This file will handle redirect based on role
+import RoleRedirectDashboard from "./pages/Dashboard";
 import AdminDashboard from "./components/AdminDashboard";
 import ClientDashboard from "./components/ClientDashboard";
 import EmployeeDashboard from "./components/EmployeeDashboard";
 import DashboardLayout from "./components/DashboardLayout";
 
+// ✅ Utility to extract role from token
+const getUserRoleFromToken = () => {
+  const token = localStorage.getItem("token");
+  if (!token) return null;
+
+  try {
+    const base64Payload = token.split(".")[1];
+    const decodedPayload = JSON.parse(atob(base64Payload));
+    return decodedPayload.role || null;
+  } catch (err) {
+    console.error("Error decoding token", err);
+    return null;
+  }
+};
+
 function App() {
+  const userRole = getUserRoleFromToken(); // 🔥 get dynamic role
+
   return (
     <ThemeProvider>
       <div className="min-h-screen bg-[#ffffff] text-[#1e2022] dark:bg-[#25282a] dark:text-white transition-colors duration-300">
@@ -35,14 +52,19 @@ function App() {
 
             {/* Role-based features */}
             <Route path="/dashboard/client/quotations" element={<Quotation />} />
-            <Route path="/dashboard/client/quotations/form" element={<QuotationForm />} />
-            <Route path="/dashboard/client/rfq" element={<RFQ />} />
+            <Route path="/dashboard/employee/quotationform" element={<DashboardLayout role="employee"><QuotationForm /></DashboardLayout>} />
+
+            {/* ✅ Dynamic RFQ routes */}
+            <Route path="/dashboard/admin/rfq" element={<RFQ role={userRole} />} />
+            <Route path="/dashboard/client/rfq" element={<RFQ role={userRole} />} />
+            <Route path="/dashboard/employee/rfq" element={<RFQ role={userRole} />} />
+
+            <Route path="/dashboard/client/po" element={<DashboardLayout><POForm /></DashboardLayout>} />
             <Route path="/dashboard/client/profile" element={<UserProfile />} />
             <Route path="/dashboard/admin/profile" element={<UserProfile />} />
             <Route path="/dashboard/employee/profile" element={<UserProfile />} />
 
             {/* Shared pages */}
-            <Route path="/po" element={<POForm />} />
             <Route path="/customers" element={<Customers />} />
             <Route path="/invoice" element={<Invoice />} />
             <Route path="*" element={<NotFound />} />

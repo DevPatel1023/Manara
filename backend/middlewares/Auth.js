@@ -1,39 +1,49 @@
 const jwt = require("jsonwebtoken");
+const User = require("../models/user.model"); // adjust path as needed
+
 
 const authenticate = (req, res, next) => {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return res.status(401).json({ msg: "Authorization header missing or invalid" });
+    }
+
+    const token = authHeader.split(" ")[1];
+
     try {
-        // Ensure `req.headers` exists
-        if (!req.headers) {
-            return res.status(401).json({ msg: "No headers found", success: false });
-        }
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        const authHeader = req.headers["authorization"]; // Corrected header retrieval
+        // 🔁 Attach full user info (id, email, role) to req.user
+        req.user = {
+            id: decoded.id,
+            email: decoded.email,
+            role: decoded.role,
+        };
 
-        if (!authHeader || !authHeader.startsWith("Bearer ")) {
-            return res.status(401).json({ msg: "Access denied. No token provided", success: false });
-        }
-
-        const token = authHeader.split(" ")[1];
-
-        jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-            if (err) {
-                return res.status(403).json({ msg: "Invalid or expired token", success: false });
-            }
-            req.user = user;
-            next();
-        });
+        next();
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({ msg: "Internal server error", success: false });
+        return res.status(401).json({ msg: "Invalid token", error });
     }
 };
 
-// Authorization Middleware
-const authorization = (roles) => (req, res, next) => {
-    if (!req.user || !roles.includes(req.user.role)) {
-        return res.status(403).json({ msg: `Access denied. Role '${req.user?.role || "Unknown"}' not authorized.`, success: false });
-    }
-    next();
-};
 
-module.exports = { authenticate, authorization };
+const authorization = (roles) => {
+    return (req, res, next) => {
+      console.log("Role from token:", req.user.role); // ✅ Debug log
+  
+      if (!roles.includes(req.user.role)) {
+        return res.status(403).json({
+          msg: `Access denied. Role '${req.user.role}' not authorized.`,
+          success: false,
+        });
+      }
+  
+      next();
+    };
+  };
+
+  
+  module.exports = { authenticate, authorization };
+  
+

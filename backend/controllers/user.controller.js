@@ -26,33 +26,31 @@ const Signup = async (req, res) => {
             return res.status(400).json({ msg: "Validation failed", errors: result.error.errors });
         }
 
-        const { firstName, lastName, phoneNo, email, password, role } = req.body;  // ✅ Add 'role' here
+        const { firstName, lastName, phoneNo, email, password,role } = result.data;
 
-        if (!role || !["admin", "employee", "client"].includes(role)) {
-            return res.status(400).json({ msg: "Role is required and must be 'admin', 'employee', or 'client'." });
-        }
-
+       
         const userExists = await User.findOne({ email });
         if (userExists) {
             return res.status(409).json({ msg: "Email already exists. Try a different email." });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser  = await User.create({
+        await User.create({
             firstName,
             lastName,
             phoneNo,
             email,
             password: hashedPassword,
-            role // ✅ Include role when creating the user
+            role
         });
 
-        return res.status(201).json({ msg: "User registered successfully!",newUser, success: true });
+        return res.status(201).json({ msg: "User registered successfully!", success: true  });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ msg: "Internal server error" });
     }
 };
+
 //  Signin Function
 const Signin = async (req, res) => {
     try {
@@ -77,11 +75,12 @@ const Signin = async (req, res) => {
             {
                 id: user._id,
                 email: user.email,
-                firstName: user.firstName,
+                role: user.role, // ✅ Add this
             },
             process.env.JWT_SECRET,
             { expiresIn: "24h" }
         );
+        
 
         return res.status(200).json({
             msg: `Welcome, ${user.firstName}!`,
@@ -92,6 +91,7 @@ const Signin = async (req, res) => {
                 firstName: user.firstName,
                 lastName: user.lastName,
                 email: user.email,
+                role : user.role
             }
         });
     } catch (error) {
@@ -101,28 +101,20 @@ const Signin = async (req, res) => {
 };
  
 //get user info
-const userInfo = async(req,res)=>{
+const userInfo = async (req, res) => {
     try {
         console.log(req.user);
-
-        
         const user = await User.findById(req.user.id).select('-password');
-        if(!user){
-            res.status(404).json({
-                msg : "user not found"
-            })
+        if (!user) {
+            return res.status(404).json({ msg: "user not found" }); // 🔁 add return here
         }
-        console.log(user)
-        res.status(200).json({
-            user
-        });
+
+        console.log(user);
+        return res.status(200).json({ user }); // ✅ safe response
     } catch (error) {
-        res.status(500).json({
-           msg : "Intenal server error",
-           error
-        });
+        return res.status(500).json({ msg: "Internal server error", error });
     }
-}
+};
 
 //update user information
 const Updateuser = async(req,res) => {
