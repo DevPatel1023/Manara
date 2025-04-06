@@ -53,7 +53,6 @@ const Signup = async (req, res) => {
         return res.status(500).json({ msg: "Internal server error" });
     }
 };
-
 //  Signin Function
 const Signin = async (req, res) => {
     try {

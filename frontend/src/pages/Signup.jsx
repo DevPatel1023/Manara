@@ -133,7 +133,6 @@ import SubHeading from "../components/SubHeading";
 import InputBox from "../components/InputBox";
 import Button from "../components/Button";
 import BottomText from "../components/BottomText";
-
 const Signup = () => {
   const navigate = useNavigate();
 
@@ -238,7 +237,7 @@ const Signup = () => {
           title="Password"
           type="password"
           name="password"
-          placeholder="********"
+          placeholder=""
           value={formValue.password}
           onChange={handleChange}
         />
