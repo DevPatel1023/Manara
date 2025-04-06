@@ -26,30 +26,33 @@ const Signup = async (req, res) => {
             return res.status(400).json({ msg: "Validation failed", errors: result.error.errors });
         }
 
-        const { firstName, lastName, phoneNo, email, password } = result.data;
+        const { firstName, lastName, phoneNo, email, password, role } = req.body;  // ✅ Add 'role' here
 
-       
+        if (!role || !["admin", "employee", "client"].includes(role)) {
+            return res.status(400).json({ msg: "Role is required and must be 'admin', 'employee', or 'client'." });
+        }
+
         const userExists = await User.findOne({ email });
         if (userExists) {
             return res.status(409).json({ msg: "Email already exists. Try a different email." });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        await User.create({
+        const newUser  = await User.create({
             firstName,
             lastName,
             phoneNo,
             email,
             password: hashedPassword,
+            role // ✅ Include role when creating the user
         });
 
-        return res.status(201).json({ msg: "User registered successfully!", success: true  });
+        return res.status(201).json({ msg: "User registered successfully!",newUser, success: true });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ msg: "Internal server error" });
     }
 };
-
 //  Signin Function
 const Signin = async (req, res) => {
     try {

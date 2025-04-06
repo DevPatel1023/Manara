@@ -6,7 +6,6 @@ import SubHeading from "../components/SubHeading";
 import InputBox from "../components/InputBox";
 import Button from "../components/Button";
 import BottomText from "../components/BottomText";
-
 const Signup = () => {
   const navigate = useNavigate();
 
@@ -16,6 +15,7 @@ const Signup = () => {
     phoneNo: "",
     email: "",
     password: "",
+    role: "employee", // ✅ Default role
   });
 
   const [error, setError] = useState("");
@@ -27,12 +27,18 @@ const Signup = () => {
     });
   };
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
-    if (!formValue.firstName || !formValue.lastName || !formValue.phoneNo || !formValue.email || !formValue.password ) {
+    if (
+      !formValue.firstName ||
+      !formValue.lastName ||
+      !formValue.phoneNo ||
+      !formValue.email ||
+      !formValue.password ||
+      !formValue.role
+    ) {
       setError("All fields are required.");
       return;
     }
@@ -57,7 +63,6 @@ const Signup = () => {
   return (
     <div className="flex justify-center items-center h-screen bg-gradient-to-br from-[#f8f9fa] to-[#e9ecef]">
       <div className="w-auto p-10 rounded-xl bg-white/20 backdrop-blur-lg border border-white/40 shadow-lg flex flex-col justify-center items-center">
-        
         <Heading title="Create a free account" style="text-4xl text-[#1e2022] font-bold" />
         <SubHeading subtitle="Enter your information to create an account" className="text-gray-600" />
 
@@ -83,7 +88,6 @@ const Signup = () => {
           />
         </div>
 
-        
         <InputBox
           title="Phone Number"
           type="text"
@@ -106,10 +110,25 @@ const Signup = () => {
           title="Password"
           type="password"
           name="password"
-          placeholder="********"
+          placeholder=""
           value={formValue.password}
           onChange={handleChange}
         />
+
+        {/* ✅ Role Selection Dropdown */}
+        <div className="w-full mt-4">
+          <label className="block text-gray-700 font-medium mb-2">Role</label>
+          <select
+            name="role"
+            value={formValue.role}
+            onChange={handleChange}
+            className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#009e74] focus:border-transparent"
+          >
+            <option value="admin">Admin</option>
+            <option value="employee">Employee</option>
+            <option value="client">Client</option>
+          </select>
+        </div>
 
         <Button
           title="Submit"
