@@ -120,7 +120,7 @@ const Sidebar = ({ role = "client" }) => {
       {
         name: "View RFQs",
         icon: <ClipboardList size={20} />,
-        path: "/dashboard/employee/viewrfqs",
+        path: "/dashboard/employee/rfq",
       },
       {
         name: "Calendar",

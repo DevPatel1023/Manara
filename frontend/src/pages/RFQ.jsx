@@ -4,7 +4,7 @@ import TopBar from "../components/TopBar";
 import axios from "axios";
 import { Plus } from "lucide-react";
 import RFQsForm from "../components/RFQsForm";
-import RFQTable from "../components/RFQTable"; // single reusable table
+import RFQTable from "../components/RFQTable"; 
 import Button from "../components/Button";
 
 
@@ -32,7 +32,7 @@ const RFQ = ({role}) => {
       } else if (role === "client") {
         endpoint = "http://localhost:3000/api/v1/RFQS/myRfqs"; // only their own RFQs
       } else if (role === "employee") {
-        endpoint = "http://localhost:3000/api/v1/RFQS/assignedRfqs";
+        endpoint = "http://localhost:3000/api/v1/RFQS/accptedRFQs";
       }
 
       const response = await axios.get(endpoint, {

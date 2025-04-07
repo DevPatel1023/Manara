@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { format } from "date-fns";
-import { Eye, X } from "lucide-react";
+import { Eye, CheckCircle, XCircle, X } from "lucide-react";
+import axios from "axios";
 
-const RFQTable = ({ rfqs, role }) => {
+const RFQTable = ({ rfqs, role, fetchRFQs }) => {
   const [selectedRFQ, setSelectedRFQ] = useState(null);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   // Format date from ISO string to readable format
   const formatDate = (dateString) => {
@@ -29,6 +31,71 @@ const RFQTable = ({ rfqs, role }) => {
 
   const closeDetails = () => {
     setSelectedRFQ(null);
+  };
+
+  // Handle status update (approve/reject)
+  const handleUpdateStatus = async (rfqId, status) => {
+    try {
+
+      setIsUpdating(true);
+      const token = localStorage.getItem("token");
+      
+      await axios.patch(
+        "http://localhost:3000/api/v1/RFQS/updateRFQStatus",
+        {id: rfqId, status },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      
+      // Refresh RFQs list after update
+      if (fetchRFQs) {
+        await fetchRFQs();
+      }
+      
+      // If the RFQ being updated is currently displayed in the modal, update its status
+      if (selectedRFQ && selectedRFQ._id === rfqId) {
+        setSelectedRFQ({
+          ...selectedRFQ,
+          status: status
+        });
+      }
+      
+      setIsUpdating(false);
+    } catch (error) {
+      console.error("Failed to update RFQ status:", error);
+      setIsUpdating(false);
+      alert("Failed to update RFQ status. Please try again.");
+    }
+  };
+
+  // Render action buttons based on role and current status
+  const renderActionButtons = (rfq) => {
+    if (role === "admin" && rfq.status === "pending") {
+      return (
+        <div className="flex space-x-2">
+          <button
+            onClick={() =>{ handleUpdateStatus(rfq._id, "accepted");
+              console.log(rfq._id)
+            }}
+            disabled={isUpdating}
+            className="p-1 text-green-500 hover:text-green-700 dark:text-green-400 dark:hover:text-green-200 disabled:opacity-50"
+            title="Approve"
+          >
+            <CheckCircle size={18} />
+          </button>
+          <button
+            onClick={() => handleUpdateStatus(rfq._id, "rejected")}
+            disabled={isUpdating}
+            className="p-1 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-200 disabled:opacity-50"
+            title="Reject"
+          >
+            <XCircle size={18} />
+          </button>
+        </div>
+      );
+    }
+    return null;
   };
 
   return (
@@ -59,7 +126,7 @@ const RFQTable = ({ rfqs, role }) => {
                   </th>
                 )}
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  View
+                  Actions
                 </th>
               </tr>
             </thead>
@@ -93,12 +160,15 @@ const RFQTable = ({ rfqs, role }) => {
                       </td>
                     )}
                     <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <button 
-                        onClick={() => handleViewDetails(rfq)}
-                        className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                      >
-                        <Eye size={18} />
-                      </button>
+                      <div className="flex justify-end items-center space-x-2">
+                        {renderActionButtons(rfq)}
+                        <button 
+                          onClick={() => handleViewDetails(rfq)}
+                          className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                        >
+                          <Eye size={18} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -206,7 +276,29 @@ const RFQTable = ({ rfqs, role }) => {
                 </div>
               </div>
             </div>
-            <div className="flex justify-end border-t border-gray-200 dark:border-gray-700 px-6 py-4">
+            <div className="flex justify-end gap-2 border-t border-gray-200 dark:border-gray-700 px-6 py-4">
+              {role === "admin" && selectedRFQ.status === "pending" && (
+                <>
+                  <button
+                    onClick={() => {
+                      handleUpdateStatus(selectedRFQ._id, "accepted");
+                    }}
+                    disabled={isUpdating}
+                    className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md text-sm font-medium transition-colors disabled:opacity-50"
+                  >
+                    Accept RFQ
+                  </button>
+                  <button
+                    onClick={() => {
+                      handleUpdateStatus(selectedRFQ._id, "rejected");
+                    }}
+                    disabled={isUpdating}
+                    className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md text-sm font-medium transition-colors disabled:opacity-50"
+                  >
+                    Reject RFQ
+                  </button>
+                </>
+              )}
               <button
                 onClick={closeDetails}
                 className="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-md text-sm font-medium transition-colors"

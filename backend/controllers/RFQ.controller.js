@@ -75,6 +75,7 @@ const getAllRFQs = async (req, res) => {
 // 4. Update RFQ Status (Admin)
 const updateStatusRFQ = async (req, res) => {
     try {
+      console.log("Request body:", req.body); 
         if (req.user.role !== "admin") {
             return res.status(403).json({ msg: "Forbidden: only admins can update the RFQ status" });
         }
@@ -96,16 +97,20 @@ const updateStatusRFQ = async (req, res) => {
     }
 };
 
-const getAssignedRFQs = async (req, res) => {
+const getAcceptedRFQs = async (req, res) => {
   try {
-    const employeeId = req.user.id;
+    if(req.user.role !== "employee"){
+      return res.status(403).json({
+        msg : "Forbidden: only Employees can access all accepted RFQs"
+      })
+    }
 
-    const rfqs = await RFQ.find({ assignedTo: employeeId });
-    res.status(200).json(rfqs);
+    const rfqs = await RFQ.find({ status: "accepted" });
+    res.status(200).json({rfqs});
   } catch (err) {
     console.error("Error getting assigned RFQs:", err);
     res.status(500).json({ msg: "Internal server error" });
   }
 };
 
-module.exports = { createRFQ, getClientRFQS, getAllRFQs, updateStatusRFQ,getAssignedRFQs };
+module.exports = { createRFQ, getClientRFQS, getAllRFQs, updateStatusRFQ,getAcceptedRFQs };
