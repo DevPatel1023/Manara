@@ -74,43 +74,53 @@ const getAllRFQs = async (req, res) => {
   
 // 4. Update RFQ Status (Admin)
 const updateStatusRFQ = async (req, res) => {
-    try {
-      console.log("Request body:", req.body); 
-        if (req.user.role !== "admin") {
-            return res.status(403).json({ msg: "Forbidden: only admins can update the RFQ status" });
-        }
-
-        const { id, status } = req.body;
-        if (!id || !["accepted", "rejected", "pending"].includes(status)) {
-            return res.status(400).json({ msg: "Invalid Request" });
-        }
-
-        const updatedRFQ = await RFQ.findByIdAndUpdate(id, { status }, { new: true });
-        if (!updatedRFQ) {
-            return res.status(404).json({ msg: "RFQ not found" });
-        }
-
-        return res.status(200).json({ msg: `RFQ ${status} successfully`, updatedRFQ });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ msg: "Internal server error" });
+  try {
+    if (req.user.role !== "admin") {
+      return res.status(403).json({ msg: "Only admins can update RFQ status" });
     }
+
+    const { id, status, employeeId } = req.body;
+
+    if (!id || !["accepted", "rejected", "pending"].includes(status)) {
+      return res.status(400).json({ msg: "Invalid request" });
+    }
+
+    const updateFields = { status };
+    if (status === "accepted" && employeeId) {
+      updateFields.assignedEmployeeId = employeeId;
+    }
+
+    const updatedRFQ = await RFQ.findByIdAndUpdate(id, updateFields, { new: true });
+
+    if (!updatedRFQ) {
+      return res.status(404).json({ msg: "RFQ not found" });
+    }
+
+    res.status(200).json({ msg: `RFQ ${status} successfully`, updatedRFQ });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: "Internal server error" });
+  }
 };
 
-const getAcceptedRFQs = async (req, res) => {
+const getAssignedRFQsForEmployee = async (req, res) => {
   try {
-    if(req.user.role !== "employee"){
-      return res.status(403).json({
-        msg : "Forbidden: only Employees can access all accepted RFQs"
-      })
+    if (req.user.role !== "employee") {
+      return res.status(403).json({ msg: "Only employees can access assigned RFQs" });
     }
 
-    const rfqs = await RFQ.find({ status: "accepted" });
-    res.status(200).json({rfqs});
+    const employeeId = req.user._id;
+
+    const rfqs = await RFQ.find({
+      status: "accepted",
+      assignedEmployeeId: employeeId,
+    });
+
+    res.status(200).json({ rfqs });
   } catch (err) {
     console.error("Error getting assigned RFQs:", err);
     res.status(500).json({ msg: "Internal server error" });
   }
 };
 
-module.exports = { createRFQ, getClientRFQS, getAllRFQs, updateStatusRFQ,getAcceptedRFQs };
+module.exports = { createRFQ, getClientRFQS, getAllRFQs, updateStatusRFQ,getAssignedRFQsForEmployee };

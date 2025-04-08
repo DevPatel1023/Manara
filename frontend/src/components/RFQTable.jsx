@@ -6,6 +6,9 @@ import axios from "axios";
 const RFQTable = ({ rfqs, role, fetchRFQs }) => {
   const [selectedRFQ, setSelectedRFQ] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [employeeId, setEmployeeId] = useState("");
+  const [pendingRfqId, setPendingRfqId] = useState(null);
 
   // Format date from ISO string to readable format
   const formatDate = (dateString) => {
@@ -23,6 +26,7 @@ const RFQTable = ({ rfqs, role, fetchRFQs }) => {
     approved: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
     rejected: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
     completed: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
+    accepted: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
   };
 
   const handleViewDetails = (rfq) => {
@@ -33,16 +37,34 @@ const RFQTable = ({ rfqs, role, fetchRFQs }) => {
     setSelectedRFQ(null);
   };
 
-  // Handle status update (approve/reject)
-  const handleUpdateStatus = async (rfqId, status) => {
-    try {
+  const openAssignModal = (rfqId) => {
+    setPendingRfqId(rfqId);
+    setEmployeeId("");
+    setShowAssignModal(true);
+  };
 
+  const closeAssignModal = () => {
+    setShowAssignModal(false);
+    setPendingRfqId(null);
+    setEmployeeId("");
+  };
+
+  // Handle status update (approve/reject)
+  const handleUpdateStatus = async (rfqId, status, employeeId = null) => {
+    try {
       setIsUpdating(true);
       const token = localStorage.getItem("token");
       
+      const requestData = { id: rfqId, status };
+      
+      // Add employee ID to the request if provided (for accept action)
+      if (status === "accepted" && employeeId) {
+        requestData.assignedEmployeeId = employeeId;
+      }
+      
       await axios.patch(
         "http://localhost:3000/api/v1/RFQS/updateRFQStatus",
-        {id: rfqId, status },
+        requestData,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -57,16 +79,28 @@ const RFQTable = ({ rfqs, role, fetchRFQs }) => {
       if (selectedRFQ && selectedRFQ._id === rfqId) {
         setSelectedRFQ({
           ...selectedRFQ,
-          status: status
+          status: status,
+          ...(employeeId && { assignedEmployeeId: employeeId })
         });
       }
       
       setIsUpdating(false);
+      closeAssignModal();
     } catch (error) {
       console.error("Failed to update RFQ status:", error);
       setIsUpdating(false);
       alert("Failed to update RFQ status. Please try again.");
     }
+  };
+
+  const handleAssignSubmit = (e) => {
+    e.preventDefault();
+    if (!employeeId.trim()) {
+      alert("Please enter an employee ID to assign to this RFQ.");
+      return;
+    }
+    
+    handleUpdateStatus(pendingRfqId, "accepted", employeeId);
   };
 
   // Render action buttons based on role and current status
@@ -75,9 +109,7 @@ const RFQTable = ({ rfqs, role, fetchRFQs }) => {
       return (
         <div className="flex space-x-2">
           <button
-            onClick={() =>{ handleUpdateStatus(rfq._id, "accepted");
-              console.log(rfq._id)
-            }}
+            onClick={() => openAssignModal(rfq._id)}
             disabled={isUpdating}
             className="p-1 text-green-500 hover:text-green-700 dark:text-green-400 dark:hover:text-green-200 disabled:opacity-50"
             title="Approve"
@@ -241,6 +273,12 @@ const RFQTable = ({ rfqs, role, fetchRFQs }) => {
                       {selectedRFQ.status || "Pending"}
                     </span>
                   </div>
+                  {selectedRFQ.assignedEmployeeId && (
+                    <div>
+                      <label className="block text-xs text-gray-500 dark:text-gray-400">Assigned Employee</label>
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">{selectedRFQ.assignedEmployeeId}</p>
+                    </div>
+                  )}
                 </div>
               </div>
               
@@ -280,9 +318,7 @@ const RFQTable = ({ rfqs, role, fetchRFQs }) => {
               {role === "admin" && selectedRFQ.status === "pending" && (
                 <>
                   <button
-                    onClick={() => {
-                      handleUpdateStatus(selectedRFQ._id, "accepted");
-                    }}
+                    onClick={() => openAssignModal(selectedRFQ._id)}
                     disabled={isUpdating}
                     className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md text-sm font-medium transition-colors disabled:opacity-50"
                   >
@@ -306,6 +342,60 @@ const RFQTable = ({ rfqs, role, fetchRFQs }) => {
                 Close
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Employee Assignment Modal */}
+      {showAssignModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-md mx-4">
+            <div className="flex justify-between items-center border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white">Assign Employee to RFQ</h3>
+              <button 
+                onClick={closeAssignModal}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <form onSubmit={handleAssignSubmit}>
+              <div className="p-6">
+                <div className="mb-4">
+                  <label htmlFor="employeeId" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Employee ID
+                  </label>
+                  <input
+                    type="text"
+                    id="employeeId"
+                    value={employeeId}
+                    onChange={(e) => setEmployeeId(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                    placeholder="Enter employee ID"
+                    required
+                  />
+                  <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                    Enter the ID of the employee who will handle this RFQ.
+                  </p>
+                </div>
+              </div>
+              <div className="flex justify-end gap-2 border-t border-gray-200 dark:border-gray-700 px-6 py-4">
+                <button
+                  type="button"
+                  onClick={closeAssignModal}
+                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-md text-sm font-medium transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isUpdating}
+                  className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md text-sm font-medium transition-colors disabled:opacity-50"
+                >
+                  Assign & Accept
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

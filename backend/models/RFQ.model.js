@@ -16,6 +16,10 @@ const RFQSchema = new mongoose.Schema({
     enum: ["pending", "accepted", "rejected"],
     default: "pending",
   },
+  employeeId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User", // assuming employee is a User
+  },
   createdAt: { type: Date, default: Date.now },
 }, { timestamps: true });
 
