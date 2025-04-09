@@ -16,6 +16,11 @@ const RFQSchema = new mongoose.Schema({
     enum: ["pending", "accepted", "rejected"],
     default: "pending",
   },
+  clientId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User", // link to the client user
+    required: true,
+  },
   employeeId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User", // assuming employee is a User

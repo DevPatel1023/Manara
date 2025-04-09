@@ -1,6 +1,13 @@
 const mongoose = require("mongoose");
 
 const QuotationSchema = new mongoose.Schema({
+  companyName: { type: String },
+  address: { type: String },
+  cityState: { type: String },
+  postalCode: { type: String },
+  email: { type: String },
+  customPaymentTerms: { type: String },
+
   poNumber: { type: String, required: true },
   date: { type: Date, required: true },
   deliveryDate: { type: Date, required: true },
@@ -22,8 +29,10 @@ const QuotationSchema = new mongoose.Schema({
   total: { type: Number, required: true },
   paymentTerms: { type: String, required: true },
   notes: { type: String },
-  // completionDate: { type: Date, required: false },
 
+  rfqId: { type: mongoose.Schema.Types.ObjectId, ref: "RFQ", required: true },
+  supplierId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  status: { type: String, enum: ["pending", "accepted", "rejected"], default: "pending" },
 });
 
 module.exports = mongoose.model("Quotation", QuotationSchema);

@@ -51,7 +51,7 @@ function App() {
             <Route path="/dashboard/client" element={<DashboardLayout role="client"><ClientDashboard /></DashboardLayout>} />
 
             {/* Role-based features */}
-            <Route path="/dashboard/client/quotations" element={<Quotation />} />
+            <Route path="/dashboard/client/quotations" element={<DashboardLayout role="client"><Quotation /></DashboardLayout>} />
             <Route path="/dashboard/employee/quotationform" element={<DashboardLayout role="employee"><QuotationForm /></DashboardLayout>} />
 
             {/* ✅ Dynamic RFQ routes */}
