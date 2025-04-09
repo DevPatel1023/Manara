@@ -119,27 +119,34 @@ const getQuotationsBySupplier = async (req, res) => {
   }
 };
 
-// 🧾 Get quotations by RFQ (CLIENT only for their RFQs)
 // 🧾 Get quotations for a specific RFQ (CLIENT only if they created it)
 const getQuotationsByRFQ = async (req, res) => {
-  try {
-    const { rfqId } = req.params;
-
-    // Check if the RFQ belongs to this client
-    const rfq = await RFQ.findOne({ _id: rfqId, clientId: req.user.id });
-    if (!rfq) {
-      return res.status(403).json({ msg: "Unauthorized: RFQ not found or not owned by you" });
+    try {
+      // Step 1: Get RFQs created by this client with "approved" status
+      const approvedRFQs = await RFQ.find({
+        clientId: req.user.id,
+        status: "approved",
+      }).select("_id");
+  
+      const approvedRFQIds = approvedRFQs.map((rfq) => rfq._id);
+  
+      if (approvedRFQIds.length === 0) {
+        return res.status(200).json([]); // No approved RFQs
+      }
+  
+      // Step 2: Get quotations linked to those approved RFQs
+      const quotations = await Quotation.find({
+        rfqId: { $in: approvedRFQIds },
+      })
+        .populate("rfqId")
+        .populate("supplierId");
+  
+      res.status(200).json(quotations);
+    } catch (error) {
+      console.error("Error fetching approved RFQ quotations for client:", error.message);
+      res.status(500).json({ msg: "Server error", error: error.message });
     }
 
-    const quotations = await Quotation.find({ rfqId })
-      .populate("supplierId")
-      .populate("rfqId");
-
-    res.status(200).json(quotations);
-  } catch (error) {
-    console.error("Error fetching quotations by RFQ:", error.message);
-    res.status(500).json({ msg: "Server error", error: error.message });
-  }
 };
 // 📦 Client gets all quotations for their RFQs
 const getAllQuotationsForClient = async (req, res) => {
