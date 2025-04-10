@@ -10,8 +10,7 @@ const ServiceSchema = new mongoose.Schema({
 const POSchema = new mongoose.Schema({
   quotationId: { type: mongoose.Schema.Types.ObjectId, ref: 'Quotation', required: true },
   clientId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  supplierId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  poNumber: { type: String, required: true, unique: true, trim: true }, // e.g., "PO-1234"
+  poNumber: { type: String, required: true, unique: true, trim: true },
   date: { type: Date, required: true },
   deliveryDate: { type: Date, required: true },
   billTo: {
@@ -19,8 +18,10 @@ const POSchema = new mongoose.Schema({
     address: { type: String, required: true, trim: true },
     cityState: { type: String, required: true, trim: true },
     postalCode: { type: String, required: true, trim: true },
+    phone: { type: String, required: true, trim: true },
+    email: { type: String, required: true, trim: true }
   },
-  services: [ServiceSchema], // Array of services
+  services: [ServiceSchema],
   subtotal: { type: Number, required: true, min: [0, 'Subtotal must be greater than or equal to 0'] },
   taxRate: { type: Number, required: true, min: [0, 'Tax rate cannot be negative'], default: 0 },
   tax: { type: Number, required: true, min: [0, 'Tax must be greater than or equal to 0'] },
@@ -30,9 +31,7 @@ const POSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-// Pre-save middleware to ensure calculated fields are consistent
 POSchema.pre('save', function (next) {
-  // Calculate subtotal, tax, and total before saving
   this.subtotal = this.services.reduce((sum, service) => sum + service.amount, 0);
   this.tax = (this.subtotal * this.taxRate) / 100;
   this.total = this.subtotal + this.tax;

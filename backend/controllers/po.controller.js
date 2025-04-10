@@ -1,4 +1,4 @@
-const PO = require('../models/PO'); // Adjust the path to your PO model
+const PO = require('../models/PO.model');
 const mongoose = require('mongoose');
 
 // Create a new Purchase Order
@@ -6,8 +6,6 @@ exports.createPO = async (req, res) => {
   try {
     const {
       quotationId,
-      clientId,
-      supplierId,
       poNumber,
       date,
       deliveryDate,
@@ -17,36 +15,50 @@ exports.createPO = async (req, res) => {
       notes,
     } = req.body;
 
-    // Validate required fields
-    if (!quotationId || !clientId || !supplierId || !poNumber || !date || !deliveryDate || !billTo || !services) {
+    // Get clientId from authenticated user (assuming req.user is set by auth middleware)
+    const clientId = req.user._id;
+
+    if (!quotationId || !clientId || !poNumber || !date || 
+        !deliveryDate || !billTo || !services || !billTo.company || 
+        !billTo.address || !billTo.cityState || !billTo.postalCode || 
+        !billTo.phone || !billTo.email) {
       return res.status(400).json({ message: 'All required fields must be provided' });
     }
 
-    // Ensure services array is valid
     if (!Array.isArray(services) || services.length === 0) {
       return res.status(400).json({ message: 'At least one service is required' });
     }
 
-    // Create new PO instance
+    for (const service of services) {
+      if (!service.description || !service.hours || !service.ratePerHour) {
+        return res.status(400).json({ message: 'All service fields are required' });
+      }
+    }
+
     const newPO = new PO({
       quotationId,
       clientId,
-      supplierId,
-      poNumber: `PO-${poNumber}`, // Prefix as in the form
+      poNumber: `PO-${poNumber}`,
       date: new Date(date),
       deliveryDate: new Date(deliveryDate),
-      billTo,
+      billTo: {
+        company: billTo.company,
+        address: billTo.address,
+        cityState: billTo.cityState,
+        postalCode: billTo.postalCode,
+        phone: billTo.phone,
+        email: billTo.email
+      },
       services: services.map(service => ({
         description: service.description,
         hours: service.hours,
         ratePerHour: service.ratePerHour,
-        amount: service.hours * service.ratePerHour, // Calculate amount
+        amount: service.hours * service.ratePerHour
       })),
       taxRate: taxRate || 0,
       notes: notes || '',
     });
 
-    // Save to database (pre-save middleware will calculate subtotal, tax, total)
     const savedPO = await newPO.save();
 
     res.status(201).json({
@@ -63,9 +75,8 @@ exports.createPO = async (req, res) => {
 exports.getAllPOs = async (req, res) => {
   try {
     const pos = await PO.find()
-      .populate('quotationId', 'quotationNumber') // Populate relevant fields
-      .populate('clientId', 'name email')
-      .populate('supplierId', 'name email');
+      .populate('quotationId', 'quotationNumber')
+      .populate('clientId', 'name email');
 
     res.status(200).json(pos);
   } catch (error) {
@@ -85,8 +96,7 @@ exports.getPOById = async (req, res) => {
 
     const po = await PO.findById(id)
       .populate('quotationId', 'quotationNumber')
-      .populate('clientId', 'name email')
-      .populate('supplierId', 'name email');
+      .populate('clientId', 'name email');
 
     if (!po) {
       return res.status(404).json({ message: 'Purchase Order not found' });
@@ -104,6 +114,7 @@ exports.updatePO = async (req, res) => {
   try {
     const { id } = req.params;
     const {
+      quotationId,
       poNumber,
       date,
       deliveryDate,
@@ -123,22 +134,37 @@ exports.updatePO = async (req, res) => {
       return res.status(404).json({ message: 'Purchase Order not found' });
     }
 
-    // Update fields
+    // Verify the PO belongs to the logged-in client
+    if (po.clientId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Not authorized to update this PO' });
+    }
+
+    if (quotationId) po.quotationId = quotationId;
     if (poNumber) po.poNumber = `PO-${poNumber}`;
     if (date) po.date = new Date(date);
     if (deliveryDate) po.deliveryDate = new Date(deliveryDate);
-    if (billTo) po.billTo = billTo;
+    if (billTo) {
+      po.billTo = {
+        ...po.billTo,
+        company: billTo.company || po.billTo.company,
+        address: billTo.address || po.billTo.address,
+        cityState: billTo.cityState || po.billTo.cityState,
+        postalCode: billTo.postalCode || po.billTo.postalCode,
+        phone: billTo.phone || po.billTo.phone,
+        email: billTo.email || po.billTo.email
+      };
+    }
     if (services && Array.isArray(services)) {
       po.services = services.map(service => ({
         description: service.description,
         hours: service.hours,
         ratePerHour: service.ratePerHour,
-        amount: service.hours * service.ratePerHour,
+        amount: service.hours * service.ratePerHour
       }));
     }
     if (taxRate !== undefined) po.taxRate = taxRate;
     if (notes !== undefined) po.notes = notes;
-    if (status) po.status = status;
+    // Status can only be updated by admin, not through this endpoint
 
     const updatedPO = await po.save();
 
@@ -161,11 +187,17 @@ exports.deletePO = async (req, res) => {
       return res.status(400).json({ message: 'Invalid PO ID' });
     }
 
-    const po = await PO.findByIdAndDelete(id);
-
+    const po = await PO.findById(id);
     if (!po) {
       return res.status(404).json({ message: 'Purchase Order not found' });
     }
+
+    // Verify the PO belongs to the logged-in client
+    if (po.clientId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Not authorized to delete this PO' });
+    }
+
+    await PO.findByIdAndDelete(id);
 
     res.status(200).json({ message: 'Purchase Order deleted successfully' });
   } catch (error) {
@@ -174,7 +206,7 @@ exports.deletePO = async (req, res) => {
   }
 };
 
-// Approve a Purchase Order
+// Approve a Purchase Order (Admin only)
 exports.approvePO = async (req, res) => {
   try {
     const { id } = req.params;
@@ -186,6 +218,11 @@ exports.approvePO = async (req, res) => {
     const po = await PO.findById(id);
     if (!po) {
       return res.status(404).json({ message: 'Purchase Order not found' });
+    }
+
+    // Add admin authorization check here (implementation depends on your auth system)
+    if (!req.user.isAdmin) {
+      return res.status(403).json({ message: 'Admin access required' });
     }
 
     po.status = 'approved';
@@ -201,7 +238,7 @@ exports.approvePO = async (req, res) => {
   }
 };
 
-// Reject a Purchase Order
+// Reject a Purchase Order (Admin only)
 exports.rejectPO = async (req, res) => {
   try {
     const { id } = req.params;
@@ -213,6 +250,11 @@ exports.rejectPO = async (req, res) => {
     const po = await PO.findById(id);
     if (!po) {
       return res.status(404).json({ message: 'Purchase Order not found' });
+    }
+
+    // Add admin authorization check here (implementation depends on your auth system)
+    if (!req.user.isAdmin) {
+      return res.status(403).json({ message: 'Admin access required' });
     }
 
     po.status = 'rejected';
