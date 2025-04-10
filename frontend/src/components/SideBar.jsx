@@ -8,7 +8,6 @@ import {
   FileText,
   ClipboardList,
   CreditCard,
-  Settings,
   LogOut,
   ChevronDown,
   ChevronRight,
@@ -40,11 +39,7 @@ const Sidebar = ({ role = "client" }) => {
         icon: <Home size={20} />,
         path: `/dashboard/${role}`,
       },
-      {
-        name: "Settings",
-        icon: <Settings size={20} />,
-        path: `/dashboard/${role}/settings`,
-      },
+     
     ]
 
     const adminItems = [

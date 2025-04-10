@@ -13,6 +13,8 @@ const createQuotation = async (req, res) => {
       billToAddress,
       billToCityState,
       billToPostalCode,
+      billToEmail,       // Added field
+      billToPhone,       // Added field
       services,
       taxRate,
       subtotal,
@@ -59,6 +61,8 @@ const createQuotation = async (req, res) => {
       billToAddress,
       billToCityState,
       billToPostalCode,
+      billToEmail,       // Added field
+      billToPhone,       // Added field
       services,
       taxRate: Number(taxRate),
       subtotal,
@@ -67,7 +71,7 @@ const createQuotation = async (req, res) => {
       paymentTerms,
       notes,
     
-      // ✅ Add these
+      // Company information
       companyName,
       address,
       cityState,
@@ -87,6 +91,7 @@ const createQuotation = async (req, res) => {
     res.status(500).json({ msg: "Server error", error: error.message });
   }
 };
+
 // 📋 Get all quotations (ADMIN only)
 const getAllQuotations = async (req, res) => {
   try {

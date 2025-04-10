@@ -15,6 +15,8 @@ const QuotationForm = ({ onClose }) => {
     billToAddress: "",
     billToCityState: "",
     billToPostalCode: "",
+    billToPhone: "",        // Added
+    billToEmail: "",        // Added
     poNumber: "",
     date: "",
     deliveryDate: "",
@@ -23,7 +25,6 @@ const QuotationForm = ({ onClose }) => {
     notes: "",
     paymentTerms: "50% Advance, Remaining on Completion",
     paymentMode: "Bank Transfer",
-    // completionDate: '',
     customPaymentTerms: "",
   })
 
@@ -44,14 +45,20 @@ const QuotationForm = ({ onClose }) => {
       case "billToPostalCode":
         if (!value.trim()) error = "Postal code is required"
         break
+      case "billToPhone":       // Added
+        if (!value.trim()) error = "Phone number is required"
+        else if (!/^\+?[1-9]\d{1,14}$/.test(value)) error = "Invalid phone number"
+        break
+      case "billToEmail":       // Added
+        if (!value.trim()) error = "Email is required"
+        else if (!/\S+@\S+\.\S+/.test(value)) error = "Invalid email format"
+        break
       case "poNumber":
         if (!value.trim()) error = "Quote number is required"
         break
       case "date":
       case "deliveryDate":
-      // case 'completionDate':
-      //   if (!value) error = 'Date is required';
-      //   break;
+        break
       case "taxRate":
         if (value < 0) error = "Tax rate cannot be negative"
         break
@@ -121,8 +128,6 @@ const QuotationForm = ({ onClose }) => {
   const calculateTax = () => (calculateSubtotal() * formData.taxRate) / 100
   const calculateTotal = () => calculateSubtotal() + calculateTax()
 
-  // import axios from "axios";
-
   const handleSubmit = async (e) => {
     e.preventDefault()
     const newErrors = {}
@@ -157,7 +162,6 @@ const QuotationForm = ({ onClose }) => {
 
     // If no errors, proceed to API call
     if (Object.keys(newErrors).length === 0) {
-      // Format services to match the backend model
       const formattedServices = formData.services.map((service) => ({
         name: service.description,
         quantity: service.hours,
@@ -174,6 +178,8 @@ const QuotationForm = ({ onClose }) => {
         billToAddress: formData.billToAddress,
         billToCityState: formData.billToCityState,
         billToPostalCode: formData.billToPostalCode,
+        billToPhone: formData.billToPhone,        // Added
+        billToEmail: formData.billToEmail,        // Added
         services: formattedServices,
         taxRate: Number.parseFloat(formData.taxRate),
         subtotal: calculateSubtotal(),
@@ -408,6 +414,42 @@ const QuotationForm = ({ onClose }) => {
                 }`}
               />
               {errors.billToPostalCode && <span className={errorClass}>{errors.billToPostalCode}</span>}
+            </div>
+            <div className="flex items-center mb-1.5 flex-1 min-w-0">
+              <label
+                className={`${labelClass} mr-1.5 w-[100px] text-right flex-shrink-0 md:text-xs sm:text-[11px] sm:w-auto sm:text-left sm:mr-0 sm:mb-1 dark:text-gray-300`}
+              >
+                Phone:
+              </label>
+              <input
+                type="text"
+                name="billToPhone"
+                value={formData.billToPhone}
+                onChange={handleChange}
+                placeholder="Enter phone number"
+                className={`${inputClass} w-[200px] flex-grow md:text-xs sm:text-[11px] sm:p-1 sm:w-full ${
+                  errors.billToPhone ? "border-red-500" : ""
+                }`}
+              />
+              {errors.billToPhone && <span className={errorClass}>{errors.billToPhone}</span>}
+            </div>
+            <div className="flex items-center mb-1.5 flex-1 min-w-0">
+              <label
+                className={`${labelClass} mr-1.5 w-[100px] text-right flex-shrink-0 md:text-xs sm:text-[11px] sm:w-auto sm:text-left sm:mr-0 sm:mb-1 dark:text-gray-300`}
+              >
+                Email:
+              </label>
+              <input
+                type="email"
+                name="billToEmail"
+                value={formData.billToEmail}
+                onChange={handleChange}
+                placeholder="Enter email"
+                className={`${inputClass} w-[200px] flex-grow md:text-xs sm:text-[11px] sm:p-1 sm:w-full ${
+                  errors.billToEmail ? "border-red-500" : ""
+                }`}
+              />
+              {errors.billToEmail && <span className={errorClass}>{errors.billToEmail}</span>}
             </div>
           </div>
         </div>
