@@ -87,19 +87,26 @@ const createQuotation = async (req, res) => {
     res.status(500).json({ msg: "Server error", error: error.message });
   }
 };
-
 // 📋 Get all quotations (ADMIN only)
 const getAllQuotations = async (req, res) => {
   try {
     const quotations = await Quotation.find()
-      .populate("rfqId")
-      .populate("supplierId");
+      .populate({
+        path: "rfqId",
+        select: "title description clientId createdAt"
+      })
+      .populate({
+        path: "supplierId",
+        select: "companyName email"
+      });
+
     res.status(200).json(quotations);
   } catch (error) {
     console.error("Error fetching quotations:", error.message);
     res.status(500).json({ msg: "Server error", error: error.message });
   }
 };
+
 
 // 👤 Get quotations by supplier (EMPLOYEE only)
 const getQuotationsBySupplier = async (req, res) => {

@@ -16,6 +16,7 @@ import AdminDashboard from "./components/AdminDashboard";
 import ClientDashboard from "./components/ClientDashboard";
 import EmployeeDashboard from "./components/EmployeeDashboard";
 import DashboardLayout from "./components/DashboardLayout";
+import AdminQuotationTable from "./components/AdminQuotationTable";
 
 // ✅ Utility to extract role from token
 const getUserRoleFromToken = () => {
@@ -53,6 +54,7 @@ function App() {
             {/* Role-based features */}
             <Route path="/dashboard/client/quotations" element={<DashboardLayout role="client"><Quotation /></DashboardLayout>} />
             <Route path="/dashboard/employee/quotationform" element={<DashboardLayout role="employee"><QuotationForm /></DashboardLayout>} />
+            <Route path="/dashboard/admin/quotations" element={<DashboardLayout role="admin"><AdminQuotationTable /></DashboardLayout>} />
 
             {/* ✅ Dynamic RFQ routes */}
             <Route path="/dashboard/admin/rfq" element={<RFQ role={userRole} />} />
