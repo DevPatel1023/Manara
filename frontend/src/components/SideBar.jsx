@@ -55,9 +55,9 @@ const Sidebar = ({ role = "client" }) => {
         path: "/dashboard/admin/quotations",
       },
       {
-        name: "Invoices",
+        name: "PO",
         icon: <CreditCard size={20} />,
-        path: "/dashboard/admin/invoices",
+        path: "/dashboard/admin/po",
       },
       {
         name: "Customers",

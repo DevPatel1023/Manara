@@ -17,6 +17,8 @@ import ClientDashboard from "./components/ClientDashboard";
 import EmployeeDashboard from "./components/EmployeeDashboard";
 import DashboardLayout from "./components/DashboardLayout";
 import AdminQuotationTable from "./components/AdminQuotationTable";
+import POAdminView from "./components/PoAdminView";
+import InvoicesPage from "./components/InvoicesPage";
 
 // ✅ Utility to extract role from token
 const getUserRoleFromToken = () => {
@@ -61,14 +63,15 @@ function App() {
             <Route path="/dashboard/client/rfq" element={<RFQ role={userRole} />} />
             <Route path="/dashboard/employee/rfq" element={<RFQ role={userRole} />} />
 
-            <Route path="/dashboard/client/po" element={<DashboardLayout><POForm /></DashboardLayout>} />
+            <Route path="/dashboard/client/po" element={<DashboardLayout role="client"><POForm /></DashboardLayout>} />
+            <Route path="/dashboard/admin/po" element={<DashboardLayout role="admin"><POAdminView /></DashboardLayout>} />
             <Route path="/dashboard/client/profile" element={<UserProfile />} />
             <Route path="/dashboard/admin/profile" element={<UserProfile />} />
             <Route path="/dashboard/employee/profile" element={<UserProfile />} />
 
             {/* Shared pages */}
             <Route path="/customers" element={<Customers />} />
-            <Route path="/invoice" element={<Invoice />} />
+            <Route path="/dashboard/client/invoices" element={<DashboardLayout role="client"><InvoicesPage /></DashboardLayout>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

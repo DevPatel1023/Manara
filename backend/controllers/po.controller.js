@@ -112,11 +112,7 @@ const updatePOStatus = async (req, res) => {
       return res.status(404).json({ message: 'Purchase Order not found' });
     }
 
-    // Optionally restrict to client who created it
-    if (po.clientId.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: 'Forbidden: You can only update your own POs' });
-    }
-
+    // No clientId check for admin
     po.status = status;
     const updatedPO = await po.save();
 
@@ -138,14 +134,18 @@ const viewAllPOs = async (req, res) => {
     const { page = 1, limit = 10 } = req.query;
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    const pos = await PO.find({ clientId: req.user._id }) // Only show POs for the authenticated client
+    // Build filter based on user role.
+    // If the user is not an admin, only return POs for that client.
+    const filter = req.user && req.user.role === 'admin' ? {} : { clientId: req.user.id };
+
+    const pos = await PO.find(filter)
       .populate('clientId', 'name email')
       .populate('quotationId', 'quotationNumber')
       .skip(skip)
       .limit(parseInt(limit))
       .sort({ createdAt: -1 });
 
-    const total = await PO.countDocuments({ clientId: req.user._id });
+    const total = await PO.countDocuments(filter);
 
     res.status(200).json({
       message: 'POs retrieved successfully',

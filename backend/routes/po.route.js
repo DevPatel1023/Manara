@@ -10,6 +10,7 @@ router.post('/submitpo', authenticate, authorization('client'), poController.cre
 router.put('/status/:id', authenticate, poController.updatePOStatus);
 
 // View all POs (authenticated users)
-router.get('/all', authenticate, poController.viewAllPOs);
+router.get('/all', authenticate, authorization(['admin', 'client']), poController.viewAllPOs);
+
 
 module.exports = router;
