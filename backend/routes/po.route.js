@@ -1,62 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const poController = require('../controllers/po.controller');
-const { authenticate, authorization } = require("../middlewares/Auth.js");
+const { authenticate, authorization } = require('../middlewares/Auth');
 
-// Create a new Purchase Order
-router.post(
-  '/submitpo',
-  authenticate,
-  authorization(['client']), // Example roles: Adjust as needed
-  poController.createPO
-);
+// Create a new PO (clients only)
+router.post('/submitpo', authenticate, authorization('client'), poController.createPO);
 
-// Get all Purchase Orders
-router.get(
-  '/purchase-orders',
-  authenticate,
-  authorization(['admin']), // Example roles: Adjust as needed
-  poController.getAllPOs
-);
+// Update PO status (authenticated users)
+router.put('/status/:id', authenticate, poController.updatePOStatus);
 
-// Get a specific Purchase Order by ID
-router.get(
-  '/purchase-orders/:id',
-  authenticate,
-  authorization(['admin', 'client']), // Example roles: Adjust as needed
-  poController.getPOById
-);
-
-// Update a Purchase Order by ID
-router.put(
-  '/purchase-orders/:id',
-  authenticate,
-  authorization(['admin']), // Example roles: Adjust as needed
-  poController.updatePO
-);
-
-// Delete a Purchase Order by ID
-router.delete(
-  '/purchase-orders/:id',
-  authenticate,
-  authorization(['admin']), // Example roles: Adjust as needed
-  poController.deletePO
-);
-
-// Approve a Purchase Order by ID
-router.patch(
-  '/purchase-orders/:id/approve',
-  authenticate,
-  authorization(['admin', 'employee']), // Example roles: Adjust as needed
-  poController.approvePO
-);
-
-// Reject a Purchase Order by ID
-router.patch(
-  '/purchase-orders/:id/reject',
-  authenticate,
-  authorization(['admin', 'employee']), // Example roles: Adjust as needed
-  poController.rejectPO
-);
+// View all POs (authenticated users)
+router.get('/all', authenticate, poController.viewAllPOs);
 
 module.exports = router;
