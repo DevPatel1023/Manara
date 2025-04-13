@@ -69,7 +69,7 @@ const Signin = () => {
           onChange={handleChange}
         />
 
-        {formValue.role === "admin" && (
+        {formValue.role === "admin" || "employee" && (
           <InputBox
             title="AccessId"
             type="text"

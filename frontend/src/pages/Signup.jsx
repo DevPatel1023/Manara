@@ -15,7 +15,7 @@ const Signup = () => {
     phoneNo: "",
     email: "",
     password: "",
-    role: "employee", // ✅ Default role
+    role: "", // ✅ Default role
   });
 
   const [error, setError] = useState("");

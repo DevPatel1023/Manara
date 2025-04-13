@@ -65,16 +65,6 @@ const Sidebar = ({ role = "client" }) => {
         path: "/dashboard/admin/customers",
       },
       {
-        name: "Reports",
-        icon: <BarChart2 size={20} />,
-        path: "/dashboard/admin/reports",
-        submenu: [
-          { name: "Sales", path: "/dashboard/admin/reports/sales" },
-          { name: "Customers", path: "/dashboard/admin/reports/customers" },
-          { name: "Revenue", path: "/dashboard/admin/reports/revenue" },
-        ],
-      },
-      {
         name: "Employees",
         icon: <Users size={20} />,
         path: "/dashboard/admin/employees",

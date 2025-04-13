@@ -18,14 +18,15 @@ import {
   Edit,
   MoreHorizontal,
 } from "lucide-react"
+import { getUserFromToken } from "../services/GetUserFromToken"
 
 const EmployeeDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview")
-
+  const user = getUserFromToken()
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">Welcome back, Sarah!</h2>
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">Welcome back, {user.name}</h2>
         <p className="text-gray-600 dark:text-gray-300">Here's what's happening with your tasks and schedule today.</p>
       </div>
 
