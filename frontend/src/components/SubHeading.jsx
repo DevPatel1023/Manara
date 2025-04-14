@@ -1,10 +1,8 @@
-import React from 'react';
-
-const SubHeading = ({ style, subtitle }) => {
+const SubHeading = ({ subtitle, className }) => {
   return (
-    <h5 className={`${style} text-gray-600 dark:text-gray-300 mt-3 mb-4`}>
+    <p className={`${className} text-gray-600 dark:text-gray-300 mt-2 text-sm`}>
       {subtitle}
-    </h5>
+    </p>
   );
 };
 

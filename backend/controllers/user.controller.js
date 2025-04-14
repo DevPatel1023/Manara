@@ -16,6 +16,8 @@ const RegisterSchema = z.object({
 const loginSchema = z.object({
     email: z.string().email("Invalid email address"),
     password: z.string().min(6, "Password must be at least 6 characters long!"),
+    role : z.enum(['admin','employee','client']),
+    accessId : z.string(),
 });
 
 // Signup Function
@@ -59,7 +61,7 @@ const Signin = async (req, res) => {
             return res.status(400).json({ msg: "Validation failed", errors: result.error.errors });
         }
 
-        const { email, password } = result.data;
+        const { email, password ,role, accessId} = result.data;
         const user = await User.findOne({ email }).select("+password"); 
 
         if (!user) {
@@ -70,13 +72,17 @@ const Signin = async (req, res) => {
         if (!isPassMatched) {
             return res.status(401).json({ msg: "Incorrect password", success: false });
         }
+
+        if((role === "admin" || role === "employee") && accessId !== process.env.ACCESS_ID){
+            return res.status(401).json({msg : "Incorrect Access Id",success : false})
+        }
         
         const token = jwt.sign(
             {
                 id: user._id,
                 name : user.firstName,
                 email: user.email,
-                role: user.role, // ✅ Add this
+                role: user.role, 
             },
             process.env.JWT_SECRET,
             { expiresIn: "24h" }

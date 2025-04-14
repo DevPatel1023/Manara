@@ -6,12 +6,15 @@ import SubHeading from "../components/SubHeading";
 import InputBox from "../components/InputBox";
 import Button from "../components/Button";
 import BottomText from "../components/BottomText";
+import RoleToggle from "../components/RoleToggle";
 
 const Signin = () => {
   const navigate = useNavigate();
   const [formValue, setFormValue] = useState({
     email: "",
     password: "",
+    role: "client", // Default to client role
+    accessId: "",
   });
   const [error, setError] = useState("");
 
@@ -19,6 +22,15 @@ const Signin = () => {
     setFormValue({
       ...formValue,
       [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleRoleChange = (role) => {
+    setFormValue({
+      ...formValue,
+      role: role,
+      // Clear accessId when switching to client role
+      accessId: role === "client" ? "" : formValue.accessId
     });
   };
 
@@ -44,10 +56,13 @@ const Signin = () => {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gradient-to-br from-[#f8f9fa] to-[#e9ecef]">
-      <div className="w-auto p-10 rounded-xl bg-white/20 backdrop-blur-lg border border-white/40 shadow-lg flex flex-col justify-center items-center">
-        <Heading title="Sign In" style="text-4xl text-[#1e2022] font-bold" />
-        <SubHeading subtitle="Enter your information and login into account" />
+    <div className="flex justify-center items-center h-screen bg-gradient-to-br from-[#f8f9fa] to-[#e9ecef] dark:from-[#1a1c1e] dark:to-[#121314]">
+      <div className="w-auto p-10 rounded-xl bg-white/20 dark:bg-white/10 backdrop-blur-lg border border-white/40 shadow-lg flex flex-col justify-center items-center">
+        <Heading title="Sign In" style="text-4xl text-[#1e2022] dark:text-white font-bold" />
+        <SubHeading subtitle="Enter your information and login into account" className="text-gray-600 dark:text-gray-300" />
+        
+        {/* Role Toggle Button - Right after heading/subheading */}
+        <RoleToggle selectedRole={formValue.role} onChange={handleRoleChange} />
 
         {error && <p className="text-red-500 text-sm">{error}</p>}
 
@@ -69,7 +84,7 @@ const Signin = () => {
           onChange={handleChange}
         />
 
-        {formValue.role === "admin" || "employee" && (
+        {(formValue.role === "admin" || formValue.role === "employee") && (
           <InputBox
             title="AccessId"
             type="text"
@@ -90,6 +105,7 @@ const Signin = () => {
           text="Don't have an account? Create one"
           to="/signup"
           title="Sign up"
+          className="text-gray-600 dark:text-gray-300"
         />
       </div>
     </div>

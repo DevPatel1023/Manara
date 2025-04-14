@@ -36,7 +36,7 @@ const getUserRoleFromToken = () => {
 };
 
 function App() {
-  const userRole = getUserRoleFromToken(); // 🔥 get dynamic role
+  const userRole = getUserRoleFromToken();
 
   return (
     <ThemeProvider>

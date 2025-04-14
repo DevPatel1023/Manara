@@ -6,6 +6,8 @@ import SubHeading from "../components/SubHeading";
 import InputBox from "../components/InputBox";
 import Button from "../components/Button";
 import BottomText from "../components/BottomText";
+import RoleToggle from "../components/RoleToggle";
+
 const Signup = () => {
   const navigate = useNavigate();
 
@@ -15,7 +17,7 @@ const Signup = () => {
     phoneNo: "",
     email: "",
     password: "",
-    role: "", // ✅ Default role
+    role: "client", // Default to client role
   });
 
   const [error, setError] = useState("");
@@ -24,6 +26,13 @@ const Signup = () => {
     setFormValue({
       ...formValue,
       [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleRoleChange = (role) => {
+    setFormValue({
+      ...formValue,
+      role: role,
     });
   };
 
@@ -44,6 +53,7 @@ const Signup = () => {
     }
 
     try {
+      console.log(formValue);
       const response = await axios.post(
         "http://localhost:3000/api/v1/users/signup",
         formValue
@@ -61,10 +71,13 @@ const Signup = () => {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gradient-to-br from-[#f8f9fa] to-[#e9ecef]">
-      <div className="w-auto p-10 rounded-xl bg-white/20 backdrop-blur-lg border border-white/40 shadow-lg flex flex-col justify-center items-center">
+    <div className="flex justify-center items-center h-screen bg-gradient-to-br from-[#f8f9fa] to-[#e9ecef] dark:from-[#1a1c1e] dark:to-[#121314]">
+      <div className="w-auto p-10 rounded-xl bg-white/20 dark:bg-[#2c2f33] backdrop-blur-lg border border-white/40 dark:border-gray-600 shadow-lg flex flex-col justify-center items-center">
         <Heading title="Create a free account" style="text-4xl text-[#1e2022] font-bold" />
         <SubHeading subtitle="Enter your information to create an account" className="text-gray-600" />
+        
+        {/* Role Toggle Button - Right after heading/subheading */}
+        <RoleToggle selectedRole={formValue.role} onChange={handleRoleChange} />
 
         {error && <p className="text-red-500 text-sm">{error}</p>}
 
@@ -115,28 +128,13 @@ const Signup = () => {
           onChange={handleChange}
         />
 
-        {/* ✅ Role Selection Dropdown */}
-        <div className="w-full mt-4">
-          <label className="block text-gray-700 font-medium mb-2">Role</label>
-          <select
-            name="role"
-            value={formValue.role}
-            onChange={handleChange}
-            className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#009e74] focus:border-transparent"
-          >
-            <option value="admin">Admin</option>
-            <option value="employee">Employee</option>
-            <option value="client">Client</option>
-          </select>
-        </div>
-
         <Button
           title="Submit"
           onClick={handleSubmit}
           style="bg-[#009e74] text-center text-white rounded-md hover:bg-[#008e68] mt-5 w-full mb-3 p-3"
         />
 
-        <BottomText text="Already have an account?" to="/signin" title="Sign in" className="text-gray-600" />
+        <BottomText text="Already have an account?" to="/signin" title="Sign in" className="text-gray-600 dark:text-gray-300" />
       </div>
     </div>
   );

@@ -1,5 +1,3 @@
-import React from 'react'
-
 const Heading = ({ style, title }) => {
   return (
     <div>
@@ -7,7 +5,6 @@ const Heading = ({ style, title }) => {
         {title}
       </h1>
     </div>
-  )
-}
-
-export default Heading;
+  );
+};
+ export default Heading;

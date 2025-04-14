@@ -59,16 +59,16 @@ const Sidebar = ({ role = "client" }) => {
         icon: <CreditCard size={20} />,
         path: "/dashboard/admin/po",
       },
-      {
-        name: "Customers",
-        icon: <Users size={20} />,
-        path: "/dashboard/admin/customers",
-      },
-      {
-        name: "Employees",
-        icon: <Users size={20} />,
-        path: "/dashboard/admin/employees",
-      },
+      // {
+      //   name: "Customers",
+      //   icon: <Users size={20} />,
+      //   path: "/dashboard/admin/customers",
+      // },
+      // {
+      //   name: "Employees",
+      //   icon: <Users size={20} />,
+      //   path: "/dashboard/admin/employees",
+      // },
     ]
 
     const clientItems = [
@@ -107,21 +107,21 @@ const Sidebar = ({ role = "client" }) => {
         icon: <ClipboardList size={20} />,
         path: "/dashboard/employee/rfq",
       },
-      {
-        name: "Calendar",
-        icon: <Calendar size={20} />,
-        path: "/dashboard/employee/calendar",
-      },
-      {
-        name: "Messages",
-        icon: <MessageSquare size={20} />,
-        path: "/dashboard/employee/messages",
-      },
-      {
-        name: "Customers",
-        icon: <Users size={20} />,
-        path: "/dashboard/employee/customers",
-      },
+      // {
+      //   name: "Calendar",
+      //   icon: <Calendar size={20} />,
+      //   path: "/dashboard/employee/calendar",
+      // },
+      // {
+      //   name: "Messages",
+      //   icon: <MessageSquare size={20} />,
+      //   path: "/dashboard/employee/messages",
+      // },
+      // {
+      //   name: "Customers",
+      //   icon: <Users size={20} />,
+      //   path: "/dashboard/employee/customers",
+      // },
     ]
 
     switch (role) {
