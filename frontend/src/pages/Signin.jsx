@@ -39,6 +39,7 @@ const Signin = () => {
     setError("");
 
     try {
+      console.log("SIGNIN ATTEMPT - Form data:", JSON.stringify(formValue, null, 2)); 
       const response = await axios.post(
         "http://localhost:3000/api/v1/users/signin",
         formValue

@@ -10,6 +10,7 @@ const RegisterSchema = z.object({
     phoneNo: z.string().length(10, "Phone number must be exactly 10 digits"),
     email: z.string().email("Invalid email"),
     password: z.string().min(6, "Password should be at least 6 characters long!"),
+    role : z.enum(['admin','employee','client'])
 });
 
 // Login Schema Validation
@@ -27,7 +28,7 @@ const Signup = async (req, res) => {
         if (!result.success) {
             return res.status(400).json({ msg: "Validation failed", errors: result.error.errors });
         }
-
+        console.log("BACKEND - Received signup data:", result.data);
         const { firstName, lastName, phoneNo, email, password,role } = result.data;
 
        
@@ -76,6 +77,7 @@ const Signin = async (req, res) => {
         if((role === "admin" || role === "employee") && accessId !== process.env.ACCESS_ID){
             return res.status(401).json({msg : "Incorrect Access Id",success : false})
         }
+        console.log("BACKEND - Login attempt for:", result.data.email, "with role:", result.data.role);
         
         const token = jwt.sign(
             {

@@ -53,7 +53,7 @@ const Signup = () => {
     }
 
     try {
-      console.log(formValue);
+      console.log("SIGNUP ATTEMPT - Complete form data:", JSON.stringify(formValue, null, 2));
       const response = await axios.post(
         "http://localhost:3000/api/v1/users/signup",
         formValue
