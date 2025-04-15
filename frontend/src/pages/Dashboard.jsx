@@ -20,9 +20,12 @@ const RoleRedirectDashboard = () => {
         });
 
         const role = response.data.user.role;
-        navigate(`/dashboard/${role}`);
+
+        // 🔁 force redirect to fresh dashboard
+        window.location.replace(`/dashboard/${role}`);
       } catch (error) {
         console.error("Failed to fetch user role:", error);
+        localStorage.removeItem("token");
         navigate("/signin");
       }
     };
@@ -30,7 +33,11 @@ const RoleRedirectDashboard = () => {
     fetchUserRole();
   }, [navigate]);
 
-  return null; // You can show a spinner here if you want
+  return (
+    <div className="flex justify-center items-center h-screen">
+      <p className="text-lg font-medium">Redirecting to your dashboard...</p>
+    </div>
+  );
 };
 
 export default RoleRedirectDashboard;

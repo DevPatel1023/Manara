@@ -17,11 +17,25 @@ import {
   MessageSquare,
 } from "lucide-react"
 
-const Sidebar = ({ role = "client" }) => {
+const Sidebar = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const [expanded, setExpanded] = useState(true)
   const [activeSubmenu, setActiveSubmenu] = useState(null)
+
+  // ✅ Extract role from token
+  const getRoleFromToken = () => {
+    const token = localStorage.getItem("token")
+    if (!token) return "client"
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]))
+      return payload.role || "client"
+    } catch (err) {
+      return "client"
+    }
+  }
+
+  const role = getRoleFromToken()
 
   const toggleSubmenu = (menu) => {
     setActiveSubmenu(activeSubmenu === menu ? null : menu)
@@ -29,7 +43,8 @@ const Sidebar = ({ role = "client" }) => {
 
   const handleLogout = () => {
     localStorage.removeItem("token")
-    navigate("/signin")
+    sessionStorage.clear()
+    window.location.href = "/signin"
   }
 
   const getNavItems = () => {
@@ -39,89 +54,27 @@ const Sidebar = ({ role = "client" }) => {
         icon: <Home size={20} />,
         path: `/dashboard/${role}`,
       },
-     
     ]
 
     const adminItems = [
       ...commonItems,
-      {
-        name: "RFQs",
-        icon: <FileText size={20} />,
-        path: "/dashboard/admin/rfq",
-      },
-      {
-        name: "Quotations",
-        icon: <ClipboardList size={20} />,
-        path: "/dashboard/admin/quotations",
-      },
-      {
-        name: "PO",
-        icon: <CreditCard size={20} />,
-        path: "/dashboard/admin/po",
-      },
-      // {
-      //   name: "Customers",
-      //   icon: <Users size={20} />,
-      //   path: "/dashboard/admin/customers",
-      // },
-      // {
-      //   name: "Employees",
-      //   icon: <Users size={20} />,
-      //   path: "/dashboard/admin/employees",
-      // },
+      { name: "RFQs", icon: <FileText size={20} />, path: "/dashboard/admin/rfq" },
+      { name: "Quotations", icon: <ClipboardList size={20} />, path: "/dashboard/admin/quotations" },
+      { name: "PO", icon: <CreditCard size={20} />, path: "/dashboard/admin/po" },
     ]
 
     const clientItems = [
       ...commonItems,
-      {
-        name: "RFQs",
-        icon: <FileText size={20} />,
-        path: "/dashboard/client/rfq",
-      },
-      {
-        name: "Quotations",
-        icon: <ClipboardList size={20} />,
-        path: "/dashboard/client/quotations",
-      },
-      {
-        name: "PO",
-        icon: <ReceiptText size={20} />,
-        path: "/dashboard/client/po",
-      },
-      {
-        name: "Invoices",
-        icon: <CreditCard size={20} />,
-        path: "/dashboard/client/invoices",
-      },
+      { name: "RFQs", icon: <FileText size={20} />, path: "/dashboard/client/rfq" },
+      { name: "Quotations", icon: <ClipboardList size={20} />, path: "/dashboard/client/quotations" },
+      { name: "PO", icon: <ReceiptText size={20} />, path: "/dashboard/client/po" },
+      { name: "Invoices", icon: <CreditCard size={20} />, path: "/dashboard/client/invoices" },
     ]
 
     const employeeItems = [
       ...commonItems,
-      {
-        name: "Quotation",
-        icon: <ClipboardList size={20} />,
-        path: "/dashboard/employee/quotationform",
-      },
-      {
-        name: "View RFQs",
-        icon: <ClipboardList size={20} />,
-        path: "/dashboard/employee/rfq",
-      },
-      // {
-      //   name: "Calendar",
-      //   icon: <Calendar size={20} />,
-      //   path: "/dashboard/employee/calendar",
-      // },
-      // {
-      //   name: "Messages",
-      //   icon: <MessageSquare size={20} />,
-      //   path: "/dashboard/employee/messages",
-      // },
-      // {
-      //   name: "Customers",
-      //   icon: <Users size={20} />,
-      //   path: "/dashboard/employee/customers",
-      // },
+      { name: "Quotation", icon: <ClipboardList size={20} />, path: "/dashboard/employee/quotationform" },
+      { name: "View RFQs", icon: <ClipboardList size={20} />, path: "/dashboard/employee/rfq" },
     ]
 
     switch (role) {

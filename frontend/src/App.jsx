@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useEffect, useState } from "react";
 import Signin from "./pages/Signin";
 import Signup from "./pages/Signup";
 import Landing from "./pages/Landing";
@@ -20,23 +21,31 @@ import AdminQuotationTable from "./components/AdminQuotationTable";
 import POAdminView from "./components/PoAdminView";
 import InvoicesPage from "./components/InvoicesPage";
 
-// ✅ Utility to extract role from token
-const getUserRoleFromToken = () => {
-  const token = localStorage.getItem("token");
-  if (!token) return null;
-
-  try {
-    const base64Payload = token.split(".")[1];
-    const decodedPayload = JSON.parse(atob(base64Payload));
-    return decodedPayload.role || null;
-  } catch (err) {
-    console.error("Error decoding token", err);
-    return null;
-  }
-};
-
 function App() {
-  const userRole = getUserRoleFromToken();
+  const [userRole, setUserRole] = useState(null);
+
+  useEffect(() => {
+    const updateRole = () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setUserRole(null);
+        return;
+      }
+
+      try {
+        const base64Payload = token.split(".")[1];
+        const decodedPayload = JSON.parse(atob(base64Payload));
+        setUserRole(decodedPayload.role);
+      } catch (err) {
+        console.error("Error decoding token", err);
+        setUserRole(null);
+      }
+    };
+
+    updateRole();
+    window.addEventListener("storage", updateRole);
+    return () => window.removeEventListener("storage", updateRole);
+  }, []);
 
   return (
     <ThemeProvider>
