@@ -1,5 +1,4 @@
 const jwt = require("jsonwebtoken");
-const User = require("../models/user.model"); // adjust path as needed
 
 
 const authenticate = (req, res, next) => {
