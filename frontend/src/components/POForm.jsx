@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 
 const isValidObjectId = (id) => /^[0-9a-fA-F]{24}$/.test(id);
@@ -24,8 +24,85 @@ const POForm = () => {
     notes: "",
   });
 
+  const [quotations, setQuotations] = useState([]);
+  const [loadingQuotations, setLoadingQuotations] = useState(true);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [searchQuotation, setSearchQuotation] = useState("");
+
+  // Fetch quotations on component mount
+  useEffect(() => {
+    fetchQuotations();
+  }, []);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.quotation-dropdown')) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const fetchQuotations = async () => {
+    try {
+      setLoadingQuotations(true);
+      const token = localStorage.getItem("token");
+      const res = await axios.get("http://localhost:3000/api/v1/quotations/client", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setQuotations(res.data);
+      setLoadingQuotations(false);
+    } catch (err) {
+      console.error("Error fetching quotations:", err);
+      setLoadingQuotations(false);
+    }
+  };
+
+  // Handle quotation selection from dropdown
+  const handleQuotationSelect = (quotation) => {
+    // Update quotation ID
+    setFormData(prevData => ({
+      ...prevData,
+      quotationId: quotation._id,
+      // Auto-fill billTo fields from quotation
+      billTo: {
+        company: quotation.billToCompany || "",
+        address: quotation.billToAddress || "",
+        cityState: quotation.billToCityState || "",
+        postalCode: quotation.billToPostalCode || "",
+        phone: quotation.billToPhone || "",
+        email: quotation.billToEmail || "",
+      },
+      // Auto-fill tax rate if available
+      taxRate: quotation.taxRate?.toString() || "",
+      // Auto-fill PO number if available
+      poNumber: quotation.poNumber || "",
+      // Auto-fill notes if available
+      notes: quotation.notes || "",
+      // Keep the services empty as requested (don't auto-fill)
+      // Keep date and delivery date empty as requested
+    }));
+
+    setSearchQuotation(quotation._id);
+    setShowDropdown(false);
+    setErrors({ ...errors, quotationId: "" });
+  };
+
+  // Filter quotations based on search input
+  const filteredQuotations = quotations.filter(quotation =>
+    quotation._id.toLowerCase().includes(searchQuotation.toLowerCase()) ||
+    quotation.poNumber?.toLowerCase().includes(searchQuotation.toLowerCase()) ||
+    quotation.billToCompany?.toLowerCase().includes(searchQuotation.toLowerCase())
+  );
 
   const validateField = (name, value) => {
     let error = "";
@@ -185,7 +262,7 @@ const POForm = () => {
 
       try {
         setIsLoading(true);
-        console.log("Submission Data:",  submissionData);
+        console.log("Submission Data:", submissionData);
 
         const response = await axios.post(
           "http://localhost:3000/api/v1/PO/submitpo",
@@ -210,11 +287,12 @@ const POForm = () => {
           notes: "",
         });
         setErrors({});
+        setSearchQuotation("");
       } catch (error) {
         console.error("Error submitting PO:", error);
         if (error.code === "ERR_NETWORK") {
           setErrors({
-            global: "Network error: Could not connect to the server. Please ensure it’s running on localhost:3000.",
+            global: "Network error: Could not connect to the server. Please ensure it's running on localhost:3000.",
           });
         } else {
           const errorMessage = error.response?.data?.message || error.message;
@@ -264,13 +342,13 @@ const POForm = () => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="w-full min-h-screen m-0 p-5 bg-[#1b263b] flex flex-col md:p-3 sm:p-2 text-white"
+      className="w-full min-h-screen m-0 p-5 dark:bg-[#1b263b] bg-white flex flex-col md:p-3 sm:p-2 text-black dark:text-white"
     >
       {errors.global && (
         <div className="bg-red-600 text-white p-2 mb-5 rounded text-center">{errors.global}</div>
       )}
       <h1
-        className="text-white text-4xl font-bold text-center m-0 mb-5 p-2.5 bg-[#1b263b] relative 
+        className="text-black dark:text-white text-4xl font-bold text-center m-0 mb-5 p-2.5 bg-white dark:bg-[#1b263b] relative 
         before:content-['Purchase_Order'] before:absolute before:top-1/2 before:left-1/2 
         before:-translate-x-1/2 before:-translate-y-1/2 before:text-gray-700 before:text-4xl before:-z-10 
         md:text-3xl sm:text-2xl md:before:text-3xl sm:before:text-2xl"
@@ -278,97 +356,134 @@ const POForm = () => {
         Purchase Order
       </h1>
 
-      <div className="flex justify-between items-start bg-[#2e3951] p-4 mb-5 border border-gray-600 rounded-lg shadow-md md:flex-col sm:p-2.5">
+      <div className="flex justify-between items-start bg-white dark:bg-[#2e3951] p-4 mb-5 border border-gray-600 rounded-lg shadow-md md:flex-col sm:p-2.5">
         <div className="w-[45%] md:w-full md:mb-2.5">
           <div className="flex flex-col gap-2.5">
-            <div className="flex flex-col">
-              <label className="font-bold mb-1 text-sm text-gray-300 md:text-xs sm:text-[11px]">
+            <div className="flex flex-col relative quotation-dropdown">
+              <label className="font-bold mb-1 text-sm text-black dark:text-white md:text-xs sm:text-[11px]">
                 Quotation ID:
               </label>
-              <input
-                type="text"
-                name="quotationId"
-                value={formData.quotationId}
-                onChange={handleChange}
-                placeholder="Enter quotation ID (24 char MongoDB ID)"
-                className={`p-2 border border-gray-500 rounded w-full text-sm bg-[#3a4560] text-white ${
-                  errors.quotationId ? "border-red-500" : ""
-                }`}
-                disabled={isLoading}
-              />
+              <div className="relative">
+                <input
+                  type="text"
+                  name="quotationId"
+                  value={searchQuotation}
+                  onChange={(e) => {
+                    setSearchQuotation(e.target.value);
+                    setFormData({ ...formData, quotationId: e.target.value });
+                    setShowDropdown(true);
+                  }}
+                  onFocus={() => setShowDropdown(true)}
+                  placeholder="Select or enter quotation ID"
+                  className={`p-2 border border-gray-500 rounded w-full text-sm  dark:bg-[#3a4560]  dark:text-white ${errors.quotationId ? "border-red-500" : ""
+                    }`}
+                  disabled={isLoading}
+                />
+                {!loadingQuotations && showDropdown && quotations.length > 0 && (
+                  <div className="absolute z-10 w-full mt-1 dark:bg-[#3a4560] border border-gray-500 rounded-md shadow-lg max-h-60 overflow-auto">
+                    {filteredQuotations.map((quotation) => (
+                      <div
+                        key={quotation._id}
+                        className="p-2 cursor-pointer hover:bg-[#4a5570] text-sm"
+                        onClick={() => handleQuotationSelect(quotation)}
+                      >
+                        <div className="font-medium text-white">ID: {quotation._id}</div>
+                        <div className="text-gray-300 text-xs">
+                          PO: {quotation.poNumber || "N/A"} | Company: {quotation.billToCompany || "N/A"}
+                        </div>
+                      </div>
+                    ))}
+                    {filteredQuotations.length === 0 && (
+                      <div className="p-2 text-gray-400 text-sm">No matching quotations found</div>
+                    )}
+                  </div>
+                )}
+              </div>
               {errors.quotationId && <span className="text-red-400 text-xs mt-1">{errors.quotationId}</span>}
-              <span className="text-gray-400 text-xs mt-1">Must be a valid MongoDB ObjectId</span>
+              {loadingQuotations && (
+                <span className="text-gray-400 text-xs mt-1">Loading quotations...</span>
+              )}
+              {!loadingQuotations && (
+                <span className="text-gray-400 text-xs mt-1">Select from dropdown or enter a valid MongoDB ObjectId</span>
+              )}
             </div>
           </div>
         </div>
         <div className="text-right w-auto md:w-full md:text-right">
           <div className="flex flex-col gap-2.5">
             <div className="flex items-center justify-end md:justify-start">
-              <label className="font-bold mr-1.5 text-sm text-gray-300 md:text-xs sm:text-[11px]">
+              <label className="font-bold mr-1.5 text-sm dark:text-white md:text-xs sm:text-[11px]">
                 PO Number:
               </label>
-              <div className="flex items-center">
-                <span className="p-1.5 bg-gray-600 border border-r-0 border-gray-500 rounded-l text-sm text-gray-300">
-                  PO-
-                </span>
-                <input
-                  type="text"
-                  name="poNumber"
-                  value={formData.poNumber}
-                  onChange={handleChange}
-                  placeholder="Enter number"
-                  className={`p-1.5 border border-gray-500 rounded-r w-[120px] text-sm bg-[#3a4560] text-white ${
-                    errors.poNumber ? "border-red-500" : ""
-                  }`}
-                  disabled={isLoading}
-                />
+              <div className="flex flex-col items-end md:items-start">
+                <div className="flex items-center">
+                  <span className="p-1.5 dark:bg-gray-600 border border-r-0   border-gray-500 rounded-l text-sm dark:text-gray-300">
+                    PO-
+                  </span>
+                  <input
+                    type="text"
+                    name="poNumber"
+                    value={formData.poNumber}
+                    onChange={handleChange}
+                    placeholder="Enter number"
+                    className={`p-1.5 border border-gray-500 rounded-r w-[120px] text-sm dark:bg-[#3a4560] dark:text-white ${errors.poNumber ? "border-red-500" : ""
+                      }`}
+                    disabled={isLoading}
+                  />
+                </div>
+                {errors.poNumber && <span className="text-red-400 text-xs mt-1">{errors.poNumber}</span>}
               </div>
-              {errors.poNumber && <span className="text-red-400 text-xs block mt-1.5">{errors.poNumber}</span>}
             </div>
             <div className="flex items-center justify-end md:justify-start">
-              <label className="font-bold mr-1.5 text-sm text-gray-300 md:text-xs sm:text-[11px]">
+              <label className="font-bold mr-1.5 text-sm dark:text-gray-300 md:text-xs sm:text-[11px]">
                 Date:
               </label>
-              <input
-                type="date"
-                name="date"
-                value={formData.date}
-                onChange={handleChange}
-                className={`p-1.5 border border-gray-500 rounded w-[150px] text-sm bg-[#3a4560] text-white ${
-                  errors.date ? "border-red-500" : ""
-                }`}
-                disabled={isLoading}
-              />
-              {formData.date && <span className="ml-2 text-sm text-gray-300">{formatDate(formData.date)}</span>}
-              {errors.date && <span className="text-red-400 text-xs block mt-1.5">{errors.date}</span>}
+              <div className="flex flex-col items-end md:items-start">
+                <div className="flex items-center">
+                  <input
+                    type="date"
+                    name="date"
+                    value={formData.date}
+                    onChange={handleChange}
+                    className={`p-1.5 border border-gray-500 rounded w-[150px] text-sm dark:bg-[#3a4560] dark:text-white ${errors.date ? "border-red-500" : ""
+                      }`}
+                    disabled={isLoading}
+                  />
+                  {formData.date && <span className="ml-2 text-sm text-gray-300">{formatDate(formData.date)}</span>}
+                </div>
+                {errors.date && <span className="text-red-400 text-xs mt-1">{errors.date}</span>}
+              </div>
             </div>
             <div className="flex items-center justify-end md:justify-start">
-              <label className="font-bold mr-1.5 text-sm text-gray-300 md:text-xs sm:text-[11px]">
+              <label className="font-bold mr-1.5 text-sm dark:text-white md:text-xs sm:text-[11px]">
                 Delivery Date:
               </label>
-              <input
-                type="date"
-                name="deliveryDate"
-                value={formData.deliveryDate}
-                onChange={handleChange}
-                className={`p-1.5 border border-gray-500 rounded w-[150px] text-sm bg-[#3a4560] text-white ${
-                  errors.deliveryDate ? "border-red-500" : ""
-                }`}
-                disabled={isLoading}
-              />
-              {formData.deliveryDate && (
-                <span className="ml-2 text-sm text-gray-300">{formatDate(formData.deliveryDate)}</span>
-              )}
-              {errors.deliveryDate && (
-                <span className="text-red-400 text-xs block mt-1.5">{errors.deliveryDate}</span>
-              )}
+              <div className="flex flex-col items-end md:items-start">
+                <div className="flex items-center">
+                  <input
+                    type="date"
+                    name="deliveryDate"
+                    value={formData.deliveryDate}
+                    onChange={handleChange}
+                    className={`p-1.5 border border-gray-500 rounded w-[150px] text-sm dark:bg-[#3a4560] dark:text-white ${errors.deliveryDate ? "border-red-500" : ""
+                      }`}
+                    disabled={isLoading}
+                  />
+                  {formData.deliveryDate && (
+                    <span className="ml-2 text-sm text-gray-300">{formatDate(formData.deliveryDate)}</span>
+                  )}
+                </div>
+                {errors.deliveryDate && (
+                  <span className="text-red-400 text-xs mt-1">{errors.deliveryDate}</span>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="bg-[#2e3951] p-4 mb-5 border border-gray-600 rounded-lg shadow-md md:p-2.5 sm:p-2">
-        <strong className="text-base text-white block mb-2.5 md:text-sm sm:text-[11px]">Bill To</strong>
+      <div className="dark:bg-[#2e3951] p-4 mb-5 border border-gray-600 rounded-lg shadow-md md:p-2.5 sm:p-2">
+        <strong className="text-base dark:text-white block mb-2.5 md:text-sm sm:text-[11px]">Bill To</strong>
         <div className="flex flex-col gap-2.5">
           <div className="flex flex-col">
             <label className="font-bold mb-1 text-sm text-gray-300">Company:</label>
@@ -378,9 +493,8 @@ const POForm = () => {
               value={formData.billTo.company}
               onChange={handleChange}
               placeholder="Enter company name"
-              className={`p-2 border border-gray-500 rounded w-full text-sm bg-[#3a4560] text-white ${
-                errors["billTo.company"] ? "border-red-500" : ""
-              }`}
+              className={`p-2 border border-gray-500 rounded w-full text-sm dark:bg-[#3a4560] dark:text-white ${errors["billTo.company"] ? "border-red-500" : ""
+                }`}
               disabled={isLoading}
             />
             {errors["billTo.company"] && (
@@ -395,9 +509,8 @@ const POForm = () => {
               value={formData.billTo.address}
               onChange={handleChange}
               placeholder="Enter address"
-              className={`p-2 border border-gray-500 rounded w-full text-sm bg-[#3a4560] text-white ${
-                errors["billTo.address"] ? "border-red-500" : ""
-              }`}
+              className={`p-2 border border-gray-500 rounded w-full text-sm bg-[#3a4560] text-white ${errors["billTo.address"] ? "border-red-500" : ""
+                }`}
               disabled={isLoading}
             />
             {errors["billTo.address"] && (
@@ -412,9 +525,8 @@ const POForm = () => {
               value={formData.billTo.cityState}
               onChange={handleChange}
               placeholder="Enter city/state"
-              className={`p-2 border border-gray-500 rounded w-full text-sm bg-[#3a4560] text-white ${
-                errors["billTo.cityState"] ? "border-red-500" : ""
-              }`}
+              className={`p-2 border border-gray-500 rounded w-full text-sm bg-[#3a4560] text-white ${errors["billTo.cityState"] ? "border-red-500" : ""
+                }`}
               disabled={isLoading}
             />
             {errors["billTo.cityState"] && (
@@ -429,9 +541,8 @@ const POForm = () => {
               value={formData.billTo.postalCode}
               onChange={handleChange}
               placeholder="Enter postal code"
-              className={`p-2 border border-gray-500 rounded w-full text-sm bg-[#3a4560] text-white ${
-                errors["billTo.postalCode"] ? "border-red-500" : ""
-              }`}
+              className={`p-2 border border-gray-500 rounded w-full text-sm bg-[#3a4560] text-white ${errors["billTo.postalCode"] ? "border-red-500" : ""
+                }`}
               disabled={isLoading}
             />
             {errors["billTo.postalCode"] && (
@@ -446,9 +557,8 @@ const POForm = () => {
               value={formData.billTo.phone}
               onChange={handleChange}
               placeholder="Enter phone number"
-              className={`p-2 border border-gray-500 rounded w-full text-sm bg-[#3a4560] text-white ${
-                errors["billTo.phone"] ? "border-red-500" : ""
-              }`}
+              className={`p-2 border border-gray-500 rounded w-full text-sm bg-[#3a4560] text-white ${errors["billTo.phone"] ? "border-red-500" : ""
+                }`}
               disabled={isLoading}
             />
             {errors["billTo.phone"] && (
@@ -463,9 +573,8 @@ const POForm = () => {
               value={formData.billTo.email}
               onChange={handleChange}
               placeholder="Enter email"
-              className={`p-2 border border-gray-500 rounded w-full text-sm bg-[#3a4560] text-white ${
-                errors["billTo.email"] ? "border-red-500" : ""
-              }`}
+              className={`p-2 border border-gray-500 rounded w-full text-sm bg-[#3a4560] text-white ${errors["billTo.email"] ? "border-red-500" : ""
+                }`}
               disabled={isLoading}
             />
             {errors["billTo.email"] && (
@@ -502,9 +611,8 @@ const POForm = () => {
                     value={service.description}
                     onChange={(e) => handleServiceChange(index, "description", e.target.value)}
                     placeholder="Enter service description"
-                    className={`w-full p-1 border border-gray-500 rounded bg-[#4a5570] text-white ${
-                      errors[`serviceDescription${index}`] ? "border-red-500" : ""
-                    }`}
+                    className={`w-full p-1 border border-gray-500 rounded bg-[#4a5570] text-white ${errors[`serviceDescription${index}`] ? "border-red-500" : ""
+                      }`}
                     disabled={isLoading}
                   />
                   {errors[`serviceDescription${index}`] && (
@@ -521,9 +629,8 @@ const POForm = () => {
                     min="0"
                     step="0.1"
                     placeholder="0"
-                    className={`w-full p-1 border border-gray-500 rounded bg-[#4a5570] text-white ${
-                      errors[`serviceHours${index}`] ? "border-red-500" : ""
-                    }`}
+                    className={`w-full p-1 border border-gray-500 rounded bg-[#4a5570] text-white ${errors[`serviceHours${index}`] ? "border-red-500" : ""
+                      }`}
                     disabled={isLoading}
                   />
                   {errors[`serviceHours${index}`] && (
@@ -538,9 +645,8 @@ const POForm = () => {
                     min="0"
                     step="0.01"
                     placeholder="0"
-                    className={`w-full p-1 border border-gray-500 rounded bg-[#4a5570] text-white ${
-                      errors[`serviceRatePerHour${index}`] ? "border-red-500" : ""
-                    }`}
+                    className={`w-full p-1 border border-gray-500 rounded bg-[#4a5570] text-white ${errors[`serviceRatePerHour${index}`] ? "border-red-500" : ""
+                      }`}
                     disabled={isLoading}
                   />
                   {errors[`serviceRatePerHour${index}`] && (
@@ -586,43 +692,36 @@ const POForm = () => {
             value={formData.taxRate}
             onChange={handleChange}
             min="0"
-            step="0.01"
-            placeholder="0"
-            className={`p-1.5 border border-gray-500 rounded w-[100px] bg-[#3a4560] text-white ${
-              errors.taxRate ? "border-red-500" : ""
-            }`}
+            step="0.1"
+            placeholder="Enter tax rate"
+            className={`p-1.5 border border-gray-500 rounded w-[100px] text-sm bg-[#3a4560] text-white ${errors.taxRate ? "border-red-500" : ""
+              }`}
             disabled={isLoading}
           />
           {errors.taxRate && <span className="text-red-400 text-xs block mt-1.5">{errors.taxRate}</span>}
         </div>
         <p className="m-1.5 text-sm text-gray-300">Tax: {calculateTax().toFixed(2)}</p>
-        <p className="m-1.5 text-sm text-gray-300">
-          <strong className="text-lg text-white">Total: {calculateTotal().toFixed(2)}</strong>
-        </p>
+        <p className="m-1.5 text-sm font-bold text-white">Total: {calculateTotal().toFixed(2)}</p>
       </div>
 
       <div className="bg-[#2e3951] p-4 mb-5 border border-gray-600 rounded-lg shadow-md">
-        <label htmlFor="notes" className="font-bold text-sm text-gray-300 block mb-1.5">
-          Notes:
-        </label>
+        <label className="block font-bold mb-2.5 text-gray-300">Notes:</label>
         <textarea
-          id="notes"
           name="notes"
           value={formData.notes}
           onChange={handleChange}
-          placeholder="Enter your notes here..."
-          rows={4}
-          className="w-full p-2.5 border border-gray-500 rounded text-sm resize-y min-h-[80px] bg-[#3a4560] text-white"
+          placeholder="Enter any additional notes"
+          className="p-2 border border-gray-500 rounded w-full h-[100px] text-sm bg-[#3a4560] text-white"
           disabled={isLoading}
         />
       </div>
 
       <button
         type="submit"
-        className="bg-blue-600 p-2.5 px-5 text-white border-none rounded text-sm mt-5 block mx-auto hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed"
+        className="p-2.5 px-5 bg-blue-600 text-white border-none rounded text-base w-[200px] mx-auto hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed"
         disabled={isLoading}
       >
-        {isLoading ? "Submitting..." : "Submit Purchase Order"}
+        {isLoading ? "Submitting..." : "Submit PO"}
       </button>
     </form>
   );

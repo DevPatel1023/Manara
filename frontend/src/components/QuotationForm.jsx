@@ -3,8 +3,11 @@
 import { useState } from "react"
 import { X } from "lucide-react"
 import axios from "axios"
+import { useLocation } from "react-router-dom"
 
 const QuotationForm = ({ onClose }) => {
+  const location = useLocation();
+  const rfqId = location.state?.rfqId;
   const [formData, setFormData] = useState({
     companyName: "TECH ELECON PVT. LTD",
     address: "Anand Sojitra Road",
@@ -26,8 +29,9 @@ const QuotationForm = ({ onClose }) => {
     paymentTerms: "50% Advance, Remaining on Completion",
     paymentMode: "Bank Transfer",
     customPaymentTerms: "",
+    rfqId: rfqId || '',
   })
-
+ 
   const [errors, setErrors] = useState({})
 
   const validateField = (name, value) => {

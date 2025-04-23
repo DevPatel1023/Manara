@@ -105,7 +105,7 @@ export default function RFQForm() {
   };
 
   return (
-    <div className="p-8 bg-[#1b263b] text-white rounded-lg shadow-lg max-w-3xl mx-auto mt-10">
+    <div className="p-8 bg-white text-black dark:bg-[#1b263b] dark:text-white rounded-lg shadow-lg max-w-3xl mx-auto mt-10">
       <h2 className="text-3xl font-semibold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent text-center">
         Request for Quotation (RFQ)
       </h2>

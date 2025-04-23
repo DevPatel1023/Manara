@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { Check, X, Eye } from "lucide-react";
 
@@ -14,26 +14,26 @@ const AdminRFQsTable = () => {
     console.log("fetchRFQs function is running!");  // ✅ Debugging Step 1
 
     if (!token) {
-        console.error("No token found in localStorage");
-        return;
+      console.error("No token found in localStorage");
+      return;
     }
 
     console.log("Token:", token);  // ✅ Debugging Step 2
 
     try {
-        const response = await axios.get("http://localhost:3000/api/v1/RFQS/getAllRFQS", {
-            headers: { Authorization: `Bearer ${token}` },
-        });
+      const response = await axios.get("http://localhost:3000/api/v1/RFQS/getAllRFQS", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-        console.log("API Response Data:", response.data);  // ✅ Debugging Step 3
-        setRFQs(response.data.rfqs);
-        setLoading(false);
+      console.log("API Response Data:", response.data);  // ✅ Debugging Step 3
+      setRFQs(response.data.rfqs);
+      setLoading(false);
     } catch (error) {
-        console.error("Error fetching RFQs:", error);  // ✅ Debugging Step 4
-        setError("Failed to fetch RFQs. Please try again.");
-        setLoading(false);
+      console.error("Error fetching RFQs:", error);  // ✅ Debugging Step 4
+      setError("Failed to fetch RFQs. Please try again.");
+      setLoading(false);
     }
-};
+  };
 
 
   useEffect(() => {
@@ -91,13 +91,12 @@ const AdminRFQsTable = () => {
                   <td className="px-6 py-4 text-gray-900 dark:text-white">{new Date(rfq.deadline).toLocaleDateString()}</td>
                   <td className="px-6 py-4 text-gray-900 dark:text-white">
                     <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        rfq.status === "pending"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : rfq.status === "accepted"
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${rfq.status === "pending"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : rfq.status === "accepted"
                           ? "bg-green-100 text-green-800"
                           : "bg-red-100 text-red-800"
-                      }`}
+                        }`}
                     >
                       {rfq.status}
                     </span>

@@ -75,10 +75,10 @@ const POAdminView = () => {
   const formatDate = (dateString) => {
     return dateString
       ? new Date(dateString).toLocaleDateString("en-US", {
-          month: "long",
-          day: "2-digit",
-          year: "numeric",
-        })
+        month: "long",
+        day: "2-digit",
+        year: "numeric",
+      })
       : "N/A";
   };
 
@@ -125,8 +125,8 @@ const POAdminView = () => {
                 <td className="border border-gray-600 p-2.5">{po.poNumber || "N/A"}</td>
                 <td className="border border-gray-600 p-2.5">
                   {typeof po.clientId === "object"
-                    ? po.clientId.name || po.clientId.email || "Unknown"
-                    : po.clientId || "Unknown"}
+                    ? po.clientId?.name || po.clientId?.email || "Unknown"
+                    : po?.clientId || "Unknown"}
                 </td>
                 <td className="border border-gray-600 p-2.5">{formatDate(po.date)}</td>
                 <td className="border border-gray-600 p-2.5">
@@ -137,13 +137,12 @@ const POAdminView = () => {
                 </td>
                 <td className="border border-gray-600 p-2.5">
                   <span
-                    className={`px-2 py-1 rounded ${
-                      po.status === "approved"
-                        ? "bg-green-600"
-                        : po.status === "rejected"
+                    className={`px-2 py-1 rounded ${po.status === "approved"
+                      ? "bg-green-600"
+                      : po.status === "rejected"
                         ? "bg-red-600"
                         : "bg-yellow-600"
-                    }`}
+                      }`}
                   >
                     {po.status || "N/A"}
                   </span>
@@ -178,8 +177,8 @@ const POAdminView = () => {
                   <strong>Client:</strong>{" "}
                   {typeof selectedPO.clientId === "object"
                     ? selectedPO.clientId.name ||
-                      selectedPO.clientId.email ||
-                      "Unknown"
+                    selectedPO.clientId.email ||
+                    "Unknown"
                     : selectedPO.clientId || "Unknown"}
                 </p>
                 <p>
