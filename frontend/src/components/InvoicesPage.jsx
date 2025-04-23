@@ -209,7 +209,7 @@ const InvoicesPage = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen p-5 bg-gray-800 text-white flex items-center justify-center">
+      <div className="min-h-screen p-5 dark:bg-gray-800 dark:text-white flex items-center justify-center">
         <div className="bg-red-600 p-4 rounded-lg">
           <p className="text-xl">{error}</p>
           <button
@@ -226,16 +226,16 @@ const InvoicesPage = () => {
   const isAdmin = localStorage.getItem("userRole") === "admin"
 
   return (
-    <div className="min-h-screen p-5 bg-gray-800 text-white">
+    <div className="min-h-screen p-5 dark:bg-gray-800 dark:text-white text-black">
       <h1 className="text-3xl font-bold mb-5 text-center">Invoices</h1>
 
       {invoices.length === 0 ? (
-        <div className="bg-gray-700 p-8 rounded-lg text-center">
+        <div className="dark:bg-gray-700 p-8 rounded-lg text-center">
           <p className="text-xl">No invoices found.</p>
         </div>
       ) : (
         <div className="overflow-x-auto">
-          <table className="min-w-full bg-gray-700 rounded-lg shadow-md">
+          <table className="min-w-full dark:bg-gray-700 rounded-lg shadow-md">
             <thead>
               <tr>
                 <th className="px-4 py-2 text-left">Invoice ID</th>
@@ -249,7 +249,7 @@ const InvoicesPage = () => {
             </thead>
             <tbody>
               {invoices.map((invoice) => (
-                <tr key={invoice._id} className="hover:bg-gray-600">
+                <tr key={invoice._id} className="dark:hover:bg-gray-600 hover:bg-gray-200">
                   <td className="border px-4 py-2">{invoice.poNumber || invoice._id.substring(0, 8)}</td>
                   <td className="border px-4 py-2">{invoice.clientId?.email || invoice.billTo?.company || "N/A"}</td>
                   <td className="border px-4 py-2">

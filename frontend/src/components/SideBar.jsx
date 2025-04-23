@@ -16,6 +16,7 @@ import {
   ReceiptText,
   MessageSquare,
 } from "lucide-react"
+import { getUserFromToken } from "../services/GetUserFromToken"
 
 const Sidebar = () => {
   const location = useLocation()
@@ -23,19 +24,10 @@ const Sidebar = () => {
   const [expanded, setExpanded] = useState(true)
   const [activeSubmenu, setActiveSubmenu] = useState(null)
 
-  // ✅ Extract role from token
-  const getRoleFromToken = () => {
-    const token = localStorage.getItem("token")
-    if (!token) return "client"
-    try {
-      const payload = JSON.parse(atob(token.split(".")[1]))
-      return payload.role || "client"
-    } catch (err) {
-      return "client"
-    }
-  }
-
-  const role = getRoleFromToken()
+  const response = getUserFromToken()
+  const role = response.role;
+  const name = response.name;
+  
 
   const toggleSubmenu = (menu) => {
     setActiveSubmenu(activeSubmenu === menu ? null : menu)
@@ -185,12 +177,12 @@ const Sidebar = () => {
         <Link to={`/dashboard/${role}/profile`}>
           <div className="flex items-center">
             <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-700 dark:text-gray-300 font-semibold">
-              {role === "admin" ? "A" : role === "employee" ? "E" : "C"}
+              {name.substr(0,1)}
             </div>
             {expanded && (
               <div className="ml-3">
                 <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  {role === "admin" ? "Admin User" : role === "employee" ? "Employee User" : "Client User"}
+                  {name}
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">{role}</p>
               </div>

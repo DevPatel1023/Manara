@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { Eye, CheckCircle, XCircle, X, Plus } from "lucide-react";
 import axios from "axios";
@@ -10,7 +10,39 @@ const RFQTable = ({ rfqs, role, fetchRFQs }) => {
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [employeeId, setEmployeeId] = useState("");
   const [pendingRfqId, setPendingRfqId] = useState(null);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState("");
+  const [isLoadingEmployees, setIsLoadingEmployees] = useState(false);
+  const [employees, setEmployees] = useState([]); // Add employees state
   const navigate = useNavigate();
+
+
+   // Fetch employees when the component mounts or when assign modal opens
+   useEffect(() => {
+    if (showAssignModal) {
+      fetchEmployees();
+    }
+  }, [showAssignModal]);
+
+  const fetchEmployees = async () => {
+    try {
+      setIsLoadingEmployees(true);
+      const token = localStorage.getItem("token");
+
+      const response = await axios.get("http://localhost:3000/api/v1/employees/all", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      console.log(response.data.employees)
+      setEmployees(response.data.employees || []);
+      setIsLoadingEmployees(false)
+    } catch (error) {
+      console.error("Error fetching employees:", error);
+      // Optional: show error message to user
+      alert("Failed to fetch employees. Please try again.");
+    } finally {
+      setIsLoadingEmployees(false);
+    }
+  };
 
   // Format date from ISO string to readable format
   const formatDate = (dateString) => {
@@ -443,64 +475,72 @@ const RFQTable = ({ rfqs, role, fetchRFQs }) => {
         </div>
       )}
 
-      {/* Employee Assignment Modal */}
-      {showAssignModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-md mx-4">
-            <div className="flex justify-between items-center border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                Assign Employee to RFQ
-              </h3>
-              <button
-                onClick={closeAssignModal}
-                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-              >
-                <X size={20} />
-              </button>
-            </div>
-            <form onSubmit={handleAssignSubmit}>
-              <div className="p-6">
-                <div className="mb-4">
-                  <label
-                    htmlFor="employeeId"
-                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                  >
-                    Employee ID
-                  </label>
-                  <input
-                    type="text"
-                    id="employeeId"
-                    value={employeeId}
-                    onChange={(e) => setEmployeeId(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                    placeholder="Enter employee ID"
-                    required
-                  />
-                  <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                    Enter the ID of the employee who will handle this RFQ.
-                  </p>
-                </div>
-              </div>
-              <div className="flex justify-end gap-2 border-t border-gray-200 dark:border-gray-700 px-6 py-4">
-                <button
-                  type="button"
-                  onClick={closeAssignModal}
-                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-md text-sm font-medium transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isUpdating}
-                  className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md text-sm font-medium transition-colors disabled:opacity-50"
-                >
-                  Assign & Accept
-                </button>
-              </div>
-            </form>
-          </div>
+      
+       {/* Employee Assignment Modal */}
+       {showAssignModal && (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-md mx-4">
+        <div className="flex justify-between items-center border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white">Assign Employee to RFQ</h3>
+          <button
+            onClick={closeAssignModal}
+            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+          >
+            <X size={20} />
+          </button>
         </div>
-      )}
+        <form onSubmit={handleAssignSubmit}>
+          <div className="p-6">
+            <div className="mb-4">
+              <label htmlFor="employeeSelect" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Select Employee
+              </label>
+              {isLoadingEmployees ? (
+                <div className="text-center py-3">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900 dark:border-white mx-auto"></div>
+                  <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Loading employees...</p>
+                </div>
+              ) : (
+                <select
+                  id="employeeSelect"
+                  value={selectedEmployeeId}
+                  onChange={(e) => setSelectedEmployeeId(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                  required
+                >
+                  <option value="">Select an employee</option>
+                  {employees.map((employee) => (
+                    <option key={employee._id} value={employee._id}>
+                      {employee.firstName} {employee.lastName} - {employee.email}
+                    </option>
+                  ))}
+                </select>
+              )}
+              <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                Select the employee who will handle this RFQ.
+              </p>
+            </div>
+          </div>
+          <div className="flex justify-end gap-2 border-t border-gray-200 dark:border-gray-700 px-6 py-4">
+            <button
+              type="button"
+              onClick={closeAssignModal}
+              className="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-md text-sm font-medium transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isUpdating || !selectedEmployeeId}
+              className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md text-sm font-medium transition-colors disabled:opacity-50"
+            >
+              Assign & Accept
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )}
     </>
   );
 };
