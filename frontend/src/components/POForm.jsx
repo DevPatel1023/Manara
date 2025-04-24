@@ -356,7 +356,7 @@ const POForm = () => {
         Purchase Order
       </h1>
 
-      <div className="flex justify-between items-start bg-white dark:bg-[#2e3951] p-4 mb-5 border border-gray-600 rounded-lg shadow-md md:flex-col sm:p-2.5">
+      <div className="flex justify-between items-start bg-green-50 border-green-300 dark:border-gray-300 dark:bg-[#2e3951] p-4 mb-5 border  rounded-lg shadow-md md:flex-col sm:p-2.5">
         <div className="w-[45%] md:w-full md:mb-2.5">
           <div className="flex flex-col gap-2.5">
             <div className="flex flex-col relative quotation-dropdown">
@@ -380,7 +380,7 @@ const POForm = () => {
                   disabled={isLoading}
                 />
                 {!loadingQuotations && showDropdown && quotations.length > 0 && (
-                  <div className="absolute z-10 w-full mt-1 dark:bg-[#3a4560] border border-gray-500 rounded-md shadow-lg max-h-60 overflow-auto">
+                  <div className="absolute z-10 w-full mt-1 bg-[#3a4560] border border-gray-500 rounded-md shadow-lg max-h-60 overflow-auto">
                     {filteredQuotations.map((quotation) => (
                       <div
                         key={quotation._id}
@@ -482,11 +482,11 @@ const POForm = () => {
         </div>
       </div>
 
-      <div className="dark:bg-[#2e3951] p-4 mb-5 border border-gray-600 rounded-lg shadow-md md:p-2.5 sm:p-2">
+      <div className="dark:bg-[#2e3951] p-4 mb-5 border bg-green-50 border-green-300 dark:border-gray-300 rounded-lg shadow-md md:p-2.5 sm:p-2">
         <strong className="text-base dark:text-white block mb-2.5 md:text-sm sm:text-[11px]">Bill To</strong>
         <div className="flex flex-col gap-2.5">
           <div className="flex flex-col">
-            <label className="font-bold mb-1 text-sm text-gray-300">Company:</label>
+            <label className="font-bold mb-1 text-sm dark:text-gray-300">Company:</label>
             <input
               type="text"
               name="billTo.company"
@@ -502,14 +502,14 @@ const POForm = () => {
             )}
           </div>
           <div className="flex flex-col">
-            <label className="font-bold mb-1 text-sm text-gray-300">Address:</label>
+            <label className="font-bold mb-1 text-sm dark:text-gray-300">Address:</label>
             <input
               type="text"
               name="billTo.address"
               value={formData.billTo.address}
               onChange={handleChange}
               placeholder="Enter address"
-              className={`p-2 border border-gray-500 rounded w-full text-sm bg-[#3a4560] text-white ${errors["billTo.address"] ? "border-red-500" : ""
+              className={`p-2 border border-gray-500 rounded w-full text-sm dark:bg-[#3a4560] text-white ${errors["billTo.address"] ? "border-red-500" : ""
                 }`}
               disabled={isLoading}
             />
@@ -518,14 +518,14 @@ const POForm = () => {
             )}
           </div>
           <div className="flex flex-col">
-            <label className="font-bold mb-1 text-sm text-gray-300">City/State:</label>
+            <label className="font-bold mb-1 text-sm dark:text-gray-300">City/State:</label>
             <input
               type="text"
               name="billTo.cityState"
               value={formData.billTo.cityState}
               onChange={handleChange}
               placeholder="Enter city/state"
-              className={`p-2 border border-gray-500 rounded w-full text-sm bg-[#3a4560] text-white ${errors["billTo.cityState"] ? "border-red-500" : ""
+              className={`p-2 border border-gray-500 rounded w-full text-sm dark:bg-[#3a4560] text-white ${errors["billTo.cityState"] ? "border-red-500" : ""
                 }`}
               disabled={isLoading}
             />
@@ -534,14 +534,14 @@ const POForm = () => {
             )}
           </div>
           <div className="flex flex-col">
-            <label className="font-bold mb-1 text-sm text-gray-300">Postal Code:</label>
+            <label className="font-bold mb-1 text-sm dark:text-gray-300">Postal Code:</label>
             <input
               type="text"
               name="billTo.postalCode"
               value={formData.billTo.postalCode}
               onChange={handleChange}
               placeholder="Enter postal code"
-              className={`p-2 border border-gray-500 rounded w-full text-sm bg-[#3a4560] text-white ${errors["billTo.postalCode"] ? "border-red-500" : ""
+              className={`p-2 border border-gray-500 rounded w-full text-sm dark:bg-[#3a4560] dark:text-white ${errors["billTo.postalCode"] ? "border-red-500" : ""
                 }`}
               disabled={isLoading}
             />
@@ -550,14 +550,14 @@ const POForm = () => {
             )}
           </div>
           <div className="flex flex-col">
-            <label className="font-bold mb-1 text-sm text-gray-300">Phone:</label>
+            <label className="font-bold mb-1 text-sm dark:text-gray-300">Phone:</label>
             <input
               type="text"
               name="billTo.phone"
               value={formData.billTo.phone}
               onChange={handleChange}
               placeholder="Enter phone number"
-              className={`p-2 border border-gray-500 rounded w-full text-sm bg-[#3a4560] text-white ${errors["billTo.phone"] ? "border-red-500" : ""
+              className={`p-2 border border-gray-500 rounded w-full text-sm dark:bg-[#3a4560] dark:text-white ${errors["billTo.phone"] ? "border-red-500" : ""
                 }`}
               disabled={isLoading}
             />
@@ -566,14 +566,14 @@ const POForm = () => {
             )}
           </div>
           <div className="flex flex-col">
-            <label className="font-bold mb-1 text-sm text-gray-300">Email:</label>
+            <label className="font-bold mb-1 text-sm dark:text-gray-300">Email:</label>
             <input
               type="email"
               name="billTo.email"
               value={formData.billTo.email}
               onChange={handleChange}
               placeholder="Enter email"
-              className={`p-2 border border-gray-500 rounded w-full text-sm bg-[#3a4560] text-white ${errors["billTo.email"] ? "border-red-500" : ""
+              className={`p-2 border border-gray-500 rounded w-full text-sm dark:bg-[#3a4560] dark:text-white ${errors["billTo.email"] ? "border-red-500" : ""
                 }`}
               disabled={isLoading}
             />
@@ -588,16 +588,16 @@ const POForm = () => {
         <table className="w-full border-collapse mb-2.5">
           <thead>
             <tr>
-              <th className="border border-gray-600 p-2.5 text-left text-sm font-bold bg-[#2e3951] text-white">
+              <th className="border bg-green-50 border-green-300 dark:border-gray-300  p-2.5 text-left text-sm font-bold dark:bg-[#2e3951] dark:text-white">
                 Description
               </th>
-              <th className="border border-gray-600 p-2.5 text-left text-sm font-bold bg-[#2e3951] text-white">
+              <th className="border bg-green-50 border-green-300 dark:border-gray-300  p-2.5 text-left text-sm font-bold dark:bg-[#2e3951] dark:text-whitee">
                 Hours
               </th>
-              <th className="border border-gray-600 p-2.5 text-left text-sm font-bold bg-[#2e3951] text-white">
+              <th className="border bg-green-50 border-green-300 dark:border-gray-300 p-2.5 text-left text-sm font-bold dark:bg-[#2e3951] dark:text-white">
                 Rate/Hour
               </th>
-              <th className="border border-gray-600 p-2.5 text-left text-sm font-bold bg-[#2e3951] text-white">
+              <th className="border bg-green-50 border-green-300 dark:border-gray-300 p-2.5 text-left text-sm font-bold dark:bg-[#2e3951] dark:text-white">
                 Amount
               </th>
             </tr>
@@ -605,13 +605,13 @@ const POForm = () => {
           <tbody>
             {formData.services.map((service, index) => (
               <tr key={index}>
-                <td className="border border-gray-600 p-2.5 bg-[#3a4560]">
+                <td className="border bg-green-50 border-green-300 dark:border-gray-300  p-2.5 dark:bg-[#3a4560]">
                   <input
                     type="text"
                     value={service.description}
                     onChange={(e) => handleServiceChange(index, "description", e.target.value)}
                     placeholder="Enter service description"
-                    className={`w-full p-1 border border-gray-500 rounded bg-[#4a5570] text-white ${errors[`serviceDescription${index}`] ? "border-red-500" : ""
+                    className={`w-full p-1 border border-green-300 dark:border-gray-300 rounded dark:bg-[#2e3951] dark:text-white ${errors[`serviceDescription${index}`] ? "border-red-500" : ""
                       }`}
                     disabled={isLoading}
                   />
@@ -621,7 +621,7 @@ const POForm = () => {
                     </span>
                   )}
                 </td>
-                <td className="border border-gray-600 p-2.5 bg-[#3a4560]">
+                <td className="border bg-green-50 border-green-300 dark:border-gray-300 p-2.5 dark:bg-[#3a4560]">
                   <input
                     type="number"
                     value={service.hours}
@@ -629,7 +629,7 @@ const POForm = () => {
                     min="0"
                     step="0.1"
                     placeholder="0"
-                    className={`w-full p-1 border border-gray-500 rounded bg-[#4a5570] text-white ${errors[`serviceHours${index}`] ? "border-red-500" : ""
+                    className={`w-full p-1 border border-green-300 dark:border-gray-300 rounded dark:bg-[#2e3951] dark:text-white ${errors[`serviceHours${index}`] ? "border-red-500" : ""
                       }`}
                     disabled={isLoading}
                   />
@@ -637,7 +637,7 @@ const POForm = () => {
                     <span className="text-red-400 text-xs block mt-1.5">{errors[`serviceHours${index}`]}</span>
                   )}
                 </td>
-                <td className="border border-gray-600 p-2.5 bg-[#3a4560]">
+                <td className="border bg-green-50 border-green-300 dark:border-gray-300 p-2.5 dark:bg-[#3a4560]">
                   <input
                     type="number"
                     value={service.ratePerHour}
@@ -645,7 +645,7 @@ const POForm = () => {
                     min="0"
                     step="0.01"
                     placeholder="0"
-                    className={`w-full p-1 border border-gray-500 rounded bg-[#4a5570] text-white ${errors[`serviceRatePerHour${index}`] ? "border-red-500" : ""
+                    className={`w-full p-1 border border-green-300 dark:border-gray-300 rounded dark:bg-[#2e3951] dark:text-white ${errors[`serviceRatePerHour${index}`] ? "border-red-500" : ""
                       }`}
                     disabled={isLoading}
                   />
@@ -655,7 +655,7 @@ const POForm = () => {
                     </span>
                   )}
                 </td>
-                <td className="border border-gray-600 p-2.5 text-sm text-white bg-[#3a4560]">
+                <td className=" bg-green-50 border-green-300 dark:border-gray-300 p-2.5 text-sm dark:bg-[#2e3951] dark:text-white">
                   {service.amount.toFixed(2)}
                 </td>
               </tr>
@@ -666,7 +666,7 @@ const POForm = () => {
           <button
             type="button"
             onClick={addService}
-            className="p-2 px-4 bg-blue-600 text-white border-none rounded text-sm hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed"
+            className="p-2 px-4 bg-blue-600 text-white border-none rounded text-sm hover:bg-blue-700 disabled:bg-[#009e74] disabled:cursor-not-allowed"
             disabled={isLoading}
           >
             Add Service
@@ -675,43 +675,43 @@ const POForm = () => {
             type="button"
             onClick={removeService}
             disabled={formData.services.length === 1 || isLoading}
-            className="p-2 px-4 bg-[#2e3951] text-gray-300 border border-gray-600 rounded text-sm hover:bg-[#3a4560] disabled:bg-gray-600 disabled:cursor-not-allowed"
+            className="p-2 px-4 bg-[#009e74] text-white  rounded text-sm hover:bg-[#287863] disabled:bg-[#009e74] disabled:cursor-not-allowed"
           >
             Remove Service
           </button>
         </div>
       </div>
 
-      <div className="bg-[#2e3951] p-4 mb-5 border border-gray-600 rounded-lg shadow-md flex flex-col">
-        <p className="m-1.5 text-sm text-gray-300">Subtotal: {calculateSubtotal().toFixed(2)}</p>
+      <div className="dark:bg-[#2e3951] p-4 mb-5 border bg-green-50 border-green-300 dark:border-gray-300  rounded-lg shadow-md flex flex-col">
+        <p className="m-1.5 text-sm dark:text-gray-300">Subtotal: {calculateSubtotal().toFixed(2)}</p>
         <div className="mb-2.5">
-          <label className="font-bold mr-2.5 text-gray-300">Tax Rate (%):</label>
+          <label className="font-bold mr-2.5 dark:text-gray-300">Tax Rate (%):</label>
           <input
-            type="number"
+            type="number" 
             name="taxRate"
             value={formData.taxRate}
             onChange={handleChange}
             min="0"
             step="0.1"
             placeholder="Enter tax rate"
-            className={`p-1.5 border border-gray-500 rounded w-[100px] text-sm bg-[#3a4560] text-white ${errors.taxRate ? "border-red-500" : ""
+            className={`p-1.5 border border-gray-500 rounded w-[100px] text-sm dark:bg-[#3a4560] dark:text-white ${errors.taxRate ? "border-red-500" : ""
               }`}
             disabled={isLoading}
           />
           {errors.taxRate && <span className="text-red-400 text-xs block mt-1.5">{errors.taxRate}</span>}
         </div>
-        <p className="m-1.5 text-sm text-gray-300">Tax: {calculateTax().toFixed(2)}</p>
-        <p className="m-1.5 text-sm font-bold text-white">Total: {calculateTotal().toFixed(2)}</p>
+        <p className="m-1.5 text-sm dark:text-gray-300">Tax: {calculateTax().toFixed(2)}</p>
+        <p className="m-1.5 text-sm font-bold dark:text-white">Total: {calculateTotal().toFixed(2)}</p>
       </div>
 
-      <div className="bg-[#2e3951] p-4 mb-5 border border-gray-600 rounded-lg shadow-md">
-        <label className="block font-bold mb-2.5 text-gray-300">Notes:</label>
+      <div className="dark:bg-[#2e3951] p-4 mb-5  bg-green-50 border-green-300 dark:border-gray-300  rounded-lg shadow-md">
+        <label className="block font-bold mb-2.5 dark:text-gray-300">Notes:</label>
         <textarea
           name="notes"
           value={formData.notes}
           onChange={handleChange}
           placeholder="Enter any additional notes"
-          className="p-2 border border-gray-500 rounded w-full h-[100px] text-sm bg-[#3a4560] text-white"
+          className="p-2 border border-gray-500 rounded w-full h-[100px] text-sm dark:bg-[#3a4560] dark:text-white"
           disabled={isLoading}
         />
       </div>

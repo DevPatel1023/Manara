@@ -8,17 +8,20 @@ const BASE_URL = "http://localhost:3000/api/v1/RFQS";
 export default function RFQForm() {
   const [rfqData, setRfqData] = useState({
     companyName: "",
-    name: "",  
+    name: "",
     email: "",
-    phoneNumber: "", 
-    serviceRequired: "",  
-    projectDescription: "",  
-    estimatedBudget: "",  
+    phoneNumber: "",
+    address: "",
+    city: "",
+    postalCode: "",
+    serviceRequired: "",
+    projectDescription: "",
+    estimatedBudget: "",
     deadline: "",
     additionalNotes: "",
     file: null,
   });
-  
+
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -37,11 +40,21 @@ export default function RFQForm() {
   // Validate required fields
   const validateForm = () => {
     // Update required field names to match backend expectations
-    const requiredFields = ['companyName', 'name', 'email', 'phoneNumber', 'serviceRequired', 'projectDescription', 'deadline'];
-    const missingFields = requiredFields.filter(field => !rfqData[field]);
-    
+    const requiredFields = [
+      "companyName",
+      "name",
+      "email",
+      "phoneNumber",
+      "serviceRequired",
+      "projectDescription",
+      "deadline",
+    ];
+    const missingFields = requiredFields.filter((field) => !rfqData[field]);
+
     if (missingFields.length > 0) {
-      setError(`Please fill in all required fields: ${missingFields.join(', ')}`);
+      setError(
+        `Please fill in all required fields: ${missingFields.join(", ")}`
+      );
       return false;
     }
     return true;
@@ -49,7 +62,7 @@ export default function RFQForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validate the form before submission
     if (!validateForm()) {
       return;
@@ -57,10 +70,10 @@ export default function RFQForm() {
 
     setIsSubmitting(true);
     setError("");
-    
+
     // Create a new object without the file for JSON submission
     const dataToSubmit = { ...rfqData };
-    
+
     // Remove the file property if it's null or not needed in the API
     if (!dataToSubmit.file) {
       delete dataToSubmit.file;
@@ -68,25 +81,28 @@ export default function RFQForm() {
 
     try {
       const token = localStorage.getItem("token");
-    
-    if (!token) {
-      throw new Error("Authentication token not found");
-    }
 
-    const response = await axios.post(`${BASE_URL}/submitRfq`, rfqData, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
+      if (!token) {
+        throw new Error("Authentication token not found");
+      }
+
+      const response = await axios.post(`${BASE_URL}/submitRfq`, rfqData, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
       console.log("Success", response);
-      
+
       // Reset form after successful submission
       setRfqData({
         companyName: "",
         name: "",
         email: "",
         phoneNumber: "",
+        address: "",
+        city: "",
+        postalCode: "",
         serviceRequired: "",
         projectDescription: "",
         estimatedBudget: "",
@@ -94,11 +110,13 @@ export default function RFQForm() {
         additionalNotes: "",
         file: null,
       });
-      
+
       setSuccess(true);
     } catch (error) {
       console.error("Error submitting RFQ:", error);
-      setError(error.response?.data?.msg || "Failed to submit RFQ. Please try again.");
+      setError(
+        error.response?.data?.msg || "Failed to submit RFQ. Please try again."
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -121,7 +139,9 @@ export default function RFQForm() {
 
       {success && (
         <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
-          <span className="block sm:inline">Your RFQ has been submitted successfully!</span>
+          <span className="block sm:inline">
+            Your RFQ has been submitted successfully!
+          </span>
         </div>
       )}
 
@@ -161,8 +181,38 @@ export default function RFQForm() {
           title="Phone Number *"
           placeholder="Enter your Contact Number"
           type="tel"
-          name="phoneNumber"  
+          name="phoneNumber"
           value={rfqData.phoneNumber}
+          onChange={handleChange}
+          required
+        />
+
+        <InputBox
+          title="Address"
+          placeholder="Enter your address"
+          type="tel"
+          name="address"
+          value={rfqData.address}
+          onChange={handleChange}
+          required
+        />
+
+        <InputBox
+          title="City/State"
+          placeholder="Enter your city"
+          type="tel"
+          name="city"
+          value={rfqData.city}
+          onChange={handleChange}
+          required
+        />
+
+        <InputBox
+          title="postal code"
+          placeholder="Enter your Postal Code"
+          type="tel"
+          name="postalCode"
+          value={rfqData.postalCode}
           onChange={handleChange}
           required
         />
@@ -171,7 +221,7 @@ export default function RFQForm() {
           title="Service Required *"
           placeholder="eg. Web Development, App Development, UI/UX Design"
           type="text"
-          name="serviceRequired"  
+          name="serviceRequired"
           value={rfqData.serviceRequired}
           onChange={handleChange}
           required
@@ -186,7 +236,7 @@ export default function RFQForm() {
         <textarea
           id="projectDescription"
           rows="4"
-          name="projectDescription"  
+          name="projectDescription"
           className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded border border-gray-300 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-emerald-500 dark:focus:border-emerald-500 resize-none"
           placeholder="Describe your project requirements in detail..."
           value={rfqData.projectDescription}

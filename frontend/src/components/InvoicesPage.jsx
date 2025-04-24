@@ -226,7 +226,7 @@ const InvoicesPage = () => {
   const isAdmin = localStorage.getItem("userRole") === "admin"
 
   return (
-    <div className="min-h-screen p-5 dark:bg-gray-800 dark:text-white text-black">
+    <div className="min-h-screen p-5 dark:bg-gray-800 border-gray-600 dark:text-white text-black">
       <h1 className="text-3xl font-bold mb-5 text-center">Invoices</h1>
 
       {invoices.length === 0 ? (
@@ -234,8 +234,8 @@ const InvoicesPage = () => {
           <p className="text-xl">No invoices found.</p>
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full dark:bg-gray-700 rounded-lg shadow-md">
+        <div className="overflow-x-auto border-gray-700">
+          <table className="min-w-full  dark:bg-gray-700 rounded-lg shadow-md">
             <thead>
               <tr>
                 <th className="px-4 py-2 text-left">Invoice ID</th>
@@ -296,7 +296,7 @@ const InvoicesPage = () => {
       {/* Modal for Viewing Invoice Details */}
       {isModalOpen && selectedInvoice && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white text-black p-5 rounded-lg shadow-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-white text-black border-gray-800 p-5 rounded-lg shadow-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto">
             <h2 className="text-2xl font-bold mb-4 border-b pb-2">Invoice Details</h2>
             <div className="mb-4 grid grid-cols-2 gap-2">
               <div>

@@ -2,43 +2,49 @@ const RFQ = require("../models/RFQ.model.js");
 
 // 1. Create RFQ
 const createRFQ = async (req, res) => {
-    try {
-        const {
-            companyName,
-            name,
-            email,
-            phoneNumber,
-            serviceRequired,
-            projectDescription,
-            file,
-            estimatedBudget,
-            deadline,
-            additionalNotes
-        } = req.body;
+  try {
+    const {
+      companyName,
+      name,
+      email,
+      phoneNumber,
+      address,
+      city,
+      postalCode,
+      serviceRequired,
+      projectDescription,
+      file,
+      estimatedBudget,
+      deadline,
+      additionalNotes
+    } = req.body;
 
-        if (!companyName || !name || !email || !phoneNumber || !serviceRequired || !projectDescription || !deadline) {
-            return res.status(400).json({ msg: "Required fields missing" });
-        }
-        const newRFQ = new RFQ({
-            companyName,
-            name,
-            email,
-            phoneNumber,
-            serviceRequired,
-            projectDescription,
-            file,
-            estimatedBudget,
-            deadline,
-            additionalNotes,
-            clientId: req.user.id
-        });
-
-        await newRFQ.save();
-        return res.status(200).json({ msg: "RFQ created successfully", rfq: newRFQ });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ msg: "Internal server error" });
+    if (!companyName || !name || !email || !phoneNumber || !serviceRequired || !projectDescription || !deadline || !address || !city || !postalCode) {
+      return res.status(400).json({ msg: "Required fields missing" });
     }
+    const newRFQ = new RFQ({
+      companyName,
+      name,
+      email,
+      phoneNumber,
+      address,
+      city,
+      postalCode,
+      serviceRequired,
+      projectDescription,
+      file,
+      estimatedBudget,
+      deadline,
+      additionalNotes,
+      clientId: req.user.id
+    });
+
+    await newRFQ.save();
+    return res.status(200).json({ msg: "RFQ created successfully", rfq: newRFQ });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ msg: "Internal server error" });
+  }
 };
 
 // 2. Get RFQs submitted by a client
