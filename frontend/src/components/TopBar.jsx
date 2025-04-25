@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { Bell, Search, Moon, Sun, User, Settings, HelpCircle, Menu } from "lucide-react"
+import { getUserFromToken } from "../services/GetUserFromToken"
 
 const Topbar = ({ role }) => {
   const [darkMode, setDarkMode] = useState(false)
@@ -15,6 +16,8 @@ const Topbar = ({ role }) => {
     // or use a context to manage the theme
     document.documentElement.classList.toggle("dark")
   }
+
+  const response = getUserFromToken();
 
   return (
     <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 h-16 flex items-center justify-between px-6">
@@ -140,25 +143,21 @@ const Topbar = ({ role }) => {
             className="flex items-center text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
           >
             <div className="h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-700 dark:text-gray-300 font-semibold">
-              {role === "admin" ? "A" : role === "employee" ? "E" : "C"}
+              {response.name.substr(0,1)}
             </div>
           </button>
           {userMenuOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 py-1">
               <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
                 <p className="text-sm font-medium text-gray-900 dark:text-white">
-                  {role === "admin" ? "Admin User" : role === "employee" ? "Employee User" : "Client User"}
+                  {response.name}
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {role === "admin"
-                    ? "admin@example.com"
-                    : role === "employee"
-                      ? "employee@example.com"
-                      : "client@example.com"}
+                  {response.email}
                 </p>
               </div>
               <a
-                href="#"
+                href="/dashboard/employee/profile"
                 className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
               >
                 Your Profile

@@ -1,116 +1,109 @@
-import React, { useEffect, useState } from "react";
-import { format } from "date-fns";
-import { Eye, CheckCircle, XCircle, X, Plus } from "lucide-react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+"use client"
+
+import { useEffect, useState } from "react"
+import { format } from "date-fns"
+import { Eye, CheckCircle, XCircle, X, Plus } from "lucide-react"
+import axios from "axios"
+import { useNavigate } from "react-router-dom"
 
 const RFQTable = ({ rfqs, role, fetchRFQs }) => {
-  const [selectedRFQ, setSelectedRFQ] = useState(null);
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [showAssignModal, setShowAssignModal] = useState(false);
-  const [employeeId, setEmployeeId] = useState("");
-  const [pendingRfqId, setPendingRfqId] = useState(null);
-  const [selectedEmployeeId, setSelectedEmployeeId] = useState("");
-  const [isLoadingEmployees, setIsLoadingEmployees] = useState(false);
-  const [employees, setEmployees] = useState([]); // Add employees state
-  const navigate = useNavigate();
+  const [selectedRFQ, setSelectedRFQ] = useState(null)
+  const [isUpdating, setIsUpdating] = useState(false)
+  const [showAssignModal, setShowAssignModal] = useState(false)
+  const [employeeId, setEmployeeId] = useState("")
+  const [pendingRfqId, setPendingRfqId] = useState(null)
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState("")
+  const [isLoadingEmployees, setIsLoadingEmployees] = useState(false)
+  const [employees, setEmployees] = useState([]) // Add employees state
+  const navigate = useNavigate()
 
-
-   // Fetch employees when the component mounts or when assign modal opens
-   useEffect(() => {
+  // Fetch employees when the component mounts or when assign modal opens
+  useEffect(() => {
     if (showAssignModal) {
-      fetchEmployees();
+      fetchEmployees()
     }
-  }, [showAssignModal]);
+  }, [showAssignModal])
 
   const fetchEmployees = async () => {
     try {
-      setIsLoadingEmployees(true);
-      const token = localStorage.getItem("token");
+      setIsLoadingEmployees(true)
+      const token = localStorage.getItem("token")
 
       const response = await axios.get("http://localhost:3000/api/v1/employees/all", {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+        headers: { Authorization: `Bearer ${token}` },
+      })
 
       console.log(response.data.employees)
-      setEmployees(response.data.employees || []);
+      setEmployees(response.data.employees || [])
       setIsLoadingEmployees(false)
     } catch (error) {
-      console.error("Error fetching employees:", error);
+      console.error("Error fetching employees:", error)
       // Optional: show error message to user
-      alert("Failed to fetch employees. Please try again.");
+      alert("Failed to fetch employees. Please try again.")
     } finally {
-      setIsLoadingEmployees(false);
+      setIsLoadingEmployees(false)
     }
-  };
+  }
 
   // Format date from ISO string to readable format
   const formatDate = (dateString) => {
-    if (!dateString) return "-";
+    if (!dateString) return "-"
     try {
-      return format(new Date(dateString), "MMM d, yyyy");
+      return format(new Date(dateString), "MMM d, yyyy")
     } catch (error) {
-      return dateString;
+      return dateString
     }
-  };
+  }
 
   // Status colors mapping
   const statusColors = {
-    pending:
-      "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
-    approved:
-      "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+    pending: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
+    approved: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
     rejected: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
-    completed:
-      "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
-    accepted:
-      "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
-  };
+    completed: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
+    accepted: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+  }
 
   const handleViewDetails = (rfq) => {
-    setSelectedRFQ(rfq);
-  };
+    setSelectedRFQ(rfq)
+  }
 
   const closeDetails = () => {
-    setSelectedRFQ(null);
-  };
+    setSelectedRFQ(null)
+  }
 
   const openAssignModal = (rfqId) => {
-    setPendingRfqId(rfqId);
-    setEmployeeId("");
-    setShowAssignModal(true);
-  };
+    setPendingRfqId(rfqId)
+    setEmployeeId("")
+    setShowAssignModal(true)
+  }
 
   const closeAssignModal = () => {
-    setShowAssignModal(false);
-    setPendingRfqId(null);
-    setEmployeeId("");
-  };
+    setShowAssignModal(false)
+    setPendingRfqId(null)
+    setEmployeeId("")
+  }
 
   // Handle status update (approve/reject)
   const handleUpdateStatus = async (rfqId, status, employeeId = null) => {
     try {
-      setIsUpdating(true);
-      const token = localStorage.getItem("token");
+      setIsUpdating(true)
+      const token = localStorage.getItem("token")
 
-      const requestData = { id: rfqId, status };
+      const requestData = { id: rfqId, status }
 
       // Add employee ID to the request if provided (for accept action)
       if (status === "accepted" && employeeId) {
-        requestData.assignedEmployeeId = employeeId;
+        requestData.assignedEmployeeId = employeeId
       }
 
-      await axios.patch(
-        "http://localhost:3000/api/v1/RFQS/updateRFQStatus",
-        requestData,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      await axios.patch("http://localhost:3000/api/v1/RFQS/updateRFQStatus", requestData, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
 
       // Refresh RFQs list after update
       if (fetchRFQs) {
-        await fetchRFQs();
+        await fetchRFQs()
       }
 
       // If the RFQ being updated is currently displayed in the modal, update its status
@@ -119,27 +112,27 @@ const RFQTable = ({ rfqs, role, fetchRFQs }) => {
           ...selectedRFQ,
           status: status,
           ...(employeeId && { assignedEmployeeId: employeeId }),
-        });
+        })
       }
 
-      setIsUpdating(false);
-      closeAssignModal();
+      setIsUpdating(false)
+      closeAssignModal()
     } catch (error) {
-      console.error("Failed to update RFQ status:", error);
-      setIsUpdating(false);
-      alert("Failed to update RFQ status. Please try again.");
+      console.error("Failed to update RFQ status:", error)
+      setIsUpdating(false)
+      alert("Failed to update RFQ status. Please try again.")
     }
-  };
+  }
 
   const handleAssignSubmit = (e) => {
-    e.preventDefault();
-    if (!employeeId.trim()) {
-      alert("Please enter an employee ID to assign to this RFQ.");
-      return;
+    e.preventDefault()
+    if (!selectedEmployeeId.trim()) {
+      alert("Please select an employee to assign to this RFQ.")
+      return
     }
 
-    handleUpdateStatus(pendingRfqId, "accepted", employeeId);
-  };
+    handleUpdateStatus(pendingRfqId, "accepted", selectedEmployeeId)
+  }
 
   // Render action buttons based on role and current status
   const renderActionButtons = (rfq) => {
@@ -163,15 +156,18 @@ const RFQTable = ({ rfqs, role, fetchRFQs }) => {
             <XCircle size={18} />
           </button>
         </div>
-      );
+      )
     }
-    return null;
-  };
+    return null
+  }
   const redirectToQuotation = () => {
     navigate("/dashboard/employee/quotationform", {
-      state: { rfqId: selectedRFQ._id },
-    });
-  };
+      state: {
+        rfqId: selectedRFQ._id,
+        rfqData: selectedRFQ,
+      },
+    })
+  }
   return (
     <>
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
@@ -212,31 +208,19 @@ const RFQTable = ({ rfqs, role, fetchRFQs }) => {
                     className="hover:bg-gray-100 dark:hover:bg-gray-700  transition-colors duration-150"
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900 dark:text-white">
-                        {rfq._id}
-                      </div>
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">{rfq._id}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900 dark:text-white">
-                        {rfq.name}
-                      </div>
+                      <div className="text-sm text-gray-900 dark:text-white">{rfq.name}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-500 dark:text-gray-400">
-                        {rfq.serviceRequired || "-"}
-                      </div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">{rfq.serviceRequired || "-"}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-500 dark:text-gray-400">
-                        {formatDate(rfq.deadline)}
-                      </div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">{formatDate(rfq.deadline)}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`px-2 py-1 text-xs rounded-full ${
-                          statusColors[rfq.status || "pending"]
-                        }`}
-                      >
+                      <span className={`px-2 py-1 text-xs rounded-full ${statusColors[rfq.status || "pending"]}`}>
                         {rfq.status || "Pending"}
                       </span>
                     </td>
@@ -280,9 +264,7 @@ const RFQTable = ({ rfqs, role, fetchRFQs }) => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                RFQ Details
-              </h3>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white">RFQ Details</h3>
               <button
                 onClick={closeDetails}
                 className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
@@ -292,78 +274,48 @@ const RFQTable = ({ rfqs, role, fetchRFQs }) => {
             </div>
             <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
-                  Company Information
-                </h4>
+                <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Company Information</h4>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-xs text-gray-500 dark:text-gray-400">
-                      Company Name
-                    </label>
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">
-                      {selectedRFQ.companyName}
-                    </p>
+                    <label className="block text-xs text-gray-500 dark:text-gray-400">Company Name</label>
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">{selectedRFQ.companyName}</p>
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-500 dark:text-gray-400">
-                      Contact Name
-                    </label>
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">
-                      {selectedRFQ.name}
-                    </p>
+                    <label className="block text-xs text-gray-500 dark:text-gray-400">Contact Name</label>
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">{selectedRFQ.name}</p>
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-500 dark:text-gray-400">
-                      Email
-                    </label>
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">
-                      {selectedRFQ.email}
-                    </p>
+                    <label className="block text-xs text-gray-500 dark:text-gray-400">Email</label>
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">{selectedRFQ.email}</p>
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-500 dark:text-gray-400">
-                      Phone Number
-                    </label>
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">
-                      {selectedRFQ.phoneNumber}
-                    </p>
+                    <label className="block text-xs text-gray-500 dark:text-gray-400">Phone Number</label>
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">{selectedRFQ.phoneNumber}</p>
                   </div>
                 </div>
               </div>
 
               <div>
-                <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
-                  Project Details
-                </h4>
+                <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Project Details</h4>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-xs text-gray-500 dark:text-gray-400">
-                      Service Required
-                    </label>
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">
-                      {selectedRFQ.serviceRequired}
-                    </p>
+                    <label className="block text-xs text-gray-500 dark:text-gray-400">Service Required</label>
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">{selectedRFQ.serviceRequired}</p>
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-500 dark:text-gray-400">
-                      Estimated Budget
-                    </label>
+                    <label className="block text-xs text-gray-500 dark:text-gray-400">Estimated Budget</label>
                     <p className="text-sm font-medium text-gray-900 dark:text-white">
                       ${selectedRFQ.estimatedBudget?.toLocaleString()}
                     </p>
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-500 dark:text-gray-400">
-                      Deadline
-                    </label>
+                    <label className="block text-xs text-gray-500 dark:text-gray-400">Deadline</label>
                     <p className="text-sm font-medium text-gray-900 dark:text-white">
                       {formatDate(selectedRFQ.deadline)}
                     </p>
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-500 dark:text-gray-400">
-                      Status
-                    </label>
+                    <label className="block text-xs text-gray-500 dark:text-gray-400">Status</label>
                     <span
                       className={`inline-block mt-1 px-2 py-1 text-xs rounded-full ${
                         statusColors[selectedRFQ.status || "pending"]
@@ -374,9 +326,7 @@ const RFQTable = ({ rfqs, role, fetchRFQs }) => {
                   </div>
                   {selectedRFQ.assignedEmployeeId && (
                     <div>
-                      <label className="block text-xs text-gray-500 dark:text-gray-400">
-                        Assigned Employee
-                      </label>
+                      <label className="block text-xs text-gray-500 dark:text-gray-400">Assigned Employee</label>
                       <p className="text-sm font-medium text-gray-900 dark:text-white">
                         {selectedRFQ.assignedEmployeeId}
                       </p>
@@ -386,9 +336,7 @@ const RFQTable = ({ rfqs, role, fetchRFQs }) => {
               </div>
 
               <div className="col-span-1 md:col-span-2">
-                <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
-                  Project Description
-                </h4>
+                <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Project Description</h4>
                 <p className="text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 p-4 rounded-md">
                   {selectedRFQ.projectDescription}
                 </p>
@@ -396,9 +344,7 @@ const RFQTable = ({ rfqs, role, fetchRFQs }) => {
 
               {selectedRFQ.additionalNotes && (
                 <div className="col-span-1 md:col-span-2">
-                  <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
-                    Additional Notes
-                  </h4>
+                  <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Additional Notes</h4>
                   <p className="text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 p-4 rounded-md">
                     {selectedRFQ.additionalNotes}
                   </p>
@@ -406,22 +352,14 @@ const RFQTable = ({ rfqs, role, fetchRFQs }) => {
               )}
 
               <div className="col-span-1 md:col-span-2">
-                <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
-                  Request Information
-                </h4>
+                <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Request Information</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs text-gray-500 dark:text-gray-400">
-                      RFQ ID
-                    </label>
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">
-                      {selectedRFQ._id}
-                    </p>
+                    <label className="block text-xs text-gray-500 dark:text-gray-400">RFQ ID</label>
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">{selectedRFQ._id}</p>
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-500 dark:text-gray-400">
-                      Submission Date
-                    </label>
+                    <label className="block text-xs text-gray-500 dark:text-gray-400">Submission Date</label>
                     <p className="text-sm font-medium text-gray-900 dark:text-white">
                       {formatDate(selectedRFQ.createdAt)}
                     </p>
@@ -441,7 +379,7 @@ const RFQTable = ({ rfqs, role, fetchRFQs }) => {
                   </button>
                   <button
                     onClick={() => {
-                      handleUpdateStatus(selectedRFQ._id, "rejected");
+                      handleUpdateStatus(selectedRFQ._id, "rejected")
                     }}
                     disabled={isUpdating}
                     className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md text-sm font-medium transition-colors disabled:opacity-50"
@@ -475,74 +413,76 @@ const RFQTable = ({ rfqs, role, fetchRFQs }) => {
         </div>
       )}
 
-      
-       {/* Employee Assignment Modal */}
-       {showAssignModal && (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-md mx-4">
-        <div className="flex justify-between items-center border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white">Assign Employee to RFQ</h3>
-          <button
-            onClick={closeAssignModal}
-            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-          >
-            <X size={20} />
-          </button>
-        </div>
-        <form onSubmit={handleAssignSubmit}>
-          <div className="p-6">
-            <div className="mb-4">
-              <label htmlFor="employeeSelect" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Select Employee
-              </label>
-              {isLoadingEmployees ? (
-                <div className="text-center py-3">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900 dark:border-white mx-auto"></div>
-                  <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Loading employees...</p>
-                </div>
-              ) : (
-                <select
-                  id="employeeSelect"
-                  value={selectedEmployeeId}
-                  onChange={(e) => setSelectedEmployeeId(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                  required
-                >
-                  <option value="">Select an employee</option>
-                  {employees.map((employee) => (
-                    <option key={employee._id} value={employee._id}>
-                      {employee.firstName} {employee.lastName} - {employee.email}
-                    </option>
-                  ))}
-                </select>
-              )}
-              <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                Select the employee who will handle this RFQ.
-              </p>
+      {/* Employee Assignment Modal */}
+      {showAssignModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-md mx-4">
+            <div className="flex justify-between items-center border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white">Assign Employee to RFQ</h3>
+              <button
+                onClick={closeAssignModal}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              >
+                <X size={20} />
+              </button>
             </div>
+            <form onSubmit={handleAssignSubmit}>
+              <div className="p-6">
+                <div className="mb-4">
+                  <label
+                    htmlFor="employeeSelect"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                  >
+                    Select Employee
+                  </label>
+                  {isLoadingEmployees ? (
+                    <div className="text-center py-3">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900 dark:border-white mx-auto"></div>
+                      <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Loading employees...</p>
+                    </div>
+                  ) : (
+                    <select
+                      id="employeeSelect"
+                      value={selectedEmployeeId}
+                      onChange={(e) => setSelectedEmployeeId(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                      required
+                    >
+                      <option value="">Select an employee</option>
+                      {employees.map((employee) => (
+                        <option key={employee._id} value={employee._id}>
+                          {employee.firstName} {employee.lastName} - {employee.email}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                  <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                    Select the employee who will handle this RFQ.
+                  </p>
+                </div>
+              </div>
+              <div className="flex justify-end gap-2 border-t border-gray-200 dark:border-gray-700 px-6 py-4">
+                <button
+                  type="button"
+                  onClick={closeAssignModal}
+                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-md text-sm font-medium transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isUpdating || !selectedEmployeeId}
+                  className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md text-sm font-medium transition-colors disabled:opacity-50"
+                >
+                  Assign & Accept
+                </button>
+              </div>
+            </form>
           </div>
-          <div className="flex justify-end gap-2 border-t border-gray-200 dark:border-gray-700 px-6 py-4">
-            <button
-              type="button"
-              onClick={closeAssignModal}
-              className="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-md text-sm font-medium transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isUpdating || !selectedEmployeeId}
-              className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md text-sm font-medium transition-colors disabled:opacity-50"
-            >
-              Assign & Accept
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  )}
+        </div>
+      )}
     </>
-  );
-};
+  )
+}
 
-export default RFQTable;
+export default RFQTable

@@ -8,22 +8,23 @@ import { useLocation } from "react-router-dom"
 const QuotationForm = ({ onClose }) => {
   const location = useLocation();
   const rfqId = location.state?.rfqId;
+  const rfqData = location.state?.rfqData;
   const [formData, setFormData] = useState({
     companyName: "TECH ELECON PVT. LTD",
     address: "Anand Sojitra Road",
     cityState: "Vallabh Vidyanagar, Gujarat",
     postalCode: "388120",
     email: "inquiry@techelecon.com",
-    billToCompany: "",
-    billToAddress: "",
-    billToCityState: "",
-    billToPostalCode: "",
-    billToPhone: "",        // Added
-    billToEmail: "",        // Added
+    billToCompany:  rfqData?.companyName || "",
+    billToAddress: rfqData?.address ||"",
+    billToCityState: rfqData?.city || "",
+    billToPostalCode: rfqData?.postalCode || "",
+    billToPhone: rfqData?.phoneNumber || "",        // Added
+    billToEmail: rfqData?.email || "",        // Added
     poNumber: "",
     date: "",
-    deliveryDate: "",
-    services: [{ description: "", hours: 0, ratePerHour: 0, amount: 0 }],
+    deliveryDate: rfqData?.deadline || "",
+    services: [{ description: rfqData?.projectDescription || "", hours: 0, ratePerHour: 0, amount: 0 }],
     taxRate: 0,
     notes: "",
     paymentTerms: "50% Advance, Remaining on Completion",

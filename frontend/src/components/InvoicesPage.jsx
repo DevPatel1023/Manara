@@ -87,85 +87,237 @@ const InvoicesPage = () => {
   // Generate and download PDF invoice using jsPDF
   const downloadInvoice = (invoice) => {
     const doc = new jsPDF()
-    let y = 20
 
-    // Header Section
-    doc.setFontSize(22)
-    doc.text("Invoice", 105, y, { align: "center" })
-    y += 10
-    doc.setLineWidth(0.5)
-    doc.line(20, y, 190, y)
+    // Set document properties
+    doc.setProperties({
+      title: `Invoice_${invoice.poNumber || invoice._id.substring(0, 8)}`,
+      subject: "Invoice",
+      author: companyInfo.companyName,
+      keywords: "invoice, billing",
+      creator: "Tech Elecon Invoice System",
+    })
+
+    // Colors
+    const primaryColor = [41, 128, 185] // Blue
+    const secondaryColor = [44, 62, 80] // Dark blue/gray
+    const lightGray = [189, 195, 199] // Light gray for borders
+
+    // Margins
+    const margin = 20
+    let y = margin
+
+    // Header with logo and title
+    doc.setFontSize(24)
+    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2])
+    doc.setFont("helvetica", "bold")
+    doc.text("INVOICE", 105, y, { align: "center" })
     y += 10
 
+    // Invoice number and date section
+    doc.setFontSize(10)
+    doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2])
+    doc.setFont("helvetica", "bold")
+
+    // Add invoice details in a box
+    doc.setDrawColor(lightGray[0], lightGray[1], lightGray[2])
+    doc.setFillColor(250, 250, 250)
+    doc.roundedRect(105, y, 85, 25, 2, 2, "FD")
+
+    doc.text("INVOICE NUMBER:", 110, y + 6)
+    doc.setFont("helvetica", "normal")
+    doc.text(invoice.poNumber || invoice._id.substring(0, 8), 160, y + 6)
+
+    doc.setFont("helvetica", "bold")
+    doc.text("DATE ISSUED:", 110, y + 12)
+    doc.setFont("helvetica", "normal")
+    doc.text(new Date(invoice.createdAt || invoice.date).toLocaleDateString(), 160, y + 12)
+
+    doc.setFont("helvetica", "bold")
+    doc.text("DUE DATE:", 110, y + 18)
+    doc.setFont("helvetica", "normal")
+    doc.text(new Date(invoice.dueDate || invoice.deliveryDate).toLocaleDateString(), 160, y + 18)
+
+    y += 35
+
+    // Company and client information in two columns
+    // Company info (From)
     doc.setFontSize(12)
-    const addText = (label, value) => {
-      doc.text(`${label}: ${value}`, 20, y)
+    doc.setFont("helvetica", "bold")
+    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2])
+    doc.text("FROM:", margin, y)
+    y += 6
+
+    doc.setFontSize(10)
+    doc.setTextColor(0, 0, 0)
+    doc.setFont("helvetica", "bold")
+    doc.text(companyInfo.companyName, margin, y)
+    y += 5
+
+    doc.setFont("helvetica", "normal")
+    doc.text(companyInfo.address, margin, y)
+    y += 5
+    doc.text(`${companyInfo.cityState}, ${companyInfo.postalCode}`, margin, y)
+    y += 5
+    doc.text(`Email: ${companyInfo.email}`, margin, y)
+
+    // Reset y position for client info
+    y -= 21
+
+    // Client info (Bill To)
+    doc.setFontSize(12)
+    doc.setFont("helvetica", "bold")
+    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2])
+    doc.text("BILL TO:", 105, y)
+    y += 6
+
+    doc.setFontSize(10)
+    doc.setTextColor(0, 0, 0)
+    doc.setFont("helvetica", "bold")
+    doc.text(invoice.billTo?.company || "Client", 105, y)
+    y += 5
+
+    doc.setFont("helvetica", "normal")
+    doc.text(invoice.billTo?.address || "N/A", 105, y)
+    y += 5
+    doc.text(`${invoice.billTo?.cityState || "N/A"}, ${invoice.billTo?.postalCode || "N/A"}`, 105, y)
+    y += 5
+    doc.text(`Email: ${invoice.clientId?.email || invoice.billTo?.email || "N/A"}`, 105, y)
+    if (invoice.billTo?.phone) {
+      y += 5
+      doc.text(`Phone: ${invoice.billTo.phone}`, 105, y)
+    }
+
+    // Move down to start the items table
+    y += 15
+
+    // Add a divider
+    doc.setDrawColor(lightGray[0], lightGray[1], lightGray[2])
+    doc.setLineWidth(0.5)
+    doc.line(margin, y, 190, y)
+    y += 10
+
+    // Services/Items Table
+    // Table header
+    doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2])
+    doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2])
+    doc.rect(margin, y, 170, 8, "F")
+
+    doc.setTextColor(255, 255, 255)
+    doc.setFont("helvetica", "bold")
+    doc.setFontSize(10)
+    doc.text("DESCRIPTION", margin + 5, y + 5.5)
+    doc.text("QTY", margin + 90, y + 5.5)
+    doc.text("UNIT PRICE", margin + 110, y + 5.5)
+    doc.text("AMOUNT", margin + 145, y + 5.5)
+    y += 8
+
+    // Table rows
+    doc.setTextColor(0, 0, 0)
+    doc.setFont("helvetica", "normal")
+
+    const items = invoice.services || invoice.items || []
+    let isAlternate = false
+
+    if (items.length > 0) {
+      items.forEach((item) => {
+        // Alternate row background for better readability
+        if (isAlternate) {
+          doc.setFillColor(240, 240, 240)
+          doc.rect(margin, y, 170, 8, "F")
+        }
+        isAlternate = !isAlternate
+
+        const description = item.name || item.description || "Item"
+        const quantity = String(item.hours || item.quantity || 0)
+        const unitPrice = formatRupees(item.rate || item.ratePerHour || item.price || 0)
+        const amount = formatRupees(
+          item.amount || item.total || item.rate * item.hours || item.price * item.quantity || 0,
+        )
+
+        doc.text(description, margin + 5, y + 5.5)
+        doc.text(quantity, margin + 90, y + 5.5)
+        doc.text(unitPrice, margin + 110, y + 5.5)
+        doc.text(amount, margin + 145, y + 5.5)
+
+        y += 8
+      })
+    } else {
+      doc.text("No items", margin + 5, y + 5.5)
       y += 8
     }
 
-    addText("PO Number", invoice.poNumber || invoice._id.substring(0, 8))
-    addText("Company", companyInfo.companyName)
-    addText("Address", companyInfo.address)
-    addText("City/State", companyInfo.cityState)
-    addText("Postal Code", companyInfo.postalCode)
-    addText("Email", companyInfo.email)
-    addText("Bill To Company", invoice.billTo?.company || "N/A")
-    addText("Bill To Address", invoice.billTo?.address || "N/A")
-    addText("Bill To City/State", invoice.billTo?.cityState || "N/A")
-    addText("Bill To Postal Code", invoice.billTo?.postalCode || "N/A")
-    addText("Bill To Email", invoice.clientId?.email || invoice.billTo?.email || "N/A")
-    addText("Bill To Phone", invoice.billTo?.phone || "N/A")
+    // Add a divider
+    doc.setDrawColor(lightGray[0], lightGray[1], lightGray[2])
+    doc.setLineWidth(0.5)
+    doc.line(margin, y, 190, y)
+    y += 10
 
-    addText("Notes", invoice.notes || "")
-    y += 5
-
-    // Services Section Header
-    doc.setFontSize(14)
-    doc.text("Services", 20, y)
-    y += 8
-    doc.setFontSize(12)
-
-    // Draw a table header for services
-    doc.setFont("helvetica", "bold")
-    doc.text("Service Name", 20, y)
-    doc.text("Qty", 80, y)
-    doc.text("Unit Price", 100, y)
-    doc.text("Total", 140, y)
-    doc.setFont("helvetica", "normal")
-    y += 6
-    doc.line(20, y, 190, y)
-    y += 4
-
-    // List each service/item
-    const items = invoice.services || invoice.items || []
-    if (items.length > 0) {
-      items.forEach((item) => {
-        doc.text(item.name || item.description || "Item", 20, y)
-        doc.text(String(item.hours || item.quantity || 0), 80, y)
-        doc.text(formatRupees(item.rate || item.ratePerHour || item.price || 0), 100, y)
-        doc.text(
-          formatRupees(item.amount || item.total || item.rate * item.hours || item.price * item.quantity || 0),
-          140,
-          y,
-        )
-        y += 8
-      })
-    }
-
-    y += 5
-    doc.line(20, y, 190, y)
-    y += 8
-
-    // Totals Section
+    // Totals section
     const subtotal = invoice.subtotal || invoice.totalAmount || 0
     const taxRate = invoice.taxRate || 18 // Default GST rate if not specified
     const tax = invoice.tax || (subtotal * taxRate) / 100
     const total = invoice.total || subtotal + tax
 
-    addText("Subtotal", formatRupees(subtotal))
-    addText("Tax Rate", `${taxRate}%`)
-    addText("Tax", formatRupees(tax))
-    addText("Total", formatRupees(total))
+    // Right-align the totals
+    doc.setFont("helvetica", "normal")
+    doc.text("Subtotal:", 130, y)
+    doc.text(formatRupees(subtotal), 170, y, { align: "right" })
+    y += 6
+
+    doc.text(`Tax (${taxRate}%):`, 130, y)
+    doc.text(formatRupees(tax), 170, y, { align: "right" })
+    y += 6
+
+    // Total with background highlight
+    doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2])
+    doc.rect(120, y - 4, 70, 10, "F")
+    doc.setTextColor(255, 255, 255)
+    doc.setFont("helvetica", "bold")
+    doc.text("TOTAL:", 130, y + 2)
+    doc.text(formatRupees(total), 170, y + 2, { align: "right" })
+
+    y += 15
+
+    // Notes section
+    if (invoice.notes) {
+      doc.setTextColor(0, 0, 0)
+      doc.setFont("helvetica", "bold")
+      doc.text("Notes:", margin, y)
+      y += 6
+      doc.setFont("helvetica", "normal")
+
+      // Handle multi-line notes
+      const splitNotes = doc.splitTextToSize(invoice.notes, 150)
+      doc.text(splitNotes, margin, y)
+      y += splitNotes.length * 6
+    }
+
+    // Payment terms and thank you message
+    y += 10
+    doc.setFont("helvetica", "bold")
+    doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2])
+    doc.text("Payment Terms:", margin, y)
+    y += 6
+    doc.setFont("helvetica", "normal")
+    doc.text(invoice.paymentTerms || "Payment due within 30 days", margin, y)
+
+    y += 15
+    doc.setFont("helvetica", "italic")
+    doc.text("Thank you for your business!", 105, y, { align: "center" })
+
+    // Footer with page number
+    const pageCount = doc.internal.getNumberOfPages()
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i)
+      doc.setFontSize(8)
+      doc.setTextColor(100, 100, 100)
+      doc.text(
+        `Page ${i} of ${pageCount}`,
+        doc.internal.pageSize.getWidth() / 2,
+        doc.internal.pageSize.getHeight() - 10,
+        { align: "center" },
+      )
+    }
 
     // Download the file
     doc.save(`Invoice_${invoice.poNumber || invoice._id.substring(0, 8)}.pdf`)
