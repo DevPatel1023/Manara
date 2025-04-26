@@ -2,6 +2,9 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user.model.js");
 const { z } = require("zod");
+const fs = require("fs")
+const path = require("path")
+
 
 // Register Schema Validation
 const RegisterSchema = z.object({
@@ -10,7 +13,7 @@ const RegisterSchema = z.object({
     phoneNo: z.string().length(10, "Phone number must be exactly 10 digits"),
     email: z.string().email("Invalid email"),
     password: z.string().min(6, "Password should be at least 6 characters long!"),
-    role: z.enum(['admin', 'employee', 'client'])
+    role: z.enum(['admin', 'employee', 'client']),
 });
 
 // Login Schema Validation
@@ -44,7 +47,7 @@ const Signup = async(req, res) => {
             phoneNo,
             email,
             password: hashedPassword,
-            role
+            role,
         });
 
         return res.status(201).json({ msg: "User registered successfully!", success: true });
@@ -123,47 +126,105 @@ const userInfo = async(req, res) => {
     }
 };
 
-//update user information
-const Updateuser = async(req, res) => {
+
+// Update user profile
+const Updateuser = async (req, res) => {
     try {
-        const updates = req.body;
-        console.log(updates)
-        if (!updates) {
-            res.status(400).json({
-                msg: "not provided data"
-            })
-        }
-        const userId = req.user.id;
-        if (!userId) {
-            res.status(401).json({
-                msg: "Unauthorized user"
-            })
-        }
-        const allowedUpdates = ['firstName', 'lastName', 'phoneNo', 'location', 'jobTitle', 'department', 'bio'];
-        const updateFields = Object.keys(updates).filter(fileld => allowedUpdates.includes(fileld))
-
-        if (updateFields.length === 0) {
-            return res.status(400).json({
-                msg: "No Valid fileds to update"
-            });
-        }
-
-        const updatedUser = await User.findByIdAndUpdate(userId, { $set: updates }, {
-            new: true,
-            runValidators: true
-        }).select("-password");
-
-        return res.status(200).json({
-            msg: "Profile updated successfully",
-            user: updatedUser
+      const updates = req.body
+      console.log("Update request body:", updates)
+  
+      if (!updates) {
+        return res.status(400).json({
+          msg: "No data provided",
         })
+      }
+  
+      const userId = req.user.id
+      if (!userId) {
+        return res.status(401).json({
+          msg: "Unauthorized user",
+        })
+      }
+  
+      // Handle file upload if present
+      if (req.file) {
+        console.log("Processing uploaded file:", req.file.filename)
+        const imagePath = path.join(__dirname, "../uploads/", req.file.filename)
+  
+        try {
+          // Check if file exists before reading
+          if (!fs.existsSync(imagePath)) {
+            console.error(`File does not exist at path: ${imagePath}`)
+            return res.status(500).json({
+              msg: "Error: Uploaded file not found",
+            })
+          }
+  
+          // Read file from disk
+          const imageData = fs.readFileSync(imagePath)
+  
+          // Add image data to updates object
+          updates.image = {
+            data: imageData,
+            contentType: req.file.mimetype,
+          }
+  
+          console.log("Image processed successfully")
+  
+          // Optionally clean up the file after storing in DB
+          // fs.unlinkSync(imagePath);
+        } catch (fileError) {
+          console.error("Error processing image file:", fileError)
+          return res.status(500).json({
+            msg: "Error processing image file: " + fileError.message,
+          })
+        }
+      }
+  
+      const allowedUpdates = ["firstName", "lastName", "phoneNo", "location", "JobTitle", "department", "bio", "image"]
+      const updateFields = Object.keys(updates).filter((field) => allowedUpdates.includes(field))
+  
+      if (updateFields.length === 0) {
+        return res.status(400).json({
+          msg: "No valid fields to update",
+        })
+      }
+  
+      // Create an object with only the allowed fields
+      const filteredUpdates = {}
+      updateFields.forEach((field) => {
+        filteredUpdates[field] = updates[field]
+      })
+  
+      console.log("Updating user with fields:", updateFields)
+  
+      const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        { $set: filteredUpdates },
+        {
+          new: true,
+          runValidators: true,
+        },
+      ).select("-password")
+  
+      if (!updatedUser) {
+        return res.status(404).json({
+          msg: "User not found",
+        })
+      }
+  
+      return res.status(200).json({
+        msg: "Profile updated successfully",
+        user: updatedUser,
+      })
     } catch (error) {
-        console.log("Profile updated successfully", error);
-        return res.status(500).json({
-            msg: "Internal server Error"
-        });
+      console.error("Error updating profile:", error)
+      return res.status(500).json({
+        msg: "Internal Server Error: " + error.message,
+      })
     }
-}
+  }
+  
 
 const getAllUser = async() => {
     try {

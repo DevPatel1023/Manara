@@ -12,6 +12,10 @@ const userSchema = new mongoose.Schema({
     department: { type: String, default: "Not provided" },
     joinDate: { type: Date, default: Date.now },
     bio: { type: String, default: "" },
+    image : {
+        data : Buffer,
+        contentType : String
+    }
 }, { timestamps: true });
 
 module.exports = mongoose.model("User", userSchema);

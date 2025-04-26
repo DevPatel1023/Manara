@@ -1,47 +1,21 @@
-"use client";
+"use client"
 
-import { useState, useEffect } from "react";
-import axios from "axios";
-import {
-  Menu,
-  X,
-  Home,
-  Users,
-  ClipboardList,
-  FileText,
-  Bell,
-  Settings,
-  User,
-  Lock,
-  Calendar,
-  Camera,
-  Save,
-  LogOut,
-  Moon,
-  Sun,
-  Globe,
-  BellRing,
-  Palette,
-  LinkIcon,
-  Check,
-  Key,
-  Github,
-  Twitter,
-  Linkedin,
-  Facebook,
-  Slack,
-} from "lucide-react";
-import Sidebar from "../components/SideBar";
-import Topbar from "../components/TopBar";
+import { useState, useEffect } from "react"
+import axios from "axios"
+import { Settings, User, Lock, Calendar, Camera, Save, BellRing, Palette, LinkIcon } from 'lucide-react'
+import Sidebar from "../components/SideBar"
+import Topbar from "../components/TopBar"
 
 export default function UserProfile() {
-  const [isOpen, setIsOpen] = useState(true);
-  const [activeTab, setActiveTab] = useState("profile");
-  const [darkMode, setDarkMode] = useState(false);
-  const [profileImage, setProfileImage] = useState(
-    "/placeholder.svg?height=200&width=200"
-  );
-  const [isEditing, setIsEditing] = useState(false);
+  const [isOpen, setIsOpen] = useState(true)
+  const [activeTab, setActiveTab] = useState("profile")
+  const [darkMode, setDarkMode] = useState(false)
+  const [profileImage, setProfileImage] = useState("/placeholder.svg?height=200&width=200")
+  const [selectedFile, setSelectedFile] = useState(null)
+  const [isUploading, setIsUploading] = useState(false)
+  const [uploadError, setUploadError] = useState("")
+
+  const [isEditing, setIsEditing] = useState(false)
   const [userInfo, setUserInfo] = useState({
     firstName: "",
     lastName: "",
@@ -52,84 +26,146 @@ export default function UserProfile() {
     department: "",
     joinDate: "",
     bio: "",
-  });
+    image: "",
+  })
 
   const getUserProfileData = async () => {
     try {
-      const token = localStorage.getItem("token"); // ✅ Retrieve token
+      const token = localStorage.getItem("token")
 
       if (!token) {
-        console.log("No token found, redirecting to login");
-        navigate("/signin"); // Redirect if no token
-        return;
+        console.log("No token found, redirecting to login")
+        // Assuming you have a navigate function or similar
+        // navigate("/signin");
+        return
       }
 
-      const response = await axios.get(
-        "http://localhost:3000/api/v1/users/user",
-        {
-          headers: { Authorization: `Bearer ${token}` }, // ✅ Send token in request header
-        }
-      );
+      const response = await axios.get("http://localhost:3000/api/v1/users/user", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
 
       setUserInfo({
         firstName: response.data.user.firstName,
         lastName: response.data.user.lastName,
         email: response.data.user.email,
-        phoneNo: response.data.user.phoneNo, // ✅ Ensure field names match backend
+        phoneNo: response.data.user.phoneNo,
         location: response.data.user.location || "",
         JobTitle: response.data.user.JobTitle || "",
         department: response.data.user.department || "",
         joinDate: response.data.user.joinDate || "",
         bio: response.data.user.bio || "",
-      });
-      console.log("joinDate:", userInfo.joinDate);
+      })
 
+      // Check if user has an image and display it
+      if (response.data.user.image && response.data.user.image.data) {
+        // Convert the binary image data to a displayable format
+        const imageBase64 = arrayBufferToBase64(response.data.user.image.data.data)
+        const contentType = response.data.user.image.contentType
+        setProfileImage(`data:${contentType};base64,${imageBase64}`)
+      }
+
+      console.log("User data fetched:", response.data.user)
     } catch (error) {
-      console.log("Error fetching the user data", error);
+      console.log("Error fetching the user data", error)
     }
-  };
+  }
+
+  // Helper function to convert array buffer to base64
+  const arrayBufferToBase64 = (buffer) => {
+    let binary = ""
+    const bytes = new Uint8Array(buffer)
+    const len = bytes.byteLength
+    for (let i = 0; i < len; i++) {
+      binary += String.fromCharCode(bytes[i])
+    }
+    return window.btoa(binary)
+  }
 
   useEffect(() => {
-    getUserProfileData();
-  }, []);
+    getUserProfileData()
+  }, [])
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value } = e.target
     setUserInfo((prev) => ({
       ...prev,
       [name]: value,
-    }));
-  };
+    }))
+  }
 
   const handleSaveProfile = async () => {
     try {
-      const token = localStorage.getItem("token");
-      
-      const response = await axios.put(
-        "http://localhost:3000/api/v1/users/updateuser",
-        userInfo,{
-          headers: { Authorization: `Bearer ${token}` }, // Send token in headers
+      setIsUploading(true)
+      setUploadError("")
+      const token = localStorage.getItem("token")
+
+      // Create FormData object to handle file upload
+      const formData = new FormData()
+
+      // Add all user info fields to the formData
+      Object.keys(userInfo).forEach((key) => {
+        if (key !== "image") {
+          // Skip image as we'll handle it separately
+          formData.append(key, userInfo[key])
         }
-      );
-      
-    setUserInfo(response.data.user);
-      setIsEditing(false);
+      })
+
+      // Add the image file if one was selected
+      if (selectedFile) {
+        formData.append("profileImage", selectedFile)
+      }
+
+      console.log("Sending form data with fields:", Object.fromEntries(formData.entries()))
+
+      const response = await axios.put("http://localhost:3000/api/v1/users/updateuser", formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      })
+
+      console.log("Profile updated successfully:", response.data)
+
+      // Update the user info state with the response data
+      setUserInfo(response.data.user)
+
+      // Refresh the profile data to get the updated image
+      getUserProfileData()
+
+      setIsEditing(false)
     } catch (error) {
-      console.log("Error updating user data", error);
+      console.error("Error updating user data:", error)
+      setUploadError(error.response?.data?.msg || "Error updating profile")
+    } finally {
+      setIsUploading(false)
     }
-  };
+  }
 
   const handleImageUpload = (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files[0]
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setProfileImage(e.target.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+      // Check file size (limit to 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setUploadError("Image size should be less than 5MB")
+        return
+      }
+      
+      // Check file type
+      if (!file.type.match('image.*')) {
+        setUploadError("Please select an image file")
+        return
+      }
+      
+      setUploadError("")
+      setSelectedFile(file) // store file for backend
 
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setProfileImage(e.target.result) // base64 preview
+      }
+      reader.readAsDataURL(file)
+    }
+  }
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white">
       {/* Sidebar */}
