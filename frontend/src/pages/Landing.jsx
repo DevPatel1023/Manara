@@ -14,13 +14,17 @@ import {
   CreditCard,
   FileText,
   Sparkles,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import P1 from "../assets/Images/P1.jpg";
 import P2 from "../assets/Images/P2.jpg";
 import P3 from "../assets/Images/P3.jpg";
 import P4 from "../assets/Images/P4.jpg";
-
+import P7 from "../assets/Images/P7.jpg";
+import '../App.css'
+import { ThemeProvider } from "../hooks/ThemeContext";
 
 const images = [P1, P2, P3, P4];
 
@@ -88,14 +92,13 @@ const steps = [
 
 // Trusted companies
 const trustedCompanies = [
-  { name: "Stark Industries", logo: "/cmp/starkIndustries.png" },  
+  { name: "Stark Industries", logo: "/cmp/starkIndustries.png" },
   { name: "Initech", logo: "/cmp/initech.jpeg" },
   { name: "Umbrella Corp", logo: "/cmp/umbrella.jpeg" },
   { name: "Wayne Enterprises", logo: "/cmp/wayne.jpg" },
   { name: "Globex", logo: "/cmp/globex.jpeg" },
-  { name: "ACMC INC", logo: "/cmp/acmc.jpeg" }
+  { name: "ACMC INC", logo: "/cmp/acmc.jpeg" },
 ];
-
 
 // Testimonial data
 const testimonials = [
@@ -104,7 +107,7 @@ const testimonials = [
       "Quotation Maker has transformed how we handle our client proposals. What used to take hours now takes minutes.",
     name: "Sarah Johnson",
     role: "Marketing Agency Owner",
-    avatar: "/placeholder.svg?height=80&width=80",
+    avatar: P1,
     rating: 5,
   },
   {
@@ -112,7 +115,7 @@ const testimonials = [
       "The ability to track when clients view quotes and get digital approvals has improved our close rate by 35%.",
     name: "Michael Chen",
     role: "Freelance Designer",
-    avatar: "/placeholder.svg?height=80&width=80",
+    avatar: P3,
     rating: 5,
   },
   {
@@ -120,7 +123,7 @@ const testimonials = [
       "As a contractor, I need to create quotes on the go. The mobile app makes it possible to send professional quotes from anywhere.",
     name: "David Rodriguez",
     role: "Construction Contractor",
-    avatar: "/placeholder.svg?height=80&width=80",
+    avatar: P7,
     rating: 5,
   },
 ];
@@ -139,6 +142,7 @@ const Landing = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const testimonialsRef = useRef(null);
   const [isloggedIn, setIsLoggedIn] = useState(false);
+  
 
   //checks if user is log in or not
   useEffect(() => {
@@ -206,6 +210,13 @@ const Landing = () => {
     localStorage.removeItem("token");
     setIsLoggedIn(false);
   };
+  const [darkMode, setDarkMode] = useState(false);
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode)
+    // In a real app, you would toggle a class on the html/body element
+    // or use a context to manage the theme
+    document.documentElement.classList.toggle("dark")
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950 text-gray-900 dark:text-white transition-colors duration-300">
@@ -241,14 +252,20 @@ const Landing = () => {
                 >
                   Testimonials
                 </a>
-                <a
-                  href="#pricing"
-                  className="text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 px-3 py-2 text-sm font-medium"
-                >
-                  Pricing
-                </a>
               </nav>
             </div>
+            <div className="flex justify-end gap-4">
+            <button
+              onClick={toggleDarkMode}
+              className=" p-2 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
+            >
+              {darkMode ? (
+                <Sun size={20} className="text-gray-600 dark:text-gray-300" />
+              ) : (
+                <Moon size={20} className="text-gray-600 dark:text-gray-300" />
+              )}
+            </button>
+            
             {isloggedIn ? (
               <div>
                 <button
@@ -272,6 +289,7 @@ const Landing = () => {
                 </Link>
               </div>
             )}
+            </div>
             <div className="md:hidden">
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -338,12 +356,6 @@ const Landing = () => {
               >
                 Testimonials
               </a>
-              <a
-                href="#pricing"
-                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-gray-50 dark:hover:bg-gray-800"
-              >
-                Pricing
-              </a>
             </div>
             <div className="pt-4 pb-3 border-t border-gray-200 dark:border-gray-700">
               <div className="px-2 space-y-1">
@@ -384,7 +396,7 @@ const Landing = () => {
                 <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300 mb-6">
                   <Sparkles className="h-4 w-4 mr-1" /> Streamline Your Business
                 </div>
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent mb-6">
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent mb-6 ">
                   Quotes to Invoices, Simplified
                 </h1>
                 <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 leading-relaxed">
@@ -461,12 +473,13 @@ const Landing = () => {
                       </div>
                       <div></div>
                     </div>
-                    <div className="p-6">
-                      <img
-                        src="/placeholder.svg?height=400&width=500"
-                        alt="QuoteFlow Dashboard"
-                        className="w-full h-auto rounded-lg shadow-md"
-                      />
+                    <div className="p-6 flex justify-start m-3">
+                      <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-bold text-xl">
+                        Q
+                      </div>
+                      <span className="ml-2 text-xl font-bold bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent">
+                        QuoteFlow
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -527,7 +540,7 @@ const Landing = () => {
                   <img
                     src={company.logo || "/placeholder.svg"}
                     alt={company.name}
-                   className="h-20 w-32 object-contain filter grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
+                    className="h-20 w-32 object-contain filter transition-all duration-300"
                   />
                 </div>
               ))}
@@ -754,172 +767,6 @@ const Landing = () => {
                     aria-label={`Go to testimonial ${index + 1}`}
                   />
                 ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Pricing Section */}
-        <section id="pricing" className="py-20 bg-gray-50 dark:bg-gray-900">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <motion.div
-              initial="hidden"
-              animate={isVisible["pricing"] ? "visible" : "hidden"}
-              variants={fadeIn}
-              className="text-center mb-16"
-            >
-              <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300 mb-4">
-                <CreditCard className="h-4 w-4 mr-1" /> Simple Pricing
-              </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                Plans for businesses of all sizes
-              </h2>
-              <p className="max-w-3xl mx-auto text-xl text-gray-600 dark:text-gray-300">
-                Choose the perfect plan for your needs. Always know what you'll
-                pay.
-              </p>
-            </motion.div>
-
-            <div className="grid md:grid-cols-3 gap-8">
-              {/* Starter Plan */}
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden border border-gray-100 dark:border-gray-700 transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1">
-                <div className="p-8">
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                    Starter
-                  </h3>
-                  <div className="flex items-baseline mb-6">
-                    <span className="text-5xl font-extrabold text-gray-900 dark:text-white">
-                      $19
-                    </span>
-                    <span className="text-xl text-gray-500 dark:text-gray-400 ml-1">
-                      /month
-                    </span>
-                  </div>
-                  <p className="text-gray-600 dark:text-gray-300 mb-6">
-                    Perfect for freelancers and small businesses just getting
-                    started.
-                  </p>
-
-                  <ul className="space-y-4 mb-8">
-                    {[
-                      "Up to 20 quotes per month",
-                      "Basic templates",
-                      "Email delivery",
-                      "Client management",
-                      "Quote to invoice conversion",
-                    ].map((feature, i) => (
-                      <li key={i} className="flex items-center">
-                        <Check className="h-5 w-5 text-emerald-500 mr-2 flex-shrink-0" />
-                        <span className="text-gray-600 dark:text-gray-300">
-                          {feature}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <a
-                    href="/signup"
-                    className="block w-full py-3 px-4 rounded-lg text-center font-medium bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
-                  >
-                    Get started
-                  </a>
-                </div>
-              </div>
-
-              {/* Pro Plan */}
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border-2 border-emerald-500 dark:border-emerald-400 transition-all duration-300 hover:shadow-2xl transform hover:-translate-y-1 relative">
-                <div className="absolute top-0 left-0 right-0 bg-emerald-500 text-white text-center py-1 text-sm font-medium">
-                  Most Popular
-                </div>
-                <div className="p-8 pt-12">
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                    Professional
-                  </h3>
-                  <div className="flex items-baseline mb-6">
-                    <span className="text-5xl font-extrabold text-gray-900 dark:text-white">
-                      $49
-                    </span>
-                    <span className="text-xl text-gray-500 dark:text-gray-400 ml-1">
-                      /month
-                    </span>
-                  </div>
-                  <p className="text-gray-600 dark:text-gray-300 mb-6">
-                    Ideal for growing businesses with more advanced needs.
-                  </p>
-
-                  <ul className="space-y-4 mb-8">
-                    {[
-                      "Unlimited quotes",
-                      "Advanced templates",
-                      "Digital signatures",
-                      "Team collaboration",
-                      "Custom branding",
-                      "Analytics dashboard",
-                      "API access",
-                    ].map((feature, i) => (
-                      <li key={i} className="flex items-center">
-                        <Check className="h-5 w-5 text-emerald-500 mr-2 flex-shrink-0" />
-                        <span className="text-gray-600 dark:text-gray-300">
-                          {feature}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <a
-                    href="/signup"
-                    className="block w-full py-3 px-4 rounded-lg text-center font-medium bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-700 transition-colors duration-200"
-                  >
-                    Get started
-                  </a>
-                </div>
-              </div>
-
-              {/* Enterprise Plan */}
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden border border-gray-100 dark:border-gray-700 transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1">
-                <div className="p-8">
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                    Enterprise
-                  </h3>
-                  <div className="flex items-baseline mb-6">
-                    <span className="text-5xl font-extrabold text-gray-900 dark:text-white">
-                      $99
-                    </span>
-                    <span className="text-xl text-gray-500 dark:text-gray-400 ml-1">
-                      /month
-                    </span>
-                  </div>
-                  <p className="text-gray-600 dark:text-gray-300 mb-6">
-                    Advanced features for larger organizations with complex
-                    needs.
-                  </p>
-
-                  <ul className="space-y-4 mb-8">
-                    {[
-                      "Everything in Professional",
-                      "Priority support",
-                      "Custom workflows",
-                      "Advanced security",
-                      "Dedicated account manager",
-                      "Custom integrations",
-                      "Training sessions",
-                    ].map((feature, i) => (
-                      <li key={i} className="flex items-center">
-                        <Check className="h-5 w-5 text-emerald-500 mr-2 flex-shrink-0" />
-                        <span className="text-gray-600 dark:text-gray-300">
-                          {feature}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <a
-                    href="/contact"
-                    className="block w-full py-3 px-4 rounded-lg text-center font-medium bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
-                  >
-                    Contact sales
-                  </a>
-                </div>
               </div>
             </div>
           </div>

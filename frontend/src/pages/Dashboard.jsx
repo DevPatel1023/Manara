@@ -21,7 +21,7 @@ const RoleRedirectDashboard = () => {
 
         const role = response.data.user.role;
 
-        // 🔁 force redirect to fresh dashboard
+        // force redirect to fresh dashboard
         window.location.replace(`/dashboard/${role}`);
       } catch (error) {
         console.error("Failed to fetch user role:", error);
