@@ -78,14 +78,14 @@ npm install
 
 ```bash
 cd backend
-npm start
+nodemon index.js
 ```
 
 ### Frontend
 
 ```bash
 cd frontend
-npm start
+npm run dev
 ```
 
 The app will be running at:  
