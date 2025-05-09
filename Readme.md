@@ -9,7 +9,6 @@ This project is a full-stack web application for managing Requests for Quotation
 - Quotation submissions and approvals
 - PO assignment and tracking
 - Invoice generation based on approved POs
-- Admin dashboard metrics: Customer Count, Active Quotations, Pending RFQs, Monthly Revenue
 - Responsive frontend with modern UI/UX
 
 ## 🛠️ Tech Stack
@@ -18,7 +17,7 @@ This project is a full-stack web application for managing Requests for Quotation
 - **Backend**: Node.js, Express.js
 - **Database**: MongoDB (Mongoose ODM)
 - **Authentication**: JWT
-- **Other Tools**: Axios, React Hook Form, dotenv
+- **Other Tools**: Axios, React Hook Form,React dom router, dotenv
 
 ## 📁 Folder Structure (Brief)
 
@@ -61,6 +60,7 @@ npm install
 PORT=5000
 MONGO_URI=your_mongo_connection_string
 JWT_SECRET=your_jwt_secret
+ACCESS_ID = your_access_id
 ```
 
 ### 3. Frontend Setup
@@ -70,7 +70,6 @@ cd ../frontend
 npm install
 ```
 
-- You can also add environment variables (if needed) in a `.env` file.
 
 ## 🏃 Running the App
 
