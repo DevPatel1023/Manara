@@ -1,4 +1,4 @@
-# RFQ Management System
+# Quotation to Invoice Management System
 
 This project is a full-stack web application for managing Requests for Quotation (RFQs), Quotations, Purchase Orders (POs), and Invoices. It supports role-based access for **Admin**, **Client**, and **Employee**, offering customized dashboards and workflows for each role.
 
@@ -44,8 +44,8 @@ This project is a full-stack web application for managing Requests for Quotation
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/rfq-system.git
-cd rfq-system
+git clone https://github.com/DevPatel1023/Quotation-to-invoice.git
+cd Quotation to Invoice
 ```
 
 ### 2. Backend Setup
@@ -89,22 +89,22 @@ npm start
 ```
 
 The app will be running at:  
-- Frontend: `http://localhost:3000`  
-- Backend: `http://localhost:5000`
+- Frontend: `http://localhost:5173`  
+- Backend: `http://localhost:3000`
 
 ## 📌 Usage
 
-- **Client**: Can register/login, submit RFQs, and view status.
+- **Client**: Can register/login, submit RFQs, and view Quotation,submit Po,view and download Invoice.
 - **Admin**: Can manage all RFQs, Quotations, POs, Invoices, and assign tasks to employees.
-- **Employee**: Can view assigned POs and submit deliverables.
+- **Employee**: Can view assigned rfqs and submit Quotations.
 
 ## 📊 Future Enhancements
 
 - Email notifications
 - Payment integration
-- File uploads (for deliverables)
-- Mobile app version
+- Project Mangement
+- Employee Management
+- Task distribution and management
 
 ---
 
-Feel free to fork, star ⭐, and contribute!
