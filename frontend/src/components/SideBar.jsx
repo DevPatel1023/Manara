@@ -15,6 +15,8 @@ import {
   Calendar,
   ReceiptText,
   MessageSquare,
+  SquareKanban,
+  SquareKanbanIcon,
 } from "lucide-react"
 import { getUserFromToken } from "../services/GetUserFromToken"
 
@@ -53,6 +55,7 @@ const Sidebar = () => {
       { name: "RFQs", icon: <FileText size={20} />, path: "/dashboard/admin/rfq" },
       { name: "Quotations", icon: <ClipboardList size={20} />, path: "/dashboard/admin/quotations" },
       { name: "PO", icon: <CreditCard size={20} />, path: "/dashboard/admin/po" },
+      { name: "Task Management", icon: <SquareKanbanIcon size={20} />, path: "/dashboard/admin/taskmanage" },
     ]
 
     const clientItems = [
