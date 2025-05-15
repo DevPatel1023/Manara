@@ -150,39 +150,132 @@ const getInvoicesBySupplier = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
-// Get invoices for client (CLIENT only - for invoices related to their POs)
+
+// Get invoices for client (CLIENT only - for invoices related to approved POs)
 const getClientInvoices = async (req, res) => {
   try {
     const { page = 1, limit = 10, status } = req.query;
     const skip = (parseInt(page) - 1) * parseInt(limit);
-    
-    // Build filter with client ID
-    const filter = { clientId: req.user.id };
-    
-    // Add status filter if provided
+
+    // Build filter for invoices
+    const invoiceFilter = { clientId: req.user.id };
     if (status) {
-      filter.status = status;
+      invoiceFilter.status = status;
     }
 
-    const invoices = await Invoice.find(filter)
-      .populate("poId")
-      .populate("quotationId")
-      .populate("supplierId", "name email companyName")
-      .skip(skip)
-      .limit(parseInt(limit))
-      .sort({ createdAt: -1 });
-    
-    const total = await Invoice.countDocuments(filter);
+    // Fetch invoices and join with POs to ensure PO status is "approved"
+    const invoices = await Invoice.aggregate([
+      { $match: invoiceFilter },
+      {
+        $lookup: {
+          from: "pos", // MongoDB collection name for PO model
+          localField: "poId",
+          foreignField: "_id",
+          as: "po",
+        },
+      },
+      { $unwind: "$po" }, // Unwind the PO array
+      { $match: { "po.status": "approved" } }, // Only include invoices where PO is approved
+      {
+        $lookup: {
+          from: "quotations",
+          localField: "quotationId",
+          foreignField: "_id",
+          as: "quotation",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "clientId",
+          foreignField: "_id",
+          as: "client",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "supplierId",
+          foreignField: "_id",
+          as: "supplier",
+        },
+      },
+      { $unwind: { path: "$quotation", preserveNullAndEmptyArrays: true } },
+      { $unwind: { path: "$client", preserveNullAndEmptyArrays: true } },
+      { $unwind: { path: "$supplier", preserveNullAndEmptyArrays: true } },
+      {
+        $project: {
+          invoiceNumber: 1,
+          poId: 1,
+          quotationId: 1,
+          supplierId: 1,
+          clientId: 1,
+          date: 1,
+          dueDate: 1,
+          billTo: 1,
+          services: 1,
+          taxRate: 1,
+          subtotal: 1,
+          tax: 1,
+          total: 1,
+          poNumber: 1,
+          notes: 1,
+          status: 1,
+          createdAt: 1,
+          po: {
+            poNumber: 1,
+            status: 1,
+            createdAt: 1,
+          },
+          quotation: {
+            poNumber: 1,
+            total: 1,
+            status: 1,
+          },
+          client: {
+            name: 1,
+            email: 1,
+            companyName: 1,
+          },
+          supplier: {
+            name: 1,
+            email: 1,
+            companyName: 1,
+          },
+        },
+      },
+      { $sort: { createdAt: -1 } },
+      { $skip: skip },
+      { $limit: parseInt(limit) },
+    ]);
+
+    // Count total invoices for pagination
+    const totalResult = await Invoice.aggregate([
+      { $match: invoiceFilter },
+      {
+        $lookup: {
+          from: "pos",
+          localField: "poId",
+          foreignField: "_id",
+          as: "po",
+        },
+      },
+      { $unwind: "$po" },
+      { $match: { "po.status": "approved" } },
+      { $count: "total" },
+    ]);
+
+    const total = totalResult.length > 0 ? totalResult[0].total : 0;
 
     res.status(200).json({
-      message: "Client invoices retrieved successfully",
+      message: "Client invoices for approved POs retrieved successfully",
       invoices,
       total,
       page: parseInt(page),
-      limit: parseInt(limit)
+      limit: parseInt(limit),
     });
   } catch (error) {
-    console.error("Error fetching client invoices:", error.message);
+    console.error("Error fetching client invoices for approved POs:", error.message);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
@@ -212,6 +305,10 @@ const getInvoiceById = async (req, res) => {
       (invoice.supplierId && invoice.supplierId._id.toString() === req.user.id) || 
       (invoice.clientId && invoice.clientId._id.toString() === req.user.id)
     ) {
+      // Verify PO is approved
+      if (invoice.poId && invoice.poId.status !== "approved") {
+        return res.status(403).json({ message: "Invoice is not associated with an approved PO" });
+      }
       return res.status(200).json({
         message: "Invoice retrieved successfully",
         invoice
@@ -234,10 +331,15 @@ const updateInvoice = async (req, res) => {
       return res.status(400).json({ message: 'Invalid Invoice ID' });
     }
     
-    const invoice = await Invoice.findById(id);
+    const invoice = await Invoice.findById(id).populate("poId");
     
     if (!invoice) {
       return res.status(404).json({ message: "Invoice not found" });
+    }
+    
+    // Verify PO is approved
+    if (invoice.poId && invoice.poId.status !== "approved") {
+      return res.status(403).json({ message: "Invoice is not associated with an approved PO" });
     }
     
     // Check permission based on role
@@ -301,9 +403,14 @@ const deleteInvoice = async (req, res) => {
       return res.status(403).json({ message: "Not authorized to delete invoices" });
     }
     
-    const invoice = await Invoice.findById(id);
+    const invoice = await Invoice.findById(id).populate("poId");
     if (!invoice) {
       return res.status(404).json({ message: "Invoice not found" });
+    }
+    
+    // Verify PO is approved
+    if (invoice.poId && invoice.poId.status !== "approved") {
+      return res.status(403).json({ message: "Invoice is not associated with an approved PO" });
     }
     
     // Find and update associated PO
@@ -331,5 +438,5 @@ module.exports = {
   getClientInvoices,
   getInvoiceById,
   updateInvoice,
-  deleteInvoice
+  deleteInvoice,
 };

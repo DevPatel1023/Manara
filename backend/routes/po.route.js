@@ -12,5 +12,7 @@ router.put('/status/:id', authenticate, poController.updatePOStatus);
 // View all POs (authenticated users)
 router.get('/all', authenticate, authorization(['admin', 'client']), poController.viewAllPOs);
 
+// View client's approved POs
+router.get("/client", authenticate, authorization("client"), poController.getClientPOs);
 
 module.exports = router;

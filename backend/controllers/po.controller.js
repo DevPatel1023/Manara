@@ -160,8 +160,43 @@ const viewAllPOs = async (req, res) => {
   }
 };
 
+const getClientPOs = async (req, res) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    const pos = await PO.find({ clientId: req.user.id, status: "approved" })
+      .populate({
+        path: "quotationId",
+        select: "poNumber total status",
+      })
+      .populate({
+        path: "supplierId",
+        select: "name email companyName",
+        strictPopulate: false,
+      })
+      .skip(skip)
+      .limit(parseInt(limit))
+      .sort({ createdAt: -1 });
+
+    const total = await PO.countDocuments({ clientId: req.user.id, status: "approved" });
+
+    res.status(200).json({
+      message: "Client approved POs retrieved successfully",
+      pos,
+      total,
+      page: parseInt(page),
+      limit: parseInt(limit),
+    });
+  } catch (error) {
+    console.error("Error fetching client POs:", error.message);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
 module.exports = {
   createPO,
   updatePOStatus,
   viewAllPOs,
+  getClientPOs
 };
