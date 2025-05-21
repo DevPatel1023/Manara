@@ -201,19 +201,19 @@ const AdminDashboard = () => {
       <div className="max-w-7xl mx-auto space-y-8">
         <div className="flex justify-between items-center">
           <div>
-            <h2 className="text-3xl font-extrabold text-gray-800 dark:text-white mb-2 animate-fade-in">
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">
               Welcome back, {user?.firstName || "Admin"}
             </h2>
             <p className="text-gray-600 dark:text-gray-300 text-lg">
               Here's what's happening with your business today.
             </p>
           </div>
-          <button
+          {/* <button
             onClick={handleLogout}
             className="flex items-center text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 font-semibold"
           >
             <LogOut size={18} className="mr-2" /> Logout
-          </button>
+          </button> */}
         </div>
 
         {error && (

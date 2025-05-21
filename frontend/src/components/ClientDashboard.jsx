@@ -66,7 +66,7 @@ const ClientDashboard = () => {
             return { status: "error", data: [] };
           }),
         api
-          .get("/v1/invoice/getclientinvoice", { headers: { Authorization: `Bearer ${token}` } })
+          .get("/v1/po/client", { headers: { Authorization: `Bearer ${token}` } })
           .then((res) => {
             console.log("Invoices response:", res.data);
             return { status: "success", data: res.data };
@@ -104,7 +104,7 @@ const ClientDashboard = () => {
       setLoading((prev) => ({ ...prev, quotations: false }));
 
       if (invoicesRes.status === "success") {
-        const invoicesData = invoicesRes.data.invoices || invoicesRes.data.data?.invoices || [];
+        const invoicesData = invoicesRes.data.invoices || invoicesRes.data.data?.invoices || invoicesRes.data.pos || [];
         setInvoices(invoicesData);
       } else {
         setError((prev) => prev || `Failed to fetch invoices: ${invoicesRes.data?.message || "Unknown error"}`);
@@ -215,7 +215,7 @@ const OverviewContent = ({ rfqs, quotations, invoices, pos, loading }) => {
     <div className="flex items-center transform hover:translate-x-2 transition-transform duration-200">
       <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 ${iconBg}`}>{icon}</div>
       <div>
-        <h4 className="text-sm font-medium text-gray-800 dark:text-white">{title}</h4>
+        <h4 className="text-sm font-medium text-gray-800 black:text-white">{title}</h4>
         <p className="text-xs text-gray-500 dark:text-gray-400">{description}</p>
       </div>
       <div className="ml-auto text-xs text-gray-500 dark:text-gray-400">{time}</div>
@@ -279,7 +279,7 @@ const OverviewContent = ({ rfqs, quotations, invoices, pos, loading }) => {
     invoices.slice(0, 2).forEach((invoice) => {
       activities.push({
         title: invoice.status === "overdue" ? "Payment Due" : "New Invoice",
-        description: `Invoice #${invoice.invoiceNumber || invoice._id} is ${invoice.status}`,
+        description: `Invoice #${invoice.invoiceNumber || invoice.poNumber || invoice._id} is ${invoice.status}`,
         time: new Date(invoice.createdAt || Date.now()).toLocaleDateString(),
         icon: invoice.status === "overdue" ? <AlertCircle size={16} /> : <FileText size={16} />,
         iconBg:
@@ -434,6 +434,12 @@ const OverviewContent = ({ rfqs, quotations, invoices, pos, loading }) => {
                   scope="col"
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                 >
+                  Invoice Name
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                >
                   Date
                 </th>
                 <th
@@ -459,13 +465,13 @@ const OverviewContent = ({ rfqs, quotations, invoices, pos, loading }) => {
             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
               {loading.invoices ? (
                 <tr>
-                  <td colSpan="5" className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                  <td colSpan="6" className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
                     Loading invoices...
                   </td>
                 </tr>
               ) : invoices.length === 0 ? (
                 <tr>
-                  <td colSpan="5" className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                  <td colSpan="6" className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
                     No invoices found. Invoices are created from approved Purchase Orders.
                   </td>
                 </tr>
@@ -474,7 +480,12 @@ const OverviewContent = ({ rfqs, quotations, invoices, pos, loading }) => {
                   <tr key={invoice._id}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900 dark:text-white">
-                        {invoice.invoiceNumber || invoice._id}
+                        {invoice.invoiceNumber || invoice.poNumber || invoice._id}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900 dark:text-white">
+                        {invoice.billTo.company || "N/A"}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -504,11 +515,11 @@ const OverviewContent = ({ rfqs, quotations, invoices, pos, loading }) => {
                       <button className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-900 dark:hover:text-emerald-300 mr-3">
                         View
                       </button>
-                      {invoice.status !== "paid" && (
+                      {/* {invoice.status !== "paid" && (
                         <button className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-900 dark:hover:text-emerald-300 font-medium bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1 rounded-md">
                           Pay Now
                         </button>
-                      )}
+                      )} */}
                     </td>
                   </tr>
                 ))

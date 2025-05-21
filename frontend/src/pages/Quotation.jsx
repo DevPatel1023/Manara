@@ -146,7 +146,7 @@ export default function QuotationsByRFQ() {
       {/* Quotation Detail Modal */}
       {selectedQuotation && (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50">
-          <div className="bg-gray-800 text-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="dark:bg-gray-800 dark:text-white bg-white text-black rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-center mb-6 border-b border-gray-700 pb-4">
                 <h3 className="text-xl font-semibold">Quotation Details</h3>
@@ -161,14 +161,14 @@ export default function QuotationsByRFQ() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div className="bg-gray-700 p-4 rounded-lg">
-                  <h4 className="text-sm font-medium text-gray-400 mb-3">Basic Information</h4>
+                <div className="dark:bg-gray-700 bg-white p-4 rounded-lg">
+                  <h4 className="text-sm font-medium text-gray-800 mb-3">Basic Information</h4>
                   <div className="space-y-3">
-                    <p><span className="font-medium text-gray-200">ID:</span> {selectedQuotation._id}</p>
-                    <p><span className="font-medium text-gray-200">PO Number:</span> {selectedQuotation.poNumber || "N/A"}</p>
-                    <p><span className="font-medium text-gray-200">Date:</span> {formatDate(selectedQuotation.date)}</p>
-                    <p><span className="font-medium text-gray-200">Delivery Date:</span> {formatDate(selectedQuotation.deliveryDate)}</p>
-                    <p><span className="font-medium text-gray-200">Status:</span> 
+                    <p><span className="font-medium text-gray-500">ID:</span> {selectedQuotation._id}</p>
+                    <p><span className="font-medium text-gray-500">PO Number:</span> {selectedQuotation.poNumber || "N/A"}</p>
+                    <p><span className="font-medium text-gray-500">Date:</span> {formatDate(selectedQuotation.date)}</p>
+                    <p><span className="font-medium text-gray-500">Delivery Date:</span> {formatDate(selectedQuotation.deliveryDate)}</p>
+                    <p><span className="font-medium text-gray-500">Status:</span> 
                       <span
                         className={`ml-2 inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
                           selectedQuotation.status === "accepted" || selectedQuotation.status === "approved"
@@ -183,15 +183,15 @@ export default function QuotationsByRFQ() {
                     </p>
                   </div>
                 </div>
-                <div className="bg-gray-700 p-4 rounded-lg">
+                <div className="dark:bg-gray-700 p-4 rounded-lg">
                   <h4 className="text-sm font-medium text-gray-400 mb-3">Client Information</h4>
                   <div className="space-y-3">
-                    <p><span className="font-medium text-gray-200">Company:</span> {selectedQuotation.billToCompany || "N/A"}</p>
-                    <p><span className="font-medium text-gray-200">Address:</span> {selectedQuotation.billToAddress || "N/A"}</p>
-                    <p><span className="font-medium text-gray-200">City/State:</span> {selectedQuotation.billToCityState || "N/A"}</p>
-                    <p><span className="font-medium text-gray-200">Postal Code:</span> {selectedQuotation.billToPostalCode || "N/A"}</p>
-                    <p><span className="font-medium text-gray-200">Email:</span> {selectedQuotation.billToEmail || "N/A"}</p>
-                    <p><span className="font-medium text-gray-200">Phone:</span> {selectedQuotation.billToPhone || "N/A"}</p>
+                    <p><span className="font-medium text-gray-500">Company:</span> {selectedQuotation.billToCompany || "N/A"}</p>
+                    <p><span className="font-medium text-gray-500">Address:</span> {selectedQuotation.billToAddress || "N/A"}</p>
+                    <p><span className="font-medium text-gray-500">City/State:</span> {selectedQuotation.billToCityState || "N/A"}</p>
+                    <p><span className="font-medium text-gray-500">Postal Code:</span> {selectedQuotation.billToPostalCode || "N/A"}</p>
+                    <p><span className="font-medium text-gray-500">Email:</span> {selectedQuotation.billToEmail || "N/A"}</p>
+                    <p><span className="font-medium text-gray-500">Phone:</span> {selectedQuotation.billToPhone || "N/A"}</p>
                   </div>
                 </div>
               </div>
@@ -201,22 +201,22 @@ export default function QuotationsByRFQ() {
                 <div className="mt-6">
                   <h4 className="text-sm font-medium text-gray-400 mb-4">Services</h4>
                   <div className="overflow-x-auto rounded-lg shadow-md">
-                    <table className="min-w-full divide-y divide-gray-600 bg-gray-900">
+                    <table className="min-w-full divide-y divide-gray-600 dark:bg-gray-900 text-black">
                       <thead>
-                        <tr className="bg-gray-800">
-                          <th className="px-6 py-3 text-left text-xs font-bold text-gray-200 uppercase tracking-wider">Name</th>
-                          <th className="px-6 py-3 text-left text-xs font-bold text-gray-200 uppercase tracking-wider">Quantity</th>
-                          <th className="px-6 py-3 text-left text-xs font-bold text-gray-200 uppercase tracking-wider">Unit Price</th>
-                          <th className="px-6 py-3 text-left text-xs font-bold text-gray-200 uppercase tracking-wider">Total</th>
+                        <tr className="dark:bg-gray-800">
+                          <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Name</th>
+                          <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Quantity</th>
+                          <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Unit Price</th>
+                          <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Total</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-600">
                         {selectedQuotation.services.map((service, index) => (
-                          <tr key={index} className="hover:bg-gray-700 transition-colors">
-                            <td className="px-6 py-4 text-sm font-medium text-white">{service.name || "N/A"}</td>
-                            <td className="px-6 py-4 text-sm text-gray-300">{service.quantity || 0}</td>
-                            <td className="px-6 py-4 text-sm text-gray-300">{formatCurrency(service.unitPrice)}</td>
-                            <td className="px-6 py-4 text-sm font-medium text-white">{formatCurrency(service.total)}</td>
+                          <tr key={index} className="dark:bg-gray-700 bg-white text-black transition-colors">
+                            <td className="px-6 py-4 text-sm font-medium dark:text-white">{service.name || "N/A"}</td>
+                            <td className="px-6 py-4 text-sm text-gray-600">{service.quantity || 0}</td>
+                            <td className="px-6 py-4 text-sm text-gray-600">{formatCurrency(service.unitPrice)}</td>
+                            <td className="px-6 py-4 text-sm font-medium dark:text-white">{formatCurrency(service.total)}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -227,17 +227,17 @@ export default function QuotationsByRFQ() {
 
               {/* Summary section */}
               <div className="mt-6 flex justify-end">
-                <div className="w-72 bg-gray-700 p-4 rounded-lg shadow-inner">
+                <div className="w-72 dark:bg-gray-700 p-4 rounded-lg shadow-inner">
                   <div className="flex justify-between mb-3">
                     <span className="text-sm text-gray-400">Subtotal:</span>
-                    <span className="text-sm font-medium text-white">{formatCurrency(selectedQuotation.subtotal)}</span>
+                    <span className="text-sm font-medium dark:text-white">{formatCurrency(selectedQuotation.subtotal)}</span>
                   </div>
                   <div className="flex justify-between mb-3">
                     <span className="text-sm text-gray-400">Tax ({selectedQuotation.taxRate || 0}%):</span>
-                    <span className="text-sm font-medium text-white">{formatCurrency(selectedQuotation.tax)}</span>
+                    <span className="text-sm font-medium dark:text-white">{formatCurrency(selectedQuotation.tax)}</span>
                   </div>
                   <div className="flex justify-between border-t border-gray-600 pt-3">
-                    <span className="text-base font-medium text-white">Total:</span>
+                    <span className="text-base font-medium dark:text-white">Total:</span>
                     <span className="text-base font-bold text-green-400">{formatCurrency(selectedQuotation.total)}</span>
                   </div>
                 </div>
