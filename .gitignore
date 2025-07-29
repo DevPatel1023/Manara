@@ -1,11 +1,13 @@
 # Node.js (Backend)
 backend/node_modules/
+server/node_modules/
 backend/.env
 backend/dist/
 backend/.DS_Store
 
 # React (Frontend)
 frontend/node_modules/
+client/node_modules/
 frontend/.env
 frontend/build/
 frontend/.DS_Store
