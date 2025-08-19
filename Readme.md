@@ -107,3 +107,4 @@ The app will be running at:
 
 ---
 
+# move the project to next js for frontend and go lang for backend  
