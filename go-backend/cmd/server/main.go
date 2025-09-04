@@ -7,6 +7,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+
+	"github.com/DevPatel1023/go-backend/routes"
 )
 
 func main() {
@@ -18,7 +20,7 @@ func main() {
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080" // default fallback
+		port = "8080"
 	}
 
 	// Init Gin router

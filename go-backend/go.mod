@@ -1,4 +1,4 @@
-module github.com/DevPatel1023/Quotation-to-invoice/server
+module github.com/DevPatel1023/Quotation-to-invoice/go-backend
 
 go 1.23.4
 
