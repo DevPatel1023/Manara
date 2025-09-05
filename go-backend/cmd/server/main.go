@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 
-	"github.com/DevPatel1023/go-backend/routes"
+	"github.com/DevPatel1023/Quotation-to-invoice/go-backend/routes"
 )
 
 func main() {
@@ -25,6 +25,12 @@ func main() {
 
 	// Init Gin router
 	router := gin.Default()
+
+	// set trusted proxies
+	err = router.SetTrustedProxies(nil)
+	if err != nil {
+		log.Fatal("failed to set trusted proxies", err)
+	}
 
 	// Register routes
 	routes.SetupRoutes(router)
