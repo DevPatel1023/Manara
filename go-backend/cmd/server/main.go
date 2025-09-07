@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 
+	"github.com/DevPatel1023/Quotation-to-invoice/go-backend/internals/db"
 	"github.com/DevPatel1023/Quotation-to-invoice/go-backend/routes"
 )
 
@@ -22,6 +23,15 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
+
+	// load db_url;
+	DB_DSN := os.Getenv("DB_DSN")
+	if DB_DSN == "" {
+		log.Println("DB_DSN is empty, check .env file")
+	}
+
+	// connect db
+	db.ConnectDB(DB_DSN)
 
 	// Init Gin router
 	router := gin.Default()
