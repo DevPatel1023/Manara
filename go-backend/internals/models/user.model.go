@@ -1,17 +1,24 @@
 package models
 
-import (
-	"time"
+import "time"
 
-	"github.com/google/uuid"
+
+// enum role 
+type Role string
+
+const (
+	Admin Role = "Admin"
+	Employee Role = "Employee"
+	Client Role = "Client"
 )
 
 type User struct {
-	ID uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primary_key"`
-	// ID     uint   `gorm:"primary_key"`
-	Name      string `gorm:"type:varchar(255);not null"`
-	Email     string `gorm:"uniqueIndex;not null"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	Id uint `gorm:"primary_key"`
+	Name string
+	Email *string
+	Role Role
+	PasswordHash string
+	createdAt time.Time 
+	updatedAt time.Time 
 }
 
