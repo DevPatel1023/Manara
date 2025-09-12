@@ -15,11 +15,11 @@ const (
 type Quotation struct {
 	gorm.Model
 
-	clientId uint //foreign key
-	Client user.Client `gorm:"foreignKey:ClientID"`
+	ClientID uint //foreign key
+	Client User `gorm:"foreignKey:ClientID"`
 	Title string
 	Description string
-	Estimated_cost uint
-	Valid_until time.Time
-	Status Status `gorm:"type:enum('APPROVED','REJECTED','PENDING');default:'PENDING'"`
+	EstimatedCost uint
+	ValidUntil time.Time
+	Status Status 
 } 
