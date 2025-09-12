@@ -10,6 +10,7 @@ type Project struct {
 
 	QuotationID uint
 	Quotation Quotation `gorm:"foreignKey:QuotationID"`
+	
 	Name string
 	Description string
 	StartDate time.Time

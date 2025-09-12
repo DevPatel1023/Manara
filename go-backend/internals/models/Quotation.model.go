@@ -1,16 +1,16 @@
 package models
 
 import (
-	"gorm.io/gorm",
+	"gorm.io/gorm"
 	"time"
 )
 
-type Status string 
+type QuotationStatus string 
 
 const (
-	Approve Status = "APPROVED",
-	Rejected Status = "REJECTED",
-	Pending Status = "PENDING",
+	Approve QuotationStatus = "APPROVED",
+	Rejected QuotationStatus = "REJECTED",
+	Pending QuotationStatus = "PENDING",
 )
 
 type Quotation struct {
@@ -22,5 +22,5 @@ type Quotation struct {
 	Description string
 	EstimatedCost uint
 	ValidUntil time.Time
-	Status Status 
+	Status QuotationStatus 
 } 

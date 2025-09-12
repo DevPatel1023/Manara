@@ -20,7 +20,7 @@ type Task struct {
 	Project Project `gorm:"foreignKey:ProjectId"`
 
 	AssignedToEMPID uint
-	AssignedTo User `gorm:"foreignKey:UserId"`
+	AssignedTo User `gorm:"foreignKey:AssignedToEMPID"`
 
 	Title string
 	Description string

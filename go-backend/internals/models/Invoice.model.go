@@ -16,8 +16,8 @@ type Invoice struct {
 	gorm.Model
 
 	ProjectID uint
-	Project Project `gorm:"foreignkey:ProjectId"`
+	Project Project `gorm:"foreignkey:ProjectID"`
 	Amount uint
-	status InvoiceStatus
+	Status InvoiceStatus
 	IssuedDate time.Time
 }
