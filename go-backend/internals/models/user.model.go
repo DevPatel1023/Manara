@@ -1,6 +1,7 @@
 package models
 
-import "time"
+import "gorm.io/gorm"
+
 
 
 // enum role 
@@ -13,12 +14,12 @@ const (
 )
 
 type User struct {
+	gorm.Model
+
 	Id uint `gorm:"primary_key"`
 	Name string
 	Email *string
-	Role Role
-	PasswordHash string
-	createdAt time.Time 
-	updatedAt time.Time 
+	Role Role `gorm:"type:enum('Admin','Employee','Client');default:'Client';column:role"`
+	Password string
 }
 
