@@ -1,8 +1,9 @@
 package models
 
-import(
+import (
 	"gorm.io/gorm",
-	"github.com/DevPatel1023/Quotation-to-invoice/go-backend/internals/models/user")
+	"time"
+)
 
 type Status string 
 

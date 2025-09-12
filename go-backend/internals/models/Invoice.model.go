@@ -1,15 +1,23 @@
 package models
 
-import ("gorm.io/gorm",
-"github.com/DevPatel1023/Quotation-to-invoice/go-backend/internals/models/Quotation")
+import (
+	"gorm.io/gorm"
+	"time"
+)
 
-type Status string
+type InvoiceStatus string
 
+const (
+	Paid InvoiceStatus = "Paid",
+	Unpaid InvoiceStatus = "Unpaid"
+)
 
 type Invoice struct {
 	gorm.Model
 
-	Name string,
-	Description string,
-	status Status
+	ProjectID uint
+	Project Project `gorm:"foreignkey:ProjectId"`
+	Amount uint
+	status InvoiceStatus
+	IssuedDate time.Time
 }
