@@ -8,7 +8,7 @@ import (
 type InvoiceStatus string
 
 const (
-	Paid InvoiceStatus = "Paid",
+	Paid InvoiceStatus = "Paid"
 	Unpaid InvoiceStatus = "Unpaid"
 )
 

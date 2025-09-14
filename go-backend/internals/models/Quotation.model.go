@@ -8,9 +8,9 @@ import (
 type QuotationStatus string 
 
 const (
-	Approve QuotationStatus = "APPROVED",
-	Rejected QuotationStatus = "REJECTED",
-	Pending QuotationStatus = "PENDING",
+	Approve QuotationStatus = "APPROVED"
+	Rejected QuotationStatus = "REJECTED"
+	Pending QuotationStatus = "PENDING"
 )
 
 type Quotation struct {

@@ -8,16 +8,16 @@ import (
 type TaskStatus string
 
 const (
-	Todo TaskStatus = "TODO",
-	InProgress TaskStatus = "INPROGRESS",
-	Done TaskStatus = "DONE",
+	Todo TaskStatus = "TODO"
+	InProgress TaskStatus = "INPROGRESS"
+	Done TaskStatus = "DONE"
 )
 
 type Task struct {
 	gorm.Model
 
 	ProjectID uint
-	Project Project `gorm:"foreignKey:ProjectId"`
+	Project Project `gorm:"foreignKey:ProjectID"`
 
 	AssignedToEMPID uint
 	AssignedTo User `gorm:"foreignKey:AssignedToEMPID"`
