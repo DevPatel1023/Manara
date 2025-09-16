@@ -3,18 +3,44 @@ package services
 
 import (
 	"errors"
-	"yourapp/models"
-	"yourapp/repositories"
+	"github.com/DevPatel1023/Quotation-to-invoice/go-backend/internals/repository"
+	"github.com/DevPatel1023/Quotation-to-invoice/go-backend/internals/models"
 )
 
 type UserService struct {
-	Repo *repositories.UserRepository
+	Repo *repository.UserRepository
 }
 
 func (s *UserService) RegisterUser(user *models.User) error {
-	// Rule: Email is required
+	//  Email is required
 	if user.Email == nil {
 		return errors.New("email is required")
 	}
-	return s.Repo.Create(user) // delegate DB action to repo
+
+	// Password is required
+	if user.password == nil {
+		return errors.New("password is required")
+	}
+
+	// create user through db actions of repository
+	return s.Repo.CreateNewUser(user) 
+}
+
+func(s *UserService) GetUserByID(id uint) (*models.User,error) {
+	if id == 0 {
+		return errors.New("User Id is required")
+	}
+	return s.Repo.GetUserByID(id)
+}
+
+
+func(s *UserService) GetAllUsers() ([]models.User,error) {
+	return s.Repo.GetAllUsers()
+}
+
+func(s *UserService) UpdateUserByID(user *models.User) error {
+	if user.ID == 0 {
+		return errors.New("id is required")
+	}
+	return s.Repo.UpdateUserByID(user)
 }
