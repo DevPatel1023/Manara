@@ -1,23 +1,12 @@
-// repositories/user_repository.go
-package repositories
+package repository
 
 import (
 	"gorm.io/gorm"
-	"yourapp/models"
 )
 
-type UserRepository struct {
-	DB *gorm.DB
-}
-
-// Create User
-func (r *UserRepository) Create(user *models.User) error {
-	return r.DB.Create(user).Error
-}
-
-// Find by ID
-func (r *UserRepository) GetByID(id uint) (*models.User, error) {
-	var user models.User
-	err := r.DB.First(&user, id).Error
-	return &user, err
+type UserRepository interface {
+	CreateNewUser(user *models.User , error)
+	GetUserByID(UserId uint) (user *models.User,err error)
+	GetAllUsers() ([]models.User , error)
+	UpdateUserByID(user *models.User) error
 }
