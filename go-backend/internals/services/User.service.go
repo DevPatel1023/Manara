@@ -18,7 +18,7 @@ func (s *UserService) RegisterUser(user *models.User) error {
 	}
 
 	// Password is required
-	if user.password == nil {
+	if user.Password == nil {
 		return errors.New("password is required")
 	}
 
