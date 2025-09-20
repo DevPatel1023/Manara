@@ -8,7 +8,7 @@ import (
 )
 
 type UserService struct {
-	Repo *repository.UserRepository
+	Repo repository.UserRepository
 }
 
 func (s *UserService) RegisterUser(user *models.User) error {
@@ -18,7 +18,7 @@ func (s *UserService) RegisterUser(user *models.User) error {
 	}
 
 	// Password is required
-	if user.Password == nil {
+	if user.Password == "" {
 		return errors.New("password is required")
 	}
 

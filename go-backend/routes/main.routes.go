@@ -6,15 +6,26 @@ import (
 )
 
 func SetupRoutes(router *gin.Engine) {
-    api := router.Group("/api/v1")
-
-	// Default test route for /api/v1
-    api.GET("/", func(c *gin.Context) {
-        log.Println("Default GET route hit")
-        c.JSON(200, gin.H{"message": "API v1 root working"})
+    // Root route (this works at http://localhost:8080/)
+    router.GET("/", func(c *gin.Context) {
+        c.JSON(200, gin.H{"message": "Server is running"})
     })
 
+    // Ping route for health check
+    router.GET("/ping", func(c *gin.Context) {
+        c.JSON(200, gin.H{"message": "pong"})
+    })
 
-    userController := &controllers.UserController{}
-    RegisterUserRoutes(api, userController) // call function in same package
+    // API v1 group
+    api := router.Group("/api/v1")
+    {
+        // Root API test (this works at http://localhost:8080/api/v1/root)
+        api.GET("/root", func(c *gin.Context) {
+            c.JSON(200, gin.H{"message": "API v1 root working"})
+        })
+
+        // Register user routes
+        userController := &controllers.UserController{}
+        RegisterUserRoutes(api, userController)
+    }
 }
