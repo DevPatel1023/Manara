@@ -7,6 +7,7 @@ import (
 )
 
 func RegisterUserRoutes(rg *gin.RouterGroup, uc *controllers.UserController) {
+    log.Println("RegisterUserRoutes function called")
     users := rg.Group("/users")
     {
         // Default GET route for /api/v1/users/root
