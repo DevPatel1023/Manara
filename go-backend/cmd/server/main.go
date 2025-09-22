@@ -1,4 +1,3 @@
-// cmd/server/main.go
 package main
 
 import (
@@ -8,7 +7,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 
+	"github.com/DevPatel1023/Quotation-to-invoice/go-backend/internals/controllers"
 	"github.com/DevPatel1023/Quotation-to-invoice/go-backend/internals/db"
+	"github.com/DevPatel1023/Quotation-to-invoice/go-backend/internals/repository"
+	"github.com/DevPatel1023/Quotation-to-invoice/go-backend/internals/services"
 	"github.com/DevPatel1023/Quotation-to-invoice/go-backend/routes"
 )
 
@@ -24,28 +26,30 @@ func main() {
 		port = "8080"
 	}
 
-	// load db_url;
 	DB_DSN := os.Getenv("DB_DSN")
 	if DB_DSN == "" {
 		log.Println("DB_DSN is empty, check .env file")
 	}
 
-	// connect db
-	db.ConnectDB(DB_DSN)
+	// Connect DB
+	database := db.ConnectDB(DB_DSN)
 
-	// Init Gin router
+	// Init dependencies
+	userRepo := repository.NewUserRepository(database)
+	userService := services.NewUserService(userRepo)
+	userController := controllers.NewUserController(userService)
+
+	// Init Gin
 	router := gin.Default()
-
-	// set trusted proxies
 	err = router.SetTrustedProxies(nil)
 	if err != nil {
-		log.Fatal("failed to set trusted proxies", err)
+		log.Fatal("Failed to set trusted proxies:", err)
 	}
 
-	// Register routes
-	routes.SetupRoutes(router)
+	// Setup routes with controller
+	routes.SetupRoutes(router, userController)
 
-	// Run server
+	// Start server
 	log.Println("Server running on port", port)
 	err = router.Run(":" + port)
 	if err != nil {
