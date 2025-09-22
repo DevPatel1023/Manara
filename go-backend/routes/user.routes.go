@@ -9,12 +9,7 @@ import (
 func RegisterUserRoutes(rg *gin.RouterGroup, uc *controllers.UserController) {
     log.Println("RegisterUserRoutes function called")
     users := rg.Group("/users")
-    {
-        // Default GET route for /api/v1/users/root
-        users.GET("/root", func(c *gin.Context) {
-            log.Println("Users default GET route hit")
-            c.JSON(200, gin.H{"message": "Users root working"})
-        })
+    { 
 
         users.POST("/register", uc.CreateUser)
         users.GET("/all", uc.GetAllUsers) // Note: changed to GetAllUsers (plural)
