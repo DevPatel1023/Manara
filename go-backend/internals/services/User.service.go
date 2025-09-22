@@ -28,7 +28,7 @@ func (s *UserService) RegisterUser(user *models.User) error {
 
 func(s *UserService) GetUserByID(id uint) (*models.User,error) {
 	if id == 0 {
-		return errors.New("User Id is required")
+		return nil , errors.New("User Id is required")
 	}
 	return s.Repo.GetUserByID(id)
 }

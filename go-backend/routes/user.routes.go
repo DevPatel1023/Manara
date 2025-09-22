@@ -20,6 +20,6 @@ func RegisterUserRoutes(rg *gin.RouterGroup, uc *controllers.UserController) {
         users.GET("/all", uc.GetAllUsers) // Note: changed to GetAllUsers (plural)
         users.GET("/:id", uc.GetUser)
         users.PUT("/:id", uc.UpdateUser)
-        users.DELETE("/:id", uc.DeleteUser) // Added delete route
+
     }
 }
