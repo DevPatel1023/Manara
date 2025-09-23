@@ -12,7 +12,7 @@ import (
 var DB *gorm.DB
 
 // ConnectDB connects to Postgres with given DSN and migrates models
-func ConnectDB(dsn string) {
+func ConnectDB(dsn string) *gorm.DB {
 	database, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal("Failed to connect to database:", err)
@@ -34,4 +34,5 @@ func ConnectDB(dsn string) {
 	}
 
 	log.Println(" Database connected and migrated successfully")
+	return database
 }
