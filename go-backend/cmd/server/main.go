@@ -15,7 +15,7 @@ import (
 )
 
 func main() {
-	// Load env
+	// Load .env
 	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatal("Error loading .env file")
@@ -31,10 +31,10 @@ func main() {
 		log.Println("DB_DSN is empty, check .env file")
 	}
 
-	// Connect DB
+	// Connect to DB
 	database := db.ConnectDB(DB_DSN)
 
-	// Init dependencies
+	// Initialize layers
 	userRepo := repository.NewUserRepository(database)
 	userService := services.NewUserService(userRepo)
 	userController := controllers.NewUserController(userService)
@@ -46,7 +46,7 @@ func main() {
 		log.Fatal("Failed to set trusted proxies:", err)
 	}
 
-	// Setup routes with controller
+	// Setup routes
 	routes.SetupRoutes(router, userController)
 
 	// Start server

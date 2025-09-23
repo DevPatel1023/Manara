@@ -11,6 +11,11 @@ type UserService struct {
 	Repo repository.UserRepository
 }
 
+
+func NewUserService(repo repository.UserRepository) *UserService {
+    return &UserService{Repo: repo}
+}
+
 func (s *UserService) RegisterUser(user *models.User) error {
 	//  Email is required
 	if user.Email == nil {
