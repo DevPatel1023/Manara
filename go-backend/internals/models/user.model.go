@@ -19,6 +19,6 @@ type User struct {
 	Name string
 	Email *string
 	Role Role 
-	Password string
+	Password string `json:"password,omitempty"`
 }
 
