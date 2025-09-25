@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/DevPatel1023/Quotation-to-invoice/go-backend/internals/repository"
 	"github.com/DevPatel1023/Quotation-to-invoice/go-backend/internals/models"
+	"github.com/DevPatel1023/Quotation-to-invoice/go-backend/internals/utils"
 )
 
 type UserService struct {
@@ -18,17 +19,27 @@ func NewUserService(repo repository.UserRepository) *UserService {
 
 func (s *UserService) RegisterUser(user *models.User) error {
 	//  Email is required
-	if user.Email == nil {
-		return errors.New("email is required")
+	if user.Email == "" | user.password == "" {
+		return errors.New("email and password is required")
 	}
 
-	// Password is required
-	if user.Password == "" {
-		return errors.New("password is required")
+	// hash the password before saving in db
+	hashed,err := utils.HashPassword(user.password)
+
+	if err != nil {
+		return err
 	}
+
+	user.password = hashed
 
 	// create user through db actions of repository
 	return s.Repo.CreateNewUser(user) 
+}
+
+fun (s *UserService) LoginUser(email,password string) (string,error){
+	users,err := s.Repo.GetAllUsers()
+
+	if
 }
 
 func(s *UserService) GetUserByID(id uint) (*models.User,error) {
