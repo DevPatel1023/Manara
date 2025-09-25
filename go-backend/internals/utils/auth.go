@@ -3,11 +3,11 @@ package utils
 
 import (
     "time"
-    "github.com/golang-jwt/jwt/v4"
+    "github.com/golang-jwt/jwt/v5"
     "golang.org/x/crypto/bcrypt"
 )
 
-var jwtSecret = []byte("your_secret_key") // better keep in .env
+var jwtSecret = []byte("JWT_SECRET")
 
 // Hash password
 func HashPassword(password string) (string, error) {
@@ -25,7 +25,7 @@ func CheckPasswordHash(password, hash string) bool {
 func GenerateJWT(userID uint) (string, error) {
     token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
         "id":  userID,
-        "exp": time.Now().Add(time.Hour * 24).Unix(), // expires in 24h
+        "exp": time.Now().Add(time.Hour * 24).Unix(), 
     })
 
     return token.SignedString(jwtSecret)
