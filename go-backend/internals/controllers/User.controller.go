@@ -30,6 +30,19 @@ func (ctrl *UserController) CreateUser(c *gin.Context){
 	}
 }
 
+func (ctrl *UserController) LoginUser(c *gin.Context){
+	var user models.User
+	if err := c.ShouldBindJSON(&user); err != nil {
+		c.JSON(http.StatusBadRequest , gin.H{"error" : err.Error()})
+		return
+	}
+
+	if err := ctrl.service.RegisterUser(&user);err != nil {
+		c.JSON(http.StatusInternalServerError , gin.H{"error" : err.Error()})
+		return
+	}
+}
+
 func (ctrl *UserController) GetUser(c *gin.Context) {
 	idParam := c.Param("id")
 	id, _ := strconv.Atoi(idParam)

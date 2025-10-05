@@ -18,13 +18,13 @@ func NewUserService(repo repository.UserRepository) *UserService {
 }
 
 func (s *UserService) RegisterUser(user *models.User) error {
-	//  Email is required
-	if user.Email == "" | user.password == "" {
-		return errors.New("email and password is required")
+	//  Email & password is required
+	if user.Email == "" || user.Password == "" {
+		return errors.New("email and password are required")
 	}
 
 	// hash the password before saving in db
-	hashed,err := utils.HashPassword(user.password)
+	hashed,err := utils.HashPassword(user.Password)
 
 	if err != nil {
 		return err
@@ -36,10 +36,34 @@ func (s *UserService) RegisterUser(user *models.User) error {
 	return s.Repo.CreateNewUser(user) 
 }
 
-fun (s *UserService) LoginUser(email,password string) (string,error){
-	users,err := s.Repo.GetAllUsers()
+func (s *UserService) LoginUser(user *models.User) error{
+	
+	//  Email & password is required
+	if user.Email == "" || user.Password == "" {
+		return errors.New("Email and password are required")
+	}
 
-	if
+	// Get the user from repo
+	user,err := s.Repo.GetUserByEmail(email)
+
+	// check err
+	if err != nil {
+		return errors.New("Invalid email")
+	}
+
+	// compare password
+	if !utils.CheckPasswordHash(password,user.password) {
+		return errors.New("Invalid password")
+	}
+
+	// generate jwt token
+	token , err := utils.GenerateJWT(user.ID,user.Email)
+
+	if err != nil {
+		return errors.New("Error : Jwt generate error")
+	}
+
+	return token,nil
 }
 
 func(s *UserService) GetUserByID(id uint) (*models.User,error) {
