@@ -19,6 +19,15 @@ func (r *UserRepositoryImpl) CreateNewUser(user *models.User) error {
 	return r.DB.Create(user).Error
 }
 
+// Login current user
+func (r *UserRepositoryImpl) GetUserByEmail(email string) (*models.User,error) {
+	var user models.User
+	if err:= r.DB.Where("email=?",email).First(&user).Error; err != nil {
+		return nil,err
+	}
+	return &user,nil
+}
+
 // Get user by ID
 func (r *UserRepositoryImpl) GetUserByID(id uint) (*models.User, error) {
 	var user models.User
