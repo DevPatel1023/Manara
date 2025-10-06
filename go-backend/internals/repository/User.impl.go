@@ -43,6 +43,6 @@ func (r *UserRepositoryImpl) GetAllUsers() ([]models.User, error) {
 }
 
 // Update user by ID
-func (r *UserRepositoryImpl) UpdateUserByID(user *models.User) error {
-	return r.DB.Model(&models.User{}).Where("id = ?", user.ID).Updates(user).Error
+func (r *UserRepositoryImpl) UpdateUserByID(id uint,updates map[string]interface{}) error {
+	return r.DB.Model(&models.User{}).Where("id = ?", id).Updates(updates).Error
 }

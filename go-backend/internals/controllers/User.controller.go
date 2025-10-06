@@ -74,14 +74,35 @@ func (ctrl *UserController) GetAllUsers(c *gin.Context) {
 }
 
 func (ctrl *UserController) UpdateUser(c *gin.Context) {
-	var user models.User
-	if err := c.ShouldBindJSON(&user); err != nil {
+	
+	idParam := c.Param("id")
+	id,err := strconv.Atoi(idParam)
+
+	if err != nil || id < 0 {
+		c.JSON(http.StatusBadRequest,gin.H{"error" : "invalid id"})
+		return
+	}
+
+	var updates map[string]interface{}
+	if err := c.ShouldBindJSON(&updates); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if err := ctrl.service.UpdateUserByID(&user); err != nil {
+
+	//remove fields for updated manually
+	delete(updates,"id")
+	delete(updates,"password")
+	delete(updates,"created_at")
+	delete(updates,"updated_at")
+
+	// updates the user in db
+	if err := ctrl.service.UpdateUserByID(uint(id),updates); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, user)
+
+	// return updated user
+	updatedUser, _ := ctrl.service.GetUserByID(uint(id))
+
+	c.JSON(http.StatusOK, updatedUser)
 }

@@ -85,9 +85,9 @@ func(s *UserService) GetAllUsers() ([]models.User,error) {
 	return s.Repo.GetAllUsers()
 }
 
-func(s *UserService) UpdateUserByID(user *models.User) error {
-	if user.ID == 0 {
+func(s *UserService) UpdateUserByID(id uint , updates map[string]interface{}) error {
+	if id == 0 {
 		return errors.New("id is required")
 	}
-	return s.Repo.UpdateUserByID(user)
+	return s.Repo.UpdateUserByID(id,updates)
 }
