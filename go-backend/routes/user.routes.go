@@ -6,8 +6,8 @@ import (
 )
 
 func RegisterUserRoutes(router *gin.RouterGroup, userController *controllers.UserController) {
-     users := router.Group("/users")
-     {
+    users := router.Group("/users")
+    {
 	users.GET("/all", userController.GetAllUsers)
 	users.POST("/register", userController.CreateUser)
 	users.GET("/:id", userController.GetUser)

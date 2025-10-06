@@ -22,7 +22,7 @@ func (r *UserRepositoryImpl) CreateNewUser(user *models.User) error {
 // Login current user
 func (r *UserRepositoryImpl) GetUserByEmail(email string) (*models.User,error) {
 	var user models.User
-	if err:= r.DB.Where("email=?",email).First(&user).Error; err != nil {
+	if err := r.DB.Where("email=?",email).First(&user).Error; err != nil {
 		return nil,err
 	}
 	return &user,nil

@@ -49,6 +49,10 @@ func main() {
 	// Setup routes
 	routes.SetupRoutes(router, userController)
 
+	router.Get("/ping",func(c *gin.Context){
+		c.JSON(200,gin.H{"message":"pong"})
+	})
+
 	// Start server
 	log.Println("Server running on port", port)
 	err = router.Run(":" + port)

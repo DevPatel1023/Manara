@@ -2,7 +2,6 @@
 package utils
 
 import (
-    "time"
     "golang.org/x/crypto/bcrypt"
 )
 

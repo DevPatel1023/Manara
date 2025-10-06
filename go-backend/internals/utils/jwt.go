@@ -23,5 +23,6 @@ func GenerateJWT(name string , email string) (string,error) {
 	if err != nil {
 		return "",err
 	}
+	fmt.Println("jwt token",tokenString)
 	return tokenString,nil
 }
