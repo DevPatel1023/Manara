@@ -9,8 +9,10 @@ func RegisterUserRoutes(router *gin.RouterGroup, userController *controllers.Use
     users := router.Group("/users")
     {
 	users.GET("/all", userController.GetAllUsers)
+	users.POST("/login", userController.LoginUser)
 	users.POST("/register", userController.CreateUser)
 	users.GET("/:id", userController.GetUser)
 	users.PUT("/:id", userController.UpdateUser)
+	// users.DELETE("/:id", userController.deleteUser)
 }
 }

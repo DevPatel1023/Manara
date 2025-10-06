@@ -6,7 +6,7 @@ import (
 
 type UserRepository interface {
 	CreateNewUser(user *models.User) error
-	LoginCurrentUser(user *models.User) error
+	GetUserByEmail(email string) (*models.User,error)
 	GetUserByID(id uint) (*models.User, error)
 	GetAllUsers() ([]models.User, error)
 	UpdateUserByID(user *models.User) error

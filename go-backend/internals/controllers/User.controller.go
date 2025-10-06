@@ -25,22 +25,32 @@ func (ctrl *UserController) CreateUser(c *gin.Context){
 	}
 
 	if err := ctrl.service.RegisterUser(&user);err != nil {
-		c.JSON(http.StatusInternalServerError , gin.H{"error" : err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error" : err.Error()})
 		return
 	}
+
+	c.JSON(http.StatusCreated,gin.H{"message" : "User created successfully",
+	"user" : user,
+	})
 }
 
 func (ctrl *UserController) LoginUser(c *gin.Context){
-	var user models.User
+	var user struct {
+		Email string `json:"email"`
+		Password string `json:"password"`
+	}
 	if err := c.ShouldBindJSON(&user); err != nil {
 		c.JSON(http.StatusBadRequest , gin.H{"error" : err.Error()})
 		return
 	}
 
-	if err := ctrl.service.RegisterUser(&user);err != nil {
-		c.JSON(http.StatusInternalServerError , gin.H{"error" : err.Error()})
+	token , err := ctrl.service.LoginUser(user.Email,user.Password);
+	if err != nil {
+		c.JSON(http.StatusUnauthorized , gin.H{"error" : err.Error()})
 		return
 	}
+
+	c.JSON(http.StatusOK,gin.H{"token":token})
 }
 
 func (ctrl *UserController) GetUser(c *gin.Context) {

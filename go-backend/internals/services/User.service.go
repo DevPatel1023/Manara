@@ -2,6 +2,7 @@
 package services
 
 import (
+	"fmt"
 	"errors"
 	"github.com/DevPatel1023/Quotation-to-invoice/go-backend/internals/repository"
 	"github.com/DevPatel1023/Quotation-to-invoice/go-backend/internals/models"
@@ -19,8 +20,14 @@ func NewUserService(repo repository.UserRepository) *UserService {
 
 func (s *UserService) RegisterUser(user *models.User) error {
 	//  Email & password is required
-	if user.Email == "" || user.Password == "" {
+	if *user.Email == "" || user.Password == "" {
 		return errors.New("email and password are required")
+	}
+
+	// check if email id is already exist
+	existingUser , err := s.Repo.GetUserByEmail(*user.Email)
+	if existingUser != nil {
+		return errors.New("Email already registered")
 	}
 
 	// hash the password before saving in db
@@ -30,17 +37,17 @@ func (s *UserService) RegisterUser(user *models.User) error {
 		return err
 	}
 
-	user.password = hashed
+	user.Password = hashed
 
 	// create user through db actions of repository
 	return s.Repo.CreateNewUser(user) 
 }
 
-func (s *UserService) LoginUser(user *models.User) error{
+func (s *UserService) LoginUser(email string,password string) (string,error) {
 	
 	//  Email & password is required
-	if user.Email == "" || user.Password == "" {
-		return errors.New("Email and password are required")
+	if email == "" || password == "" {
+		return "" , errors.New("Email and password are required")
 	}
 
 	// Get the user from repo
@@ -48,19 +55,19 @@ func (s *UserService) LoginUser(user *models.User) error{
 
 	// check err
 	if err != nil {
-		return errors.New("Invalid email")
+		return "" , errors.New("Invalid email")
 	}
 
 	// compare password
-	if !utils.CheckPasswordHash(password,user.password) {
-		return errors.New("Invalid password")
+	if !utils.CheckPasswordHash(password,user.Password) {
+		return "" , errors.New("Invalid password")
 	}
 
 	// generate jwt token
-	token , err := utils.GenerateJWT(user.ID,user.Email)
+	token , err := utils.GenerateJWT(fmt.Sprintf("%d",user.ID),*user.Email)
 
 	if err != nil {
-		return errors.New("Error : Jwt generate error")
+		return "" , errors.New("Error : Jwt generate error")
 	}
 
 	return token,nil

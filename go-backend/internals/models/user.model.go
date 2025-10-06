@@ -16,9 +16,9 @@ const (
 type User struct {
 	gorm.Model
 
-	Name string
-	Email *string
-	Role Role 
-	Password string `json:"password,omitempty"`
+	Name string `gorm:"not null"`
+	Email *string `gorm:"unique"` 
+	Password string `gorm:"not null"`
+	Role Role `gorm:"type:varchar(20);default:'Client'"`
 }
 
