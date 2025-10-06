@@ -91,3 +91,7 @@ func(s *UserService) UpdateUserByID(id uint , updates map[string]interface{}) er
 	}
 	return s.Repo.UpdateUserByID(id,updates)
 }
+
+func (s *UserService) DeleteUser(id uint) error {
+	return s.Repo.Delete(id)
+}

@@ -10,4 +10,5 @@ type UserRepository interface {
 	GetUserByID(id uint) (*models.User, error)
 	GetAllUsers() ([]models.User, error)
 	UpdateUserByID(id uint , updates map[string]interface{}) error
+	Delete(id uint) error
 }

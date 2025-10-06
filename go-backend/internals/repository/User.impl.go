@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"fmt"
 	"gorm.io/gorm"
 	"github.com/DevPatel1023/Quotation-to-invoice/go-backend/internals/models"
 )
@@ -45,4 +46,16 @@ func (r *UserRepositoryImpl) GetAllUsers() ([]models.User, error) {
 // Update user by ID
 func (r *UserRepositoryImpl) UpdateUserByID(id uint,updates map[string]interface{}) error {
 	return r.DB.Model(&models.User{}).Where("id = ?", id).Updates(updates).Error
+}
+
+// delete user by id func
+func (r *UserRepositoryImpl) Delete(id uint) error {
+	result := r.DB.Delete(&models.User{},id)
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0{
+		return fmt.Errorf("user not found")
+	}
+	return nil
 }

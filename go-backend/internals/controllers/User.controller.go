@@ -106,3 +106,35 @@ func (ctrl *UserController) UpdateUser(c *gin.Context) {
 
 	c.JSON(http.StatusOK, updatedUser)
 }
+
+func (ctrl *UserController) DeleteUser(c *gin.Context){
+	idParams := c.Param("id")
+	id,err := strconv.Atoi(idParams) //convert to int
+
+	if err != nil || id < 0 {
+		c.JSON(http.StatusBadRequest,gin.H{"error" : "invalid id"})
+		return
+	}
+
+	// check user with id is present 
+	user , err := ctrl.service.GetUserByID(uint(id))
+
+	if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching user"})
+        return
+    }
+
+    if user == nil {
+        c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+        return
+    }
+
+    // Delete the user
+    err = ctrl.service.DeleteUser(uint(id))
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete user"})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"message": "User deleted successfully"})
+}

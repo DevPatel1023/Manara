@@ -13,6 +13,6 @@ func RegisterUserRoutes(router *gin.RouterGroup, userController *controllers.Use
 	users.POST("/register", userController.CreateUser)
 	users.GET("/:id", userController.GetUser)
 	users.PATCH("/:id", userController.UpdateUser)
-	// users.DELETE("/:id", userController.deleteUser)
+	users.DELETE("/:id", userController.DeleteUser)
 }
 }
