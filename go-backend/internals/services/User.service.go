@@ -2,10 +2,10 @@
 package services
 
 import (
-	"fmt"
 	"errors"
-	"github.com/DevPatel1023/Quotation-to-invoice/go-backend/internals/repository"
+
 	"github.com/DevPatel1023/Quotation-to-invoice/go-backend/internals/models"
+	"github.com/DevPatel1023/Quotation-to-invoice/go-backend/internals/repository"
 	"github.com/DevPatel1023/Quotation-to-invoice/go-backend/internals/utils"
 )
 
@@ -13,9 +13,8 @@ type UserService struct {
 	Repo repository.UserRepository
 }
 
-
 func NewUserService(repo repository.UserRepository) *UserService {
-    return &UserService{Repo: repo}
+	return &UserService{Repo: repo}
 }
 
 func (s *UserService) RegisterUser(user *models.User) error {
@@ -25,13 +24,13 @@ func (s *UserService) RegisterUser(user *models.User) error {
 	}
 
 	// check if email id is already exist
-	existingUser , err := s.Repo.GetUserByEmail(*user.Email)
+	existingUser, err := s.Repo.GetUserByEmail(*user.Email)
 	if existingUser != nil {
 		return errors.New("Email already registered")
 	}
 
 	// hash the password before saving in db
-	hashed,err := utils.HashPassword(user.Password)
+	hashed, err := utils.HashPassword(user.Password)
 
 	if err != nil {
 		return err
@@ -40,56 +39,55 @@ func (s *UserService) RegisterUser(user *models.User) error {
 	user.Password = hashed
 
 	// create user through db actions of repository
-	return s.Repo.CreateNewUser(user) 
+	return s.Repo.CreateNewUser(user)
 }
 
-func (s *UserService) LoginUser(email string,password string) (string,error) {
-	
+func (s *UserService) LoginUser(email string, password string) (string, error) {
+
 	//  Email & password is required
 	if email == "" || password == "" {
-		return "" , errors.New("Email and password are required")
+		return "", errors.New("Email and password are required")
 	}
 
 	// Get the user from repo
-	user,err := s.Repo.GetUserByEmail(email)
+	user, err := s.Repo.GetUserByEmail(email)
 
 	// check err
 	if err != nil {
-		return "" , errors.New("Invalid email")
+		return "", errors.New("Invalid email")
 	}
 
 	// compare password
-	if !utils.CheckPasswordHash(password,user.Password) {
-		return "" , errors.New("Invalid password")
+	if !utils.CheckPasswordHash(password, user.Password) {
+		return "", errors.New("Invalid password")
 	}
 
 	// generate jwt token
-	token , err := utils.GenerateJWT(fmt.Sprintf("%d",user.ID),*user.Email)
+	token, err := utils.GenerateJWT(user.ID, user.Name, *user.Email, string(user.Role))
 
 	if err != nil {
-		return "" , errors.New("Error : Jwt generate error")
+		return "", errors.New("Error : Jwt generate error")
 	}
 
-	return token,nil
+	return token, nil
 }
 
-func(s *UserService) GetUserByID(id uint) (*models.User,error) {
+func (s *UserService) GetUserByID(id uint) (*models.User, error) {
 	if id == 0 {
-		return nil , errors.New("User Id is required")
+		return nil, errors.New("User Id is required")
 	}
 	return s.Repo.GetUserByID(id)
 }
 
-
-func(s *UserService) GetAllUsers() ([]models.User,error) {
+func (s *UserService) GetAllUsers() ([]models.User, error) {
 	return s.Repo.GetAllUsers()
 }
 
-func(s *UserService) UpdateUserByID(id uint , updates map[string]interface{}) error {
+func (s *UserService) UpdateUserByID(id uint, updates map[string]interface{}) error {
 	if id == 0 {
 		return errors.New("id is required")
 	}
-	return s.Repo.UpdateUserByID(id,updates)
+	return s.Repo.UpdateUserByID(id, updates)
 }
 
 func (s *UserService) DeleteUser(id uint) error {
