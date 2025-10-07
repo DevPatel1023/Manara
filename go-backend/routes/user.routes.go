@@ -8,17 +8,23 @@ import (
 
 func RegisterUserRoutes(router *gin.RouterGroup, userController *controllers.UserController) {
 	users := router.Group("/users")
-
-	// public routes
-	users.POST("/register", userController.CreateUser)
-	users.POST("/login", userController.LoginUser)
-
-	// protected routes
-	users.Use(middlewares.AuthMiddleware())
 	{
-		users.GET("/all", userController.GetAllUsers)
-		users.GET("/:id", userController.GetUser)
-		users.PATCH("/:id", userController.UpdateUser)
-		users.DELETE("/:id", userController.DeleteUser)
+		// Public routes
+		users.POST("/register", userController.CreateUser)
+		users.POST("/login", userController.LoginUser)
+
+		// Protected routes
+		protected := users.Group("/")
+		protected.Use(middlewares.AuthMiddleware())
+
+		// Admin-only routes
+		admin := protected.Group("/")
+		admin.Use(middlewares.AuthorizeRole("admin"))
+		admin.GET("/all", userController.GetAllUsers)
+
+		// Employee or Admin routes
+		employee := protected.Group("/")
+		employee.Use(middlewares.AuthorizeRole("employee", "admin"))
+		employee.GET("/:id", userController.GetUser)
 	}
 }
