@@ -2,8 +2,9 @@ package repository
 
 import (
 	"fmt"
-	"gorm.io/gorm"
+
 	"github.com/DevPatel1023/Quotation-to-invoice/go-backend/internals/models"
+	"gorm.io/gorm"
 )
 
 type UserRepositoryImpl struct {
@@ -11,9 +12,8 @@ type UserRepositoryImpl struct {
 }
 
 func NewUserRepository(db *gorm.DB) UserRepository {
-    return &UserRepositoryImpl{DB: db}
+	return &UserRepositoryImpl{DB: db}
 }
-
 
 // Create new user
 func (r *UserRepositoryImpl) CreateNewUser(user *models.User) error {
@@ -21,18 +21,19 @@ func (r *UserRepositoryImpl) CreateNewUser(user *models.User) error {
 }
 
 // Login current user
-func (r *UserRepositoryImpl) GetUserByEmail(email string) (*models.User,error) {
+func (r *UserRepositoryImpl) GetUserByEmail(email string) (*models.User, error) {
 	var user models.User
-	if err := r.DB.Where("email=?",email).First(&user).Error; err != nil {
-		return nil,err
+	if err := r.DB.Where("email=?", email).First(&user).Error; err != nil {
+		return nil, err
 	}
-	return &user,nil
+	return &user, nil
 }
 
 // Get user by ID
 func (r *UserRepositoryImpl) GetUserByID(id uint) (*models.User, error) {
 	var user models.User
-	err := r.DB.First(&user, id).Error
+	err := r.DB.Select("*").First(&user, id).Error
+	user.Password = ""
 	return &user, err
 }
 
@@ -44,17 +45,17 @@ func (r *UserRepositoryImpl) GetAllUsers() ([]models.User, error) {
 }
 
 // Update user by ID
-func (r *UserRepositoryImpl) UpdateUserByID(id uint,updates map[string]interface{}) error {
+func (r *UserRepositoryImpl) UpdateUserByID(id uint, updates map[string]interface{}) error {
 	return r.DB.Model(&models.User{}).Where("id = ?", id).Updates(updates).Error
 }
 
 // delete user by id func
 func (r *UserRepositoryImpl) Delete(id uint) error {
-	result := r.DB.Delete(&models.User{},id)
+	result := r.DB.Delete(&models.User{}, id)
 	if result.Error != nil {
 		return result.Error
 	}
-	if result.RowsAffected == 0{
+	if result.RowsAffected == 0 {
 		return fmt.Errorf("user not found")
 	}
 	return nil

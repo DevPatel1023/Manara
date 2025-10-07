@@ -2,23 +2,20 @@ package models
 
 import "gorm.io/gorm"
 
-
-
-// enum role 
+// enum role
 type Role string
 
 const (
-	Admin Role = "Admin"
+	Admin    Role = "Admin"
 	Employee Role = "Employee"
-	Client Role = "Client"
+	Client   Role = "Client"
 )
 
 type User struct {
 	gorm.Model
 
-	Name string `gorm:"not null"`
-	Email *string `gorm:"unique"` 
-	Password string `gorm:"not null"`
-	Role Role `gorm:"type:varchar(20);default:'Client'"`
+	Name     string  `gorm:"not null"`
+	Email    *string `gorm:"unique"`
+	Password string  `gorm:"not null";`
+	Role     Role    `gorm:"type:varchar(20);default:'Client'"`
 }
-
