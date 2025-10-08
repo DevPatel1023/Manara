@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/gin-gonic/gin"
 	"github.com/DevPatel1023/Quotation-to-invoice/go-backend/internals/models"
 	"github.com/DevPatel1023/Quotation-to-invoice/go-backend/internals/services"
+	"github.com/gin-gonic/gin"
 )
 
 type UserController struct {
@@ -14,43 +14,43 @@ type UserController struct {
 }
 
 func NewUserController(s *services.UserService) *UserController {
-	return &UserController{service : s}
+	return &UserController{service: s}
 }
 
-func (ctrl *UserController) CreateUser(c *gin.Context){
+func (ctrl *UserController) CreateUser(c *gin.Context) {
 	var user models.User
 	if err := c.ShouldBindJSON(&user); err != nil {
-		c.JSON(http.StatusBadRequest , gin.H{"error" : err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	if err := ctrl.service.RegisterUser(&user);err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error" : err.Error()})
+	if err := ctrl.service.RegisterUser(&user); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusCreated,gin.H{"message" : "User created successfully",
-	"user" : user,
+	c.JSON(http.StatusCreated, gin.H{"message": "User created successfully",
+		"user": user,
 	})
 }
 
-func (ctrl *UserController) LoginUser(c *gin.Context){
+func (ctrl *UserController) LoginUser(c *gin.Context) {
 	var user struct {
-		Email string `json:"email"`
+		Email    string `json:"email"`
 		Password string `json:"password"`
 	}
 	if err := c.ShouldBindJSON(&user); err != nil {
-		c.JSON(http.StatusBadRequest , gin.H{"error" : err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	token , err := ctrl.service.LoginUser(user.Email,user.Password);
+	token, err := ctrl.service.LoginUser(user.Email, user.Password)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized , gin.H{"error" : err.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK,gin.H{"token":token})
+	c.JSON(http.StatusOK, gin.H{"token": token})
 }
 
 func (ctrl *UserController) GetUser(c *gin.Context) {
@@ -74,12 +74,12 @@ func (ctrl *UserController) GetAllUsers(c *gin.Context) {
 }
 
 func (ctrl *UserController) UpdateUser(c *gin.Context) {
-	
+
 	idParam := c.Param("id")
-	id,err := strconv.Atoi(idParam)
+	id, err := strconv.Atoi(idParam)
 
 	if err != nil || id < 0 {
-		c.JSON(http.StatusBadRequest,gin.H{"error" : "invalid id"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
 		return
 	}
 
@@ -90,13 +90,14 @@ func (ctrl *UserController) UpdateUser(c *gin.Context) {
 	}
 
 	//remove fields for updated manually
-	delete(updates,"id")
-	delete(updates,"password")
-	delete(updates,"created_at")
-	delete(updates,"updated_at")
+	delete(updates, "id")
+	delete(updates, "password")
+	delete(updates, "created_at")
+	delete(updates, "updated_at")
 
 	// updates the user in db
-	if err := ctrl.service.UpdateUserByID(uint(id),updates); err != nil {
+	currentRole := c.GetString("role")
+	if err := ctrl.service.UpdateUserByID(uint(id), updates, currentRole); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -107,34 +108,34 @@ func (ctrl *UserController) UpdateUser(c *gin.Context) {
 	c.JSON(http.StatusOK, updatedUser)
 }
 
-func (ctrl *UserController) DeleteUser(c *gin.Context){
+func (ctrl *UserController) DeleteUser(c *gin.Context) {
 	idParams := c.Param("id")
-	id,err := strconv.Atoi(idParams) //convert to int
+	id, err := strconv.Atoi(idParams) //convert to int
 
 	if err != nil || id < 0 {
-		c.JSON(http.StatusBadRequest,gin.H{"error" : "invalid id"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
 		return
 	}
 
-	// check user with id is present 
-	user , err := ctrl.service.GetUserByID(uint(id))
+	// check user with id is present
+	user, err := ctrl.service.GetUserByID(uint(id))
 
 	if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching user"})
-        return
-    }
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching user"})
+		return
+	}
 
-    if user == nil {
-        c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
-        return
-    }
+	if user == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
 
-    // Delete the user
-    err = ctrl.service.DeleteUser(uint(id))
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete user"})
-        return
-    }
+	// Delete the user
+	err = ctrl.service.DeleteUser(uint(id))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete user"})
+		return
+	}
 
-    c.JSON(http.StatusOK, gin.H{"message": "User deleted successfully"})
+	c.JSON(http.StatusOK, gin.H{"message": "User deleted successfully"})
 }

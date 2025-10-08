@@ -2,12 +2,15 @@
 package middlewares
 
 import (
+	"fmt"
+
 	"github.com/gin-gonic/gin"
 )
 
 func AuthorizeRole(roles ...string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userRole, exists := c.Get("role")
+		userRole, exists := c.Get("role") //get role from context where we set role in authentication parse-to-user method
+		fmt.Printf("%T", userRole)
 		if !exists {
 			c.JSON(403, gin.H{"error": "role not found"})
 			c.Abort()

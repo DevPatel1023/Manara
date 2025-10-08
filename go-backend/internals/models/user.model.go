@@ -16,6 +16,6 @@ type User struct {
 
 	Name     string  `gorm:"not null"`
 	Email    *string `gorm:"unique"`
-	Password string  `gorm:"not null";`
+	Password string  `gorm:"not null"`
 	Role     Role    `gorm:"type:varchar(20);default:'Client'"`
 }

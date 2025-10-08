@@ -26,5 +26,11 @@ func RegisterUserRoutes(router *gin.RouterGroup, userController *controllers.Use
 		employee := protected.Group("/")
 		employee.Use(middlewares.AuthorizeRole("employee", "admin"))
 		employee.GET("/:id", userController.GetUser)
+
+		// client or admin
+		client := protected.Group("/")
+		client.Use(middlewares.AuthorizeRole("client", "Admin"))
+		client.PATCH("/:id", userController.UpdateUser)
+		client.DELETE("/:id", userController.DeleteUser)
 	}
 }

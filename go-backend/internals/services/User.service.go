@@ -83,10 +83,28 @@ func (s *UserService) GetAllUsers() ([]models.User, error) {
 	return s.Repo.GetAllUsers()
 }
 
-func (s *UserService) UpdateUserByID(id uint, updates map[string]interface{}) error {
+func (s *UserService) UpdateUserByID(id uint, updates map[string]interface{}, currentRole string) error {
 	if id == 0 {
 		return errors.New("id is required")
 	}
+	//user can't modify the role directly :: only admin can
+
+	// fetch existing user using repository
+	existingUser, err := s.Repo.GetUserByID(id)
+	if err != nil {
+		return err
+	}
+
+	// Non-admins cannot change role
+	if currentRole != string(models.Admin) {
+		delete(updates, "role")
+	}
+
+	// Ensure role remains same if not explicitly updated by admin
+	if _, ok := updates["role"]; !ok {
+		updates["role"] = existingUser.Role
+	}
+
 	return s.Repo.UpdateUserByID(id, updates)
 }
 
