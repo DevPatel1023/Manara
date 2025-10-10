@@ -7,6 +7,6 @@ type RFQRepository interface {
 	GetAllRFQS() ([]models.RFQ, error)
 	GetRFQById(id uint) (*models.RFQ, error)
 	UpdateRFQFields(model *models.RFQ) error
-	ReviewdRFQ(model *models.RFQ) error
+	ReviewdRFQ(id uint, status models.RFQStatus) error
 	DeleteRFQ(id uint) error
 }
