@@ -8,6 +8,7 @@ import (
 
 func RegisterRFQRoutes(router *gin.RouterGroup, rfqController *controllers.RFQController) {
 	rfq := router.Group("/rfqs")
+	rfq.Use(middlewares.AuthMiddleware())
 	{
 		// Client: create RFQ
 		client := rfq.Group("/")

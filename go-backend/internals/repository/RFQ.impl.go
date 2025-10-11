@@ -19,7 +19,7 @@ func (r *RFQImplementation) CreateNewRFQ(rfq *models.RFQ) error {
 
 func (r *RFQImplementation) GetAllRFQS() ([]models.RFQ, error) {
 	var rfqs []models.RFQ
-	err := r.DB.Preload("client").Find(&rfqs).Error
+	err := r.DB.Preload("Client").Find(&rfqs).Error
 	return rfqs, err
 }
 

@@ -31,7 +31,7 @@ func GenerateJWT(userID uint, name string, email string, role string) (string, e
 		})
 
 	tokenString, err := token.SignedString(jwtSecret)
-
+	fmt.Println("jwt token", tokenString)
 	if err != nil {
 		return "", err
 	}
