@@ -21,14 +21,11 @@ func ConnectDB(dsn string) *gorm.DB {
 	// Assign to global variable
 	DB = database
 
+	var dbModels = []interface{}{&models.User{}, &models.RFQ{}, &models.Quotation{}, &models.Invoice{}, &models.Project{},
+		&models.Task{}}
 	// AutoMigrate all models
-	err = DB.AutoMigrate(
-		&models.User{},
-		&models.Quotation{},
-		&models.Invoice{},
-		&models.Project{},
-		&models.Task{},
-	)
+	err = DB.AutoMigrate(dbModels...)
+
 	if err != nil {
 		log.Fatal("Migration failed:", err)
 	}

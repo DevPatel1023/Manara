@@ -35,9 +35,15 @@ func main() {
 	database := db.ConnectDB(DB_DSN)
 
 	// Initialize layers
+	// 1.user layers
 	userRepo := repository.NewUserRepository(database)
 	userService := services.NewUserService(userRepo)
 	userController := controllers.NewUserController(userService)
+
+	// 2.rfq layers
+	rfqRepo := repository.NewRFQRepository(database)
+	rfqService := services.NewRFQService(rfqRepo)
+	rfqController := controllers.NewRFQController(rfqService)
 
 	// Init Gin
 	router := gin.Default()
@@ -47,10 +53,10 @@ func main() {
 	}
 
 	// Setup routes
-	routes.SetupRoutes(router, userController)
+	routes.SetupRoutes(router, userController, rfqController)
 
-	router.GET("/ping",func(c *gin.Context){
-		c.JSON(200,gin.H{"message":"pong"})
+	router.GET("/ping", func(c *gin.Context) {
+		c.JSON(200, gin.H{"message": "pong"})
 	})
 
 	// Start server

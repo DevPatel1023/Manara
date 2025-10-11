@@ -23,6 +23,10 @@ type RFQController struct {
 	service *services.RFQService
 }
 
+func NewRFQController(s *services.RFQService) *RFQController {
+	return &RFQController{service: s}
+}
+
 func (ctrl *RFQController) CreateNewRFQ(c *gin.Context) {
 	var rfq models.RFQ
 	if err := c.ShouldBindBodyWithJSON(&rfq); err != nil {

@@ -7,22 +7,24 @@ import (
 )
 
 func RegisterRFQRoutes(router *gin.RouterGroup, rfqController *controllers.RFQController) {
-	rfq := router.Group("/rfq")
+	rfq := router.Group("/rfqs")
+	{
+		// Client: create RFQ
+		client := rfq.Group("/")
+		client.Use(middlewares.AuthorizeRole("client"))
+		client.POST("/create", rfqController.CreateNewRFQ)
+		client.PATCH("/updaterfqfield", rfqController.UpdateRFQFields)
 
-	// Client: create RFQ
-	client := rfq.Group("/")
-	client.Use(middlewares.AuthorizeRole("Client"))
-	client.POST("/", rfqController.CreateNewRFQ)
+		// Admin + Employee: view & review
+		admin := rfq.Group("/")
+		admin.Use(middlewares.AuthorizeRole("admin", "employee"))
+		admin.GET("/all", rfqController.GetAllRFQS)
+		admin.GET("/:id", rfqController.GetRFQById)
+		admin.PATCH("/:id/status", rfqController.ReviewdRFQ)
 
-	// Admin + Employee: view & review
-	admin := rfq.Group("/")
-	admin.Use(middlewares.AuthorizeRole("Admin", "Employee"))
-	admin.GET("/", rfqController.GetAllRFQS)
-	admin.GET("/:id", rfqController.GetRFQById)
-	admin.PATCH("/:id/status", rfqController.ReviewdRFQ)
-
-	// Admin only: delete RFQ
-	super := rfq.Group("/")
-	super.Use(middlewares.AuthorizeRole("Admin"))
-	super.DELETE("/:id", rfqController.DeleteRFQ)
+		// Admin only: delete RFQ
+		super := rfq.Group("/")
+		super.Use(middlewares.AuthorizeRole("admin"))
+		super.DELETE("/:id", rfqController.DeleteRFQ)
+	}
 }

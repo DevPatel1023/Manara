@@ -9,6 +9,10 @@ type RFQImplementation struct {
 	DB *gorm.DB
 }
 
+func NewRFQRepository(db *gorm.DB) RFQRepository {
+	return &RFQImplementation{DB: db}
+}
+
 func (r *RFQImplementation) CreateNewRFQ(rfq *models.RFQ) error {
 	return r.DB.Create(rfq).Error
 }

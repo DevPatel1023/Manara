@@ -11,6 +11,10 @@ type RFQService struct {
 	repo repository.RFQRepository
 }
 
+func NewRFQService(Repo repository.RFQRepository) *RFQService {
+	return &RFQService{repo: Repo}
+}
+
 func (s *RFQService) CreateNewRFQ(rfq *models.RFQ) error {
 	if rfq.Title == "" || rfq.Description == "" {
 		return errors.New("Title and Description is required")
