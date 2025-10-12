@@ -14,7 +14,7 @@ func RegisterRFQRoutes(router *gin.RouterGroup, rfqController *controllers.RFQCo
 		client := rfq.Group("/")
 		client.Use(middlewares.AuthorizeRole("client"))
 		client.POST("/create", rfqController.CreateNewRFQ)
-		client.PATCH("/updaterfqfield", rfqController.UpdateRFQFields)
+		client.PATCH("/update/:id", rfqController.UpdateRFQFields)
 
 		// Admin + Employee: view & review
 		admin := rfq.Group("/")

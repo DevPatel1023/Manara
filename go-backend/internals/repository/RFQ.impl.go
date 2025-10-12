@@ -19,18 +19,20 @@ func (r *RFQImplementation) CreateNewRFQ(rfq *models.RFQ) error {
 
 func (r *RFQImplementation) GetAllRFQS() ([]models.RFQ, error) {
 	var rfqs []models.RFQ
-	err := r.DB.Preload("Client").Find(&rfqs).Error
+	err := r.DB.Preload("Client", func(db *gorm.DB) *gorm.DB {
+		return db.Omit("password")
+	}).Find(&rfqs).Error
 	return rfqs, err
 }
 
 func (r *RFQImplementation) GetRFQById(id uint) (*models.RFQ, error) {
 	var rfq models.RFQ
-	err := r.DB.Preload("client").Find(&rfq, id).Error
+	err := r.DB.Preload("Client").First(&rfq, id).Error
 	return &rfq, err
 }
 
 func (r *RFQImplementation) UpdateRFQFields(rfq *models.RFQ) error {
-	return r.DB.Where("id = ?", rfq.ID).Save(rfq).Error
+	return r.DB.Where("id = ?", rfq.ID).Updates(rfq).Error
 }
 
 func (r *RFQImplementation) ReviewdRFQ(id uint, status models.RFQStatus) error {
