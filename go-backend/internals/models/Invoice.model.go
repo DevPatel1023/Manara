@@ -1,23 +1,28 @@
 package models
 
 import (
-	"gorm.io/gorm"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type InvoiceStatus string
 
 const (
-	Paid InvoiceStatus = "Paid"
-	Unpaid InvoiceStatus = "Unpaid"
+	Paid    InvoiceStatus = "PAID"
+	Unpaid  InvoiceStatus = "UNPAID"
+	Overdue InvoiceStatus = "OVERDUE"
 )
 
 type Invoice struct {
 	gorm.Model
 
-	ProjectID uint
-	Project Project `gorm:"foreignkey:ProjectID"`
-	Amount uint
-	Status InvoiceStatus
-	IssuedDate time.Time
+	ProjectID     uint
+	Project       Project `gorm:"foreignkey:ProjectID"`
+	ClientID      uint
+	Client        User `gorm:"foreignKey:ClientID"`
+	Amount        uint
+	InvoiceStatus InvoiceStatus
+	IssuedDate    time.Time
+	DueDate       time.Time
 }

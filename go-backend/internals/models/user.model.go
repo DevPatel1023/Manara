@@ -14,8 +14,10 @@ const (
 type User struct {
 	gorm.Model
 
-	Name     string  `gorm:"not null"`
-	Email    *string `gorm:"unique"`
-	Password string  `gorm:"not null" json:"-"`
-	Role     Role    `gorm:"type:varchar(20);default:'Client'"`
+	Name          string  `gorm:"not null"`
+	Email         *string `gorm:"unique"`
+	Password      string  `gorm:"not null" json:"-"`
+	Role          Role    `gorm:"type:varchar(20);default:'Client'"`
+	CompanyName   string  `gorm:"not null"`
+	ContactNumber int     `gorm:"not null"`
 }

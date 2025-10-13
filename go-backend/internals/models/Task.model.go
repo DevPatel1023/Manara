@@ -1,29 +1,38 @@
 package models
 
 import (
-	"gorm.io/gorm"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type TaskStatus string
+type TaskPriority string
 
 const (
-	Todo TaskStatus = "TODO"
+	Low    TaskPriority = "LOW"
+	Medium TaskPriority = "MEDIUM"
+	High   TaskPriority = "HIGH"
+)
+
+const (
+	Todo       TaskStatus = "TODO"
 	InProgress TaskStatus = "INPROGRESS"
-	Done TaskStatus = "DONE"
+	Done       TaskStatus = "DONE"
 )
 
 type Task struct {
 	gorm.Model
 
 	ProjectID uint
-	Project Project `gorm:"foreignKey:ProjectID"`
+	Project   Project `gorm:"foreignKey:ProjectID"`
 
 	AssignedToEMPID uint
-	AssignedTo User `gorm:"foreignKey:AssignedToEMPID"`
+	AssignedTo      User `gorm:"foreignKey:AssignedToEMPID"`
 
-	Title string
+	Title       string
 	Description string
-	Deadline time.Time
-	Status TaskStatus
+	Priority    TaskPriority
+	Deadline    time.Time
+	Status      TaskStatus
 }

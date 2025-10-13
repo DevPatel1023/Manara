@@ -12,7 +12,7 @@ type QuotationService struct {
 }
 
 func (s *QuotationService) CreateNewQuotation(quote models.Quotation) error {
-	if quote.EstimatedCost == 0 || quote.EstimatedCost < 0 || quote.Status == "" {
+	if quote.EstimatedCost == 0 || quote.QuoteStatus == "" {
 		return errors.New("Data is invalid")
 	}
 	return s.repo.CreateNewQuotation(&quote)
