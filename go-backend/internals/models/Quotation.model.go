@@ -19,7 +19,7 @@ type Quotation struct {
 
 	RFQID         uint
 	RFQ           *RFQ `gorm:"foreignKey:RFQID"`
-	EstimatedCost uint
+	EstimatedCost int
 	ValidUntil    time.Time
 	Status        QuotationStatus
 }
