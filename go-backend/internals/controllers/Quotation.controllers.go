@@ -70,3 +70,39 @@ func (ctrl *QuoteController) GetQuotationByID(c *gin.Context) {
 		"Quotes":  quote,
 	})
 }
+
+func (ctrl *QuoteController) UpdateQuotation(c *gin.Context) {
+	var quote models.Quotation
+
+	if err := c.BindJSON(&quote); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := ctrl.service.UpdateQuotation(&quote); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "quote updated successfully",
+		"quote":   quote,
+	})
+}
+
+func (ctrl *QuoteController) UpdateQuotationStatus(c *gin.Context) {
+	id, _ := strconv.Atoi(c.Param("id"))
+
+	var status models.QuotationStatus
+
+	if e := c.BindJSON(status); e != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": e.Error()})
+	}
+
+	if err := ctrl.service.UpdateQuotationStatus(uint(id), &status); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "quote updated successfully",
+	})
+}
