@@ -74,6 +74,14 @@ func (ctrl *QuoteController) GetQuotationByID(c *gin.Context) {
 func (ctrl *QuoteController) UpdateQuotation(c *gin.Context) {
 	var quote models.Quotation
 
+	// get id from url
+	id, e := strconv.Atoi(c.Param("id"))
+
+	if e != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid quotation id"})
+	}
+	quote.ID = uint(id)
+
 	if err := c.BindJSON(&quote); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

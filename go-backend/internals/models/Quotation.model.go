@@ -9,7 +9,7 @@ import (
 type QuotationStatus string
 
 const (
-	QuoteDraft    QuotationStatus = "draft"
+	QuoteDraft    QuotationStatus = "DRAFT"
 	QuoteSent     QuotationStatus = "SENT"
 	QuoteAccepted QuotationStatus = "ACCEPTED"
 	QuoteRejected QuotationStatus = "REJECTED"
@@ -22,6 +22,6 @@ type Quotation struct {
 	RFQ           *RFQ `gorm:"foreignKey:RFQID"`
 	EstimatedCost uint
 	ValidUntil    time.Time
-	QuoteStatus   QuotationStatus
+	QuoteStatus   QuotationStatus `gorm:"type: varChar(20);default:DRAFT"`
 	Remarks       string
 }
