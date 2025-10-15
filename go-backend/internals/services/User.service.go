@@ -19,12 +19,12 @@ func NewUserService(repo repository.UserRepository) *UserService {
 
 func (s *UserService) RegisterUser(user *models.User) error {
 	//  Email & password is required
-	if *user.Email == "" || user.Password == "" {
+	if user.Email == "" || user.Password == "" {
 		return errors.New("email and password are required")
 	}
 
 	// check if email id is already exist
-	existingUser, err := s.Repo.GetUserByEmail(*user.Email)
+	existingUser, err := s.Repo.GetUserByEmail(user.Email)
 	if existingUser != nil {
 		return errors.New("Email already registered")
 	}
@@ -63,7 +63,7 @@ func (s *UserService) LoginUser(email string, password string) (string, error) {
 	}
 
 	// generate jwt token
-	token, err := utils.GenerateJWT(user.ID, user.Name, *user.Email, string(user.Role))
+	token, err := utils.GenerateJWT(user.ID, user.Name, user.Email, string(user.Role))
 
 	if err != nil {
 		return "", errors.New("Error : Jwt generate error")

@@ -5,10 +5,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRoutes(router *gin.Engine, userController *controllers.UserController, rfqController *controllers.RFQController) {
+func SetupRoutes(router *gin.Engine, userController *controllers.UserController, rfqController *controllers.RFQController, quoteController *controllers.QuoteController) {
 	api := router.Group("/api/v1")
 
 	// user routes
 	RegisterUserRoutes(api, userController)
 	RegisterRFQRoutes(api, rfqController)
+	RegisterQuoteRoutes(api, quoteController)
 }
