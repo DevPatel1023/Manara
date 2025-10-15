@@ -36,9 +36,36 @@ func (s *QuotationService) UpdateQuotation(quote *models.Quotation) error {
 	return s.repo.UpdateQuotation(quote)
 }
 
-func (s *QuotationService) UpdateQuotationStatus(id uint, status *models.QuotationStatus) error {
-	if id == 0 || *status == "" {
+func (s *QuotationService) UpdateQuotationStatus(id uint, status models.QuotationStatus, role string) error {
+	var q *models.Quotation
+	var err error
+
+	if id == 0 || status == "" {
 		return errors.New("invalid  data")
 	}
-	return s.repo.UpdateQuotationStatus(id, *status)
+
+	// fetch quotation
+	q, err = s.repo.GetQuotationByID(id)
+	if err != nil {
+		return err
+	}
+
+	switch role {
+	case "admin":
+		if q.QuoteStatus != models.QuoteDraft {
+			return errors.New("admin can only send draft quotation")
+		}
+		if status != models.QuoteSent {
+			return errors.New("admin can only update status to 'sent'")
+		}
+	case "client":
+		if q.QuoteStatus != models.QuoteSent {
+			return errors.New("client can only send update quotation that are 'sent'")
+		}
+		if status != models.QuoteAccepted && status != models.QuoteRejected {
+			return errors.New("client can only update status to 'accept' or 'reject'")
+		}
+	}
+
+	return s.repo.UpdateQuotationStatus(id, status)
 }

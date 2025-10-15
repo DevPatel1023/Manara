@@ -104,9 +104,12 @@ func (ctrl *QuoteController) UpdateQuotationStatus(c *gin.Context) {
 
 	if e := c.BindJSON(status); e != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": e.Error()})
+		return
 	}
 
-	if err := ctrl.service.UpdateQuotationStatus(uint(id), &status); err != nil {
+	userRole := c.GetString("role")
+
+	if err := ctrl.service.UpdateQuotationStatus(uint(id), status, userRole); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
 

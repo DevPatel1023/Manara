@@ -11,30 +11,30 @@ func RegisterQuoteRoutes(router *gin.RouterGroup, quoteController *controllers.Q
 	quote.Use(middlewares.AuthMiddleware())
 
 	// Employee: Create & Update before admin approval
-	emp := quote.Group("")
+	emp := quote.Group("/")
 	emp.Use(middlewares.AuthorizeRole("employee"))
 	{
-		emp.POST("/", quoteController.CreateNewQuotation)  // default status: draft
-		emp.PATCH("/:id", quoteController.UpdateQuotation) // editable while draft
+		emp.POST("/create", quoteController.CreateNewQuotation)   // default status: draft
+		emp.PATCH("/update/:id", quoteController.UpdateQuotation) // editable while draft
 	}
 
 	// Admin: Review & Send to Client
-	admin := quote.Group("")
+	admin := quote.Group("/")
 	admin.Use(middlewares.AuthorizeRole("admin"))
 	{
-		admin.GET("/", quoteController.GetAllQuotations)
+		admin.GET("/all", quoteController.GetAllQuotations)
 		admin.PATCH("/:id/status", quoteController.UpdateQuotationStatus) // draft -> sent
 	}
 
 	// Client: Accept / Reject Quotation
-	client := quote.Group("")
+	client := quote.Group("/")
 	client.Use(middlewares.AuthorizeRole("client"))
 	{
 		client.PATCH("/:id/status", quoteController.UpdateQuotationStatus) // sent -> accepted/rejected
 	}
 
 	// Admin & Employee: View quotation details
-	view := quote.Group("")
+	view := quote.Group("/")
 	view.Use(middlewares.AuthorizeRole("admin", "employee"))
 	{
 		view.GET("/:id", quoteController.GetQuotationByID)
