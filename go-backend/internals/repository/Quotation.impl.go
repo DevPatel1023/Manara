@@ -13,8 +13,8 @@ func NewQuoteRepository(db *gorm.DB) QuotationRepository {
 	return &QuotationImplementation{DB: db}
 }
 
-func (r *QuotationImplementation) CreateNewQuotation(model *models.Quotation) error {
-	return r.DB.Create(model).Error
+func (r *QuotationImplementation) CreateNewQuotation(quote *models.Quotation) error {
+	return r.DB.Preload("RFQ").Create(quote).Error
 }
 
 func (r *QuotationImplementation) GetAllQuotations() ([]models.Quotation, error) {

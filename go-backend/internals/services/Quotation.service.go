@@ -16,9 +16,11 @@ func NewQuoteService(Repo repository.QuotationRepository) *QuotationService {
 }
 
 func (s *QuotationService) CreateNewQuotation(quote models.Quotation) error {
-	if quote.EstimatedCost == 0 || quote.QuoteStatus == "" {
+
+	if quote.EstimatedCost == 0 || quote.QuoteStatus == "" || quote.RFQID == 0 {
 		return errors.New("Data is invalid")
 	}
+
 	return s.repo.CreateNewQuotation(&quote)
 }
 
@@ -69,6 +71,8 @@ func (s *QuotationService) UpdateQuotationStatus(id uint, status models.Quotatio
 		if status != models.QuoteAccepted && status != models.QuoteRejected {
 			return errors.New("client can only update status to 'accept' or 'reject'")
 		}
+	default:
+		return errors.New("error:unauthorized")
 	}
 
 	return s.repo.UpdateQuotationStatus(id, status)

@@ -45,10 +45,10 @@ func main() {
 	rfqService := services.NewRFQService(rfqRepo)
 	rfqController := controllers.NewRFQController(rfqService)
 
-	// 2.rfq layers
-	quoteRepo := repository.NewQuoteRepository(database)
-	quoteService := services.NewQuoteService(quoteRepo)
-	quoteController := controllers.NewQuotationController(quoteService)
+	// 2.quote layers
+	quotationRepo := repository.NewQuoteRepository(database)
+	quotationService := services.NewQuoteService(quotationRepo)
+	quotationController := controllers.NewQuotationController(quotationService)
 
 	// Init Gin
 	router := gin.Default()
@@ -58,7 +58,7 @@ func main() {
 	}
 
 	// Setup routes
-	routes.SetupRoutes(router, userController, rfqController, quoteController)
+	routes.SetupRoutes(router, userController, rfqController, quotationController)
 
 	router.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{"message": "pong"})

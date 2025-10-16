@@ -23,14 +23,15 @@ func RegisterQuoteRoutes(router *gin.RouterGroup, quoteController *controllers.Q
 	admin.Use(middlewares.AuthorizeRole("admin"))
 	{
 		admin.GET("/all", quoteController.GetAllQuotations)
-		admin.PATCH("/:id/status", quoteController.UpdateQuotationStatus) // draft -> sent
 	}
 
-	// Client: Accept / Reject Quotation
-	client := quote.Group("/")
-	client.Use(middlewares.AuthorizeRole("client"))
+	// Client,Admin : Status update of Quotation
+	status := quote.Group("/")
+	status.Use(middlewares.AuthorizeRole("admin", "client"))
 	{
-		client.PATCH("/:id/status", quoteController.UpdateQuotationStatus) // sent -> accepted/rejected
+		status.PATCH("/:id/status", quoteController.UpdateQuotationStatus)
+		//client : sent -> accepted/rejected
+		//admin : draft -> sent
 	}
 
 	// Admin & Employee: View quotation details
