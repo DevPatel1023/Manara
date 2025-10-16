@@ -11,6 +11,10 @@ type QuotationService struct {
 	repo repository.QuotationRepository
 }
 
+func NewQuoteService(Repo repository.QuotationRepository) *QuotationService {
+	return &QuotationService{repo: Repo}
+}
+
 func (s *QuotationService) CreateNewQuotation(quote models.Quotation) error {
 	if quote.EstimatedCost == 0 || quote.QuoteStatus == "" {
 		return errors.New("Data is invalid")

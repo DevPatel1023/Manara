@@ -9,6 +9,10 @@ type QuotationImplementation struct {
 	DB *gorm.DB
 }
 
+func NewQuoteRepository(db *gorm.DB) QuotationRepository {
+	return &QuotationImplementation{DB: db}
+}
+
 func (r *QuotationImplementation) CreateNewQuotation(model *models.Quotation) error {
 	return r.DB.Create(model).Error
 }
