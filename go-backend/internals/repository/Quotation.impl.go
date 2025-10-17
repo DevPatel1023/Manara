@@ -19,11 +19,7 @@ func (r *QuotationImplementation) CreateNewQuotation(quote *models.Quotation) er
 
 func (r *QuotationImplementation) GetAllQuotations() ([]models.Quotation, error) {
 	var quotations []models.Quotation
-	err := r.DB.Preload("RFQ.Client").Preload("RFQ").Find(&quotations).Error
-
-	//fetch all quotes
-	// preload the client data with it
-
+	err := r.DB.Preload("RFQ.Client")..Preload("RFQ").Find(&quotations).Error
 	return quotations, err
 }
 
