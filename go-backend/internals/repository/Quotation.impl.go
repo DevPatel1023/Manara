@@ -34,12 +34,15 @@ func (r *QuotationImplementation) GetQuotationByID(id uint) (*models.Quotation, 
 
 func (r *QuotationImplementation) UpdateQuotation(model *models.Quotation) error {
 	return r.DB.Model(&models.Quotation{}).
-		Where("id = ?", model.ID).
-		Updates(model).Error
+		Where("id = ?", model.ID).Updates(map[string]interface{}{
+		"estimated_cost": model.EstimatedCost,
+		"remarks":        model.Remarks,
+	}).Error
+
 }
 
 func (r *QuotationImplementation) UpdateQuotationStatus(id uint, status models.QuotationStatus) error {
 	return r.DB.Model(&models.Quotation{}).
 		Where("id = ?", id).
-		Update("status", status).Error
+		Update("quote_status", status).Error
 }

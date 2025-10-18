@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/DevPatel1023/Quotation-to-invoice/go-backend/internals/models"
 	"github.com/DevPatel1023/Quotation-to-invoice/go-backend/internals/services"
@@ -11,6 +12,10 @@ import (
 
 type QuoteController struct {
 	service *services.QuotationService
+}
+
+type QuotationStatusPayload struct {
+	Status models.QuotationStatus `json:"status"`
 }
 
 func NewQuotationController(s *services.QuotationService) *QuoteController {
@@ -100,17 +105,18 @@ func (ctrl *QuoteController) UpdateQuotation(c *gin.Context) {
 func (ctrl *QuoteController) UpdateQuotationStatus(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	var status models.QuotationStatus
+	var payload QuotationStatusPayload
 
-	if e := c.BindJSON(status); e != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": e.Error()})
+	if err := c.BindJSON(&payload); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	userRole := c.GetString("role")
+	userRole := strings.ToLower(c.GetString("role"))
 
-	if err := ctrl.service.UpdateQuotationStatus(uint(id), status, userRole); err != nil {
+	if err := ctrl.service.UpdateQuotationStatus(uint(id), payload.Status, userRole); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{

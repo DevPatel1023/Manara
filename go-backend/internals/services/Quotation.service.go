@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/DevPatel1023/Quotation-to-invoice/go-backend/internals/models"
 	"github.com/DevPatel1023/Quotation-to-invoice/go-backend/internals/repository"
@@ -55,6 +56,9 @@ func (s *QuotationService) UpdateQuotationStatus(id uint, status models.Quotatio
 	if err != nil {
 		return err
 	}
+	q.QuoteStatus = models.QuotationStatus(strings.ToUpper(string(q.QuoteStatus)))
+
+	print(status)
 
 	switch role {
 	case "admin":
@@ -64,6 +68,8 @@ func (s *QuotationService) UpdateQuotationStatus(id uint, status models.Quotatio
 		if status != models.QuoteSent {
 			return errors.New("admin can only update status to 'sent'")
 		}
+		q.QuoteStatus = status
+		print("quote status", q.QuoteStatus)
 	case "client":
 		if q.QuoteStatus != models.QuoteSent {
 			return errors.New("client can only send update quotation that are 'sent'")
