@@ -6,10 +6,10 @@ import (
 )
 
 type ProjectRepository interface {
-	createNewProject(p *models.Project) error
+	CreateNewProject(p *models.Project) error
 	GetProjectByID(id uint) (*models.Project, error)
 	GetAllProject() ([]models.Project, error)
-	UpdateProject(p *models.Project) error
+	UpdateProject(p *models.Project, id uint) (*models.Project, error)
 	DeleteProjectByID(id uint) error
 	FilterProjects(opts *types.ProjectFilterOptions) ([]models.Project, error)
 }

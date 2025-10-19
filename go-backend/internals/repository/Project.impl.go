@@ -14,7 +14,7 @@ type ProjectImplementation struct {
 // 	return &ProjectImplementation{DB: db}
 // }
 
-func (r *ProjectImplementation) createNewProject(p *models.Project) error {
+func (r *ProjectImplementation) CreateNewProject(p *models.Project) error {
 	return r.DB.Create(p).Error
 }
 
@@ -41,7 +41,7 @@ func (r *ProjectImplementation) UpdateProject(p *models.Project, id uint) (*mode
 	if err != nil {
 		return nil, err
 	}
-	return p, err
+	return p, nil
 }
 
 func (r *ProjectImplementation) DeleteProjectByID(id uint) error {
@@ -59,6 +59,6 @@ func (r *ProjectImplementation) FilterProjects(opts *types.ProjectFilterOptions)
 		query = query.Where("pstatus = ?", opts.Status)
 	}
 
-	err := query.Preload("Client").Preload("Quotation").Preload("CreatedBy").Find(&projects).Error
+	err := query.Preload("Client").Preload("Quotation").Find(&projects).Error
 	return projects, err
 }
