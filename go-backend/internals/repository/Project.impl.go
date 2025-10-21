@@ -10,9 +10,9 @@ type ProjectImplementation struct {
 	DB *gorm.DB
 }
 
-// func NewProjectRepository(db *gorm.DB) ProjectRepository {
-// 	return &ProjectImplementation{DB: db}
-// }
+func NewProjectRepository(db *gorm.DB) ProjectRepository {
+	return &ProjectImplementation{DB: db}
+}
 
 func (r *ProjectImplementation) CreateNewProject(p *models.Project) error {
 	return r.DB.Create(p).Error
@@ -27,7 +27,7 @@ func (r *ProjectImplementation) GetProjectByID(id uint) (*models.Project, error)
 	return &project, err
 }
 
-func (r *ProjectImplementation) GetAllProjects() ([]models.Project, error) {
+func (r *ProjectImplementation) GetAllProject() ([]models.Project, error) {
 	var projects []models.Project
 	err := r.DB.Preload("Client").Preload("Quotation").Find(&projects).Error
 	if err != nil {

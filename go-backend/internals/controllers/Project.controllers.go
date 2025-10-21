@@ -14,6 +14,10 @@ type ProjectController struct {
 	s *services.ProjectService
 }
 
+func NewProjectController(s *services.ProjectService) *ProjectController {
+	return &ProjectController{s: s}
+}
+
 func (ctrl *ProjectController) CreateNewProject(c *gin.Context) {
 	var newProject models.Project
 
