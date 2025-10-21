@@ -18,7 +18,7 @@ func NewProjectService(repo repository.ProjectRepository) *ProjectService {
 
 func (s *ProjectService) CreateNewProject(project *models.Project) error {
 
-	if project.Name == "" || project.ClientID == 0 || project.Description == "" || project.QuotationID == 0 || project.Pstatus == "" {
+	if project.Name == "" || project.ClientID == 0 || project.Description == "" || project.QuotationID == 0 {
 		return errors.New("project fields are required")
 	}
 
@@ -38,7 +38,7 @@ func (s *ProjectService) GetProjectByID(id uint) (*models.Project, error) {
 
 func (s *ProjectService) UpdateProject(p *models.Project, id uint) (*models.Project, error) {
 
-	if id == 0 || p.Name == "" || p.Description == "" || p.Pstatus == "" {
+	if id == 0 || p.Name == "" || p.Description == "" {
 		return nil, errors.New("project fields (name, description, status) are required")
 	}
 	return s.repo.UpdateProject(p, id)
