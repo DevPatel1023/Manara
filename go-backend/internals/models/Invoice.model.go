@@ -22,7 +22,7 @@ type Invoice struct {
 	ClientID      uint
 	Client        User `gorm:"foreignKey:ClientID"`
 	Amount        uint
-	InvoiceStatus InvoiceStatus
+	InvoiceStatus InvoiceStatus `gorm:"type:varchar(20);default:'UNPAID'"`
 	IssuedDate    time.Time
 	DueDate       time.Time
 }
