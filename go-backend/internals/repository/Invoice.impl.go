@@ -15,7 +15,7 @@ func (r *InvoiceImplementation) CreateNewInvoice(p *models.Invoice) error {
 
 func (r *InvoiceImplementation) GetInvoiceByID(id uint) (*models.Invoice, error) {
 	var invoice models.Invoice
-	err := r.DB.Preload("Client").First(&invoice, id).Error
+	err := r.DB.Preload("Project").Preload("Client").First(&invoice, id).Error
 	if err != nil {
 		return nil, err
 	}
@@ -24,7 +24,7 @@ func (r *InvoiceImplementation) GetInvoiceByID(id uint) (*models.Invoice, error)
 
 func (r *InvoiceImplementation) GetAllInvoices() ([]models.Invoice, error) {
 	var invoices []models.Invoice
-	err := r.DB.Preload("Client").Find(&invoices).Error
+	err := r.DB.Preload("Project").Preload("Client").Find(&invoices).Error
 	if err != nil {
 		return nil, err
 	}
@@ -54,9 +54,6 @@ func (r *InvoiceImplementation) GetInvoicesByCustomerID(id uint) ([]models.Invoi
 
 func (r *InvoiceImplementation) GetInvoicesByStatus(status string) ([]models.Invoice, error) {
 	var invoices []models.Invoice
-	err := r.DB.Where("InvoiceStatus = ?", status).Find(&invoices).Error
-	if err != nil {
-		return nil, err
-	}
-	return invoices, nil
+	err := r.DB.Preload("Client").Preload("Project").Where("invoice_status = ?", status).Find(&invoices).Error
+	return invoices, err
 }
