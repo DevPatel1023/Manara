@@ -9,6 +9,7 @@ import (
 
 	"github.com/DevPatel1023/Quotation-to-invoice/go-backend/internals/controllers"
 	"github.com/DevPatel1023/Quotation-to-invoice/go-backend/internals/db"
+	ratelimit "github.com/DevPatel1023/Quotation-to-invoice/go-backend/internals/rate_limit"
 	"github.com/DevPatel1023/Quotation-to-invoice/go-backend/internals/repository"
 	"github.com/DevPatel1023/Quotation-to-invoice/go-backend/internals/services"
 	"github.com/DevPatel1023/Quotation-to-invoice/go-backend/routes"
@@ -61,6 +62,9 @@ func main() {
 	if err != nil {
 		log.Fatal("Failed to set trusted proxies:", err)
 	}
+
+	// add rate limiter
+	router.Use(ratelimit.RateLimiter)
 
 	// Setup routes
 	routes.SetupRoutes(router, userController, rfqController, quotationController, projectController)
