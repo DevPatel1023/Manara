@@ -1,110 +1,109 @@
-# Quotation to Invoice Management System
+<div align="center">
 
-This project is a full-stack web application for managing Requests for Quotation (RFQs), Quotations, Purchase Orders (POs), and Invoices. It supports role-based access for **Admin**, **Client**, and **Employee**, offering customized dashboards and workflows for each role.
+# Manara
 
-## 🚀 Features
+### Service. Structured. Scaled.
 
-- Role-based authentication and dashboards (Admin, Client, Employee)
-- RFQ creation and management
-- Quotation submissions and approvals
-- PO assignment and tracking
-- Invoice generation based on approved POs
-- Responsive frontend with modern UI/UX
-
-## 🛠️ Tech Stack
-
-- **Frontend**: React.js, Tailwind CSS
-- **Backend**: Node.js, Express.js
-- **Database**: MongoDB (Mongoose ODM)
-- **Authentication**: JWT
-- **Other Tools**: Axios, React Hook Form,React dom router, dotenv
-
-## 📁 Folder Structure (Brief)
-
-```
-├── backend
-│   ├── models/
-│   ├── routes/
-│   ├── controllers/
-│   ├── middleware/
-│   └── server.js
-├── frontend
-│   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   └── App.js
-├── .env
-├── package.json
-├── README.md
-```
-
-## 📦 Setup & Installation
-
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/DevPatel1023/Quotation-to-invoice.git
-cd Quotation to Invoice
-```
-
-### 2. Backend Setup
-
-```bash
-cd backend
-npm install
-```
-
-- Create a `.env` file in the backend folder:
-
-```
-PORT=5000
-MONGO_URI=your_mongo_connection_string
-JWT_SECRET=your_jwt_secret
-ACCESS_ID = your_access_id
-```
-
-### 3. Frontend Setup
-
-```bash
-cd ../frontend
-npm install
-```
-
-
-## 🏃 Running the App
-
-### Backend
-
-```bash
-cd backend
-nodemon index.js
-```
-
-### Frontend
-
-```bash
-cd frontend
-npm run dev
-```
-
-The app will be running at:  
-- Frontend: `http://localhost:5173`  
-- Backend: `http://localhost:3000`
-
-## 📌 Usage
-
-- **Client**: Can register/login, submit RFQs, and view Quotation,submit Po,view and download Invoice.
-- **Admin**: Can manage all RFQs, Quotations, POs, Invoices, and assign tasks to employees.
-- **Employee**: Can view assigned rfqs and submit Quotations.
-
-## 📊 Future Enhancements
-
-- Email notifications
-- Payment integration
-- Project Mangement
-- Employee Management
-- Task distribution and management
+</div>
 
 ---
 
-# move the project to next js for frontend and go lang for backend  
+## Overview
+
+Manara is a B2B Service Lifecycle Management platform that unifies commercial workflows and project execution into a single structured system.
+
+It enables organizations providing software services, professional services, or physical goods to manage the complete lifecycle:
+
+RFQ → Internal Review → Quotation → Client Approval → Project Breakdown → Milestone Completion → Invoice → Payment Tracking → Lifecycle Analytics
+
+Manara bridges the operational gap between commercial approval and execution delivery, ensuring structured processes, financial control, and scalable growth.
+
+---
+
+## Build with -
+
+- Next.js
+- Go
+- PostgreSQL
+- Prisma ORM
+- Docker
+- REST API Architecture
+- JWT-based Authentication
+- Role-Based Access Control (RBAC)
+
+---
+
+
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+Ensure the following tools are installed:
+
+- Node.js (v18 or later)
+- npm
+- Go (v1.21 or later)
+- PostgreSQL
+- Docker (optional)
+
+---
+
+## Local Development Setup
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/DevPatel1023/Manara
+```
+
+### 2. Go to the project folder
+
+```bash
+cd manara
+```
+### 3. setup .env files
+
+#### a. backend .env file
+
+-- create .env file 
+```bash
+cd backend
+touch .env
+```
+-- copy .env.example to .env
+```bash
+cp .env.example .env
+```
+
+#### b. frontend .env file
+
+-- create .env.local 
+```bash
+cd frontend
+touch .env.local
+```
+-- copy .env.local.example to .env.local
+```bash
+cp .env.local.example .env.local
+```
+
+### 4. Run the Application
+
+```bash
+docker-compose up --build
+```
+
+Services will start:
+
+Frontend → http://localhost:3000
+
+Backend → http://localhost:8080
+
+PostgreSQL → running inside Docker
+
+## License
+
+This project is licensed under the MIT License – see the LICENSE file for details.

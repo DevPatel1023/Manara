@@ -1,0 +1,35 @@
+package db
+
+import (
+	"log"
+
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+
+	"github.com/DevPatel1023/Quotation-to-invoice/go-backend/internals/models"
+)
+
+var DB *gorm.DB
+
+// ConnectDB connects to Postgres with given DSN and migrates models
+func ConnectDB(dsn string) *gorm.DB {
+	database, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		log.Fatal("Failed to connect to database:", err)
+	}
+
+	// Assign to global variable
+	DB = database
+
+	var dbModels = []interface{}{&models.User{}, &models.RFQ{}, &models.Quotation{}, &models.Invoice{}, &models.Project{},
+		&models.Task{}}
+	// AutoMigrate all models
+	err = DB.AutoMigrate(dbModels...)
+
+	if err != nil {
+		log.Fatal("Migration failed:", err)
+	}
+
+	log.Println(" Database connected and migrated successfully")
+	return database
+}
