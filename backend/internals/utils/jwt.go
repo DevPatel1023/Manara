@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 )
 
 var jwtSecret = []byte(os.Getenv("JWT_SECRET"))
@@ -20,7 +21,7 @@ type SignedDetails struct {
 }
 
 // Generate JWT token
-func GenerateJWT(userID uint, name string, email string, role string) (string, error) {
+func GenerateJWT(userID uuid.UUID, name string, email string, role string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256,
 		jwt.MapClaims{
 			"sub":      userID,
