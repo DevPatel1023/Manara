@@ -63,8 +63,7 @@ func (s *UserService) LoginUser(email string, password string) (string, error) {
 	}
 
 	// generate jwt token
-	userID := user.ID.String()
-	token, err := utils.GenerateJWT(userID, user.Name, user.Email, string(user.Role))
+	token, err := utils.GenerateJWT(user.ID, user.Name, user.Email, string(user.Role))
 
 	if err != nil {
 		return "", errors.New("Error : Jwt generate error")
