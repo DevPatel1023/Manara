@@ -3,7 +3,7 @@ package models
 import (
 	"time"
 
-	"gorm.io/gorm"
+	"github.com/google/uuid"
 )
 
 type QuotationStatus string
@@ -16,12 +16,19 @@ const (
 )
 
 type Quotation struct {
-	gorm.Model
+	ID          uuid.UUID
+	QuotationNo uint `json:"quotation_id;autoIncrement"`
 
 	RFQID         uint
-	RFQ           *RFQ `gorm:"foreignKey:RFQID"`
+	RFQ           *RFQ      `gorm:"foreignKey:RFQID"`
+	CreatedBy     uuid.UUID `gorm:"type:uuid;not null"`
+	User          User      `gorm:"foriegnKey:CreatedBy"`
 	EstimatedCost uint
+	TaxAmount     float32
+	TotalAmount   float32
 	ValidUntil    time.Time
 	QuoteStatus   QuotationStatus `gorm:"type: varChar(20);default:DRAFT"`
 	Remarks       string
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
 }
